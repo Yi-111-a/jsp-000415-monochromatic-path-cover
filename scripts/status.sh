@@ -9,7 +9,8 @@ SORRY=$(grep -rIn --include='*.lean' -E '\b(sorry|admit)\b' --exclude-dir=.lake 
 SORRY_FILES=$(grep -rIl --include='*.lean' -E '\b(sorry|admit)\b' --exclude-dir=.lake lean | sed 's|^|\"|;s|$|\"|' | paste -sd, -)
 THMS=$(grep -rIn --include='*.lean' -cE '^[[:space:]]*(theorem|lemma)' --exclude-dir=.lake lean | awk -F: '{s+=$2} END{print s+0}')
 OLEAN=$(find lean/.lake/build/lib -name '*.olean' 2>/dev/null | wc -l | tr -d ' ')
-LAST_LOG=$(grep -c 'RESULT: GREEN' HARNESS_LOG.md 2>/dev/null || echo 0)
+LAST_LOG=0
+[ -f HARNESS_LOG.md ] && LAST_LOG=$(grep -c 'RESULT: GREEN' HARNESS_LOG.md || true)
 
 cat <<EOF
 {
