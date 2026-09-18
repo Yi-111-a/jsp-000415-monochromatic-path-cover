@@ -1,4 +1,5 @@
 import JSP415.Defs
+import Mathlib.Combinatorics.SimpleGraph.Finite
 
 /-!
 # Bipartite lemmas (PVW24 Section 2)
@@ -42,8 +43,8 @@ theorem bip_ramsey_path (G : SimpleGraph V) (X Y : Finset V)
     (hXY : Disjoint X Y) {k ℓ : ℕ} (hkl : k ≠ ℓ)
     (hX : X.card = (k + ℓ + 1) / 2) (hY : Y.card = (k + ℓ + 1) / 2) :
     ∃ p : VertPath V,
-      (p.toList.Chain' (Color.adjXY G X Y .red) ∧ k + 1 ≤ p.toList.length) ∨
-      (p.toList.Chain' (Color.adjXY G X Y .blue) ∧ ℓ + 1 ≤ p.toList.length) := by
+      (p.toList.IsChain (Color.adjXY G X Y .red) ∧ k + 1 ≤ p.toList.length) ∨
+      (p.toList.IsChain (Color.adjXY G X Y .blue) ∧ ℓ + 1 ≤ p.toList.length) := by
   sorry
 
 /-- **PVW24 Lemma 2.2.**  If every vertex of `Y` has degree at least
@@ -52,7 +53,7 @@ all of `Y`, with `2|Y|` vertices. -/
 theorem path_cover_two_mul (G : SimpleGraph V) [DecidableRel G.Adj]
     (X Y : Finset V) (hbip : BipartiteOn G X Y)
     (hdeg : ∀ y ∈ Y, 2 * (G.neighborFinset y).card ≥ X.card + Y.card) :
-    ∃ p : VertPath V, p.toList.Chain' G.Adj ∧
+    ∃ p : VertPath V, p.toList.IsChain G.Adj ∧
       (∀ v ∈ p.toList, v ∈ X ∪ Y) ∧ (∀ y ∈ Y, y ∈ p) ∧
       p.toList.length = 2 * Y.card := by
   sorry
@@ -65,12 +66,12 @@ theorem few_paths_of_min_degree (G : SimpleGraph V) [DecidableRel G.Adj]
     (hY : 0 < Y.card)
     (hcard : Y.card + 2 * m ≤ X.card)
     (hdeg : ∀ y ∈ Y, (G.neighborFinset y).card ≥ X.card - m) :
-    ∃ 𝒫 : Finset (VertPath V),
-      (∀ p ∈ 𝒫, p.toList.Chain' G.Adj) ∧
-      (∀ p ∈ 𝒫, ∀ v ∈ p.toList, v ∈ X ∪ Y) ∧
-      (∀ y ∈ Y, ∃ p ∈ 𝒫, y ∈ p) ∧
-      𝒫.card ≤ X.card / Y.card ∧
-      (X \ 𝒫.biUnion VertPath.verts).card ≤ Y.card + 2 * m := by
+    ∃ P : Finset (VertPath V),
+      (∀ p ∈ P, p.toList.IsChain G.Adj) ∧
+      (∀ p ∈ P, ∀ v ∈ p.toList, v ∈ X ∪ Y) ∧
+      (∀ y ∈ Y, ∃ p ∈ P, y ∈ p) ∧
+      P.card ≤ X.card / Y.card ∧
+      (X \ P.biUnion VertPath.verts).card ≤ Y.card + 2 * m := by
   sorry
 
 /-- **PVW24 Lemma 2.4.**  Refined covering lemma: with
@@ -84,10 +85,10 @@ theorem refined_path_cover (G : SimpleGraph V) [DecidableRel G.Adj]
     (hcond : (X \ fullNbr G X Y = ∅ ∧ Y \ fullNbr G Y X = ∅) ∨
       ((fullNbr G X Y).card : ℝ) / ((Y \ fullNbr G Y X).card : ℝ) >
         2 * ((X \ fullNbr G X Y).card : ℝ) / ((fullNbr G Y X).card : ℝ)) :
-    ∃ 𝒫 : Finset (VertPath V),
-      (∀ p ∈ 𝒫, p.toList.Chain' G.Adj) ∧
-      (∀ v ∈ X ∪ Y, ∃ p ∈ 𝒫, v ∈ p) ∧
-      𝒫.card ≤ (X.card + Y.card) / (Y.card + 1) := by
+    ∃ P : Finset (VertPath V),
+      (∀ p ∈ P, p.toList.IsChain G.Adj) ∧
+      (∀ v ∈ X ∪ Y, ∃ p ∈ P, v ∈ p) ∧
+      P.card ≤ (X.card + Y.card) / (Y.card + 1) := by
   sorry
 
 end JSP415

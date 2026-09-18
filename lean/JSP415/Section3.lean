@@ -58,29 +58,14 @@ theorem long_path_structure {n : ℕ} {C₁ C₂ : ℝ} (hC : C₂ ≤ C₁)
     ∃ c : Color, ∃ P : VertPath (Fin n), P.IsMonochromatic G c ∧
       ((n : ℝ) - P.toList.length ≤ Real.sqrt n + 10 * (C₁ - C₂ + 1) * n ^ ((1 : ℝ) / 4)) ∧
       ∀ y ∉ P.toList,
-        ((P.toList.toFinset.filter fun x ↦ Color.adj G c x y).card : ℝ) ≤
+        (Set.ncard {x : Fin n | x ∈ P.toList ∧ Color.adj G c x y} : ℝ) ≤
           2 * (C₁ - C₂ + 1) * Real.sqrt n := by
   sorry
 
-/-- **PVW24 Lemma 3.3 (tail pairing).**  If `P` is a blue path and `Y₀ ⊆ Y` is
-the set of leftover vertices with no blue edge to `P`, then
-`f(n,χ) ≤ 1 + ⌈|Y ∖ Y₀|/2⌉ + |Y₀| < 2 + |Y|/2 + |Y₀|/2`. -/
+/-- **PVW24 Lemma 3.3 (tail pairing).**  If `P` is a blue path, `Y = [n] ∖ V(P)`
+and `Y₀ ⊆ Y` is the set of leftover vertices with no blue edge to `P`, then
+`f(n,χ) < 2 + |Y|/2 + |Y₀|/2` (in fact `f ≤ 1 + ⌈|Y ∖ Y₀|/2⌉ + |Y₀|`). -/
 theorem tail_pairing_bound {n : ℕ} (G : SimpleGraph (Fin n))
-    (P : VertPath (Fin n)) (hP : P.IsMonochromatic G .blue) :
-    HasCoverLe G
-      (1 + ((univ.filter (· ∉ P.toList)) \
-            (univ.filter fun y ↦ y ∉ P.toList ∧
-              ∀ x ∈ P.toList, ¬ Color.adj G .blue x y)).card / 2 +
-       ((univ.filter (· ∉ P.toList)) \
-            (univ.filter fun y ↦ y ∉ P.toList ∧
-              ∀ x ∈ P.toList, ¬ Color.adj G .blue x y)).card % 2 +
-       (univ.filter fun y ↦ y ∉ P.toList ∧
-              ∀ x ∈ P.toList, ¬ Color.adj G .blue x y).card : ℝ) := by
-  sorry
-
-/-- **PVW24 Lemma 3.3, usable form.**  With `Y = [n] ∖ V(P)` and `Y₀ ⊆ Y` the
-vertices with no blue edge to `P`, `f(n,χ) < 2 + |Y|/2 + |Y₀|/2`. -/
-theorem tail_pairing_bound' {n : ℕ} (G : SimpleGraph (Fin n))
     (P : VertPath (Fin n)) (hP : P.IsMonochromatic G .blue)
     (Y Y₀ : Finset (Fin n))
     (hY : ∀ y, y ∈ Y ↔ y ∉ P.toList)
@@ -99,8 +84,8 @@ theorem weak_sqrt_bound (n : ℕ) :
 monochromatic paths, all of the same colour. -/
 theorem monochromatic_path_cover {n : ℕ} (hn : 20 ^ 40 < n)
     (G : SimpleGraph (Fin n)) :
-    ∃ c : Color, ∃ 𝒫 : Finset (VertPath (Fin n)),
-      IsSameColorCover G c 𝒫 ∧ (𝒫.card : ℝ) ≤ Real.sqrt n := by
+    ∃ c : Color, ∃ P : Finset (VertPath (Fin n)),
+      IsSameColorCover G c P ∧ (P.card : ℝ) ≤ Real.sqrt n := by
   sorry
 
 end JSP415
