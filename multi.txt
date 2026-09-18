@@ -1,0 +1,755 @@
+Multicolour bipartite Ramsey number of paths
+
+Matija Buci´c
+
+Shoham Letzter
+
+Benny Sudakov
+
+Abstract The k-colour bipartite Ramsey number of a bipartite graph H is the least integer N for which every k-edge-coloured complete bipartite graph KN,N contains a monochromatic copy of H. The study of bipartite Ramsey numbers was initiated over 40 years ago by Faudree and Schelp and, independently, by Gya´rfa´s and Lehel, who determined the 2-colour bipartite Ramsey number of paths. Recently the 3-colour Ramsey number of paths and (even) cycles, was essentially determined as well. Improving the results of DeBiasio, Gya´rf´as, Krueger, Ruszink´o, and S´arko¨zy, in this paper we determine asymptotically the 4-colour bipartite Ramsey number of paths and cycles. We also provide new upper bounds on the k-colour bipartite Ramsey numbers of paths and cycles which are close to being tight.
+1 Introduction
+Ramsey theory refers to a large body of mathematical results, which roughly say that any sufficiently large structure is guaranteed to have a large well-organised substructure. For example, the celebrated theorem of Ramsey [18] says that for any fixed graph H, every k-edge-colouring of a sufficiently large complete graph contains a monochromatic copy of H. The k-colour Ramsey number of H is defined to be the smallest order of a complete graph satisfying this property.
+Despite significant attention paid to Ramsey problems, there are very few examples of families of graphs whose Ramsey numbers are known exactly, or even just asymptotically. An early example of an exact Ramsey result was obtained in 1967 by Gerencs´er and Gya´rf´as [8], who determined the 2-colour Ramsey number of paths. Ramsey numbers of paths and cycles have since been studied extensively, and they are known precisely for two and three colours (in most cases only for sufficiently large n), see [1, 6, 10, 13, 17, 19]. However, despite extensive research, less is known for more than three colours. A rare exception is a recent result of Jenssen and Skokan [11], who showed that the k-colour Ramsey number of an odd cycle Cn is exactly 2k-1(n - 1) + 1 for all sufficiently large n; interestingly, this does not hold for all k and n, see Day and Johnson [4]. For a path Pn, the k-colour Ramsey number is known to be at least (k - 1 + o(1))n (see Yongqi, Yuansheng, Fengand and Bingxi [21]), and at most (k - 1/2 + o(1))n (see Knierim and Su [14]); the same bounds also hold for even cycles Cn.
+Over the years, many generalisations of Ramsey numbers have been considered (an excellent survey [3] by Conlon, Fox and Sudakov contains many examples); one natural example that we consider here
+Department of Mathematics, ETH, 8092 Zurich; e-mail: matija.bucic@math.ethz.ch. ETH Institute for Theoretical Studies, ETH, 8092 Zurich; e-mail: shoham.letzter@eth-its.ethz.ch. Research supported by Dr. Max Ro¨ssler, the Walter Haefner Foundation and by the ETH Zurich Foundation. Department of Mathematics, ETH, 8092 Zurich; e-mail: benjamin.sudakov@math.ethz.ch. Research supported in part by SNSF grant 200021-175573.
+1
+
+is obtained by replacing the underlying complete graph by a complete bipartite graph. In particular, the k-colour bipartite Ramsey number of a bipartite graph H is the least integer N such that in any k-colouring of the complete bipartite graph KN,N there is a monochromatic copy of H.
+The study of bipartite Ramsey numbers was initiated in the early 70s by Faudree and Schelp [7] and independently Gy´arfa´s and Lehel [9] who determined the 2-colour bipartite Ramsey numbers of paths; see also [12, 22, 23] for some results regarding the natural extension to cycles. Recently, we [2] determined, asymptotically, the 3-colour Ramsey number of a path or a cycle of length 2n, showing that it is equal to (3 + o(1))n. Further related results were obtained by [15, 16].
+Similarly to the standard Ramsey numbers, less is known regarding bipartite path-or-cycle Ramsey numbers for more than three colours. The best known lower bound for the k-colour bipartite Ramsey number of a path or a cycle of length 2n is 5n for k = 4 and (2k - 4)n for k  5, while the best known upper bound is k(1 + 1 - 2/k + o(1))n (which is roughly (2k - 1 + o(1))n for large k). Both results are due to DeBiasio, Gya´rfa´s, Krueger, Ruszink´o and S´ark¨ozy [5] who also say that obtaining improvement to either of these bounds would be very interesting.
+In this paper we achieve this, improving the best known upper bound for all k  4.
+Theorem 1. Let k  4. The k-colour bipartite Ramsey number of a cycle or path of order 2n is at most (2k - 3 + o(1))n.
+
+As an immediate corollary (using the lower bound mentioned above, see also Observation 16), we determine, asymptotically, the 4-colour bipartite Ramsey number of a path or a cycle.
+Corollary 2. The 4-colour bipartite Ramsey number of a cycle or path of order 2n is (5 + o(1))n.
+
+For larger k, we are able to use our methods to improve on Theorem 1.
+
+Theorem 3. Let k  8. The k-colour bipartite Ramsey number of a cycle or path of order 2n is at
+
+most
+
+2k
+
+-
+
+3.5
+
++
+
+1 k-2
+
++
+
+o(1)
+
+n.
+
+We believe that the correct bound may be close to the latter theorem, namely about (2k -3.5+o(1))n. As evidence, we give such a lower bound for k = 5 which was initially found with the help of a computer. Despite our best efforts, we have not been able (either by computer search or by hand) to extend this bound to larger values of k. Nevertheless, we believe that such a bound may hold for all k  5.
+Theorem 4. The 5-colour bipartite Ramsey number of a cycle or path of order 2(n + 1) is larger than 6.5n.
+
+1.1 Organisation of the paper
+In our proofs we use Luczak's method of converting problems about cycles and paths to problems about connected matchings. The method requires us to work with the so-called reduced graph, obtained by applying Szemer´edi's regularity lemma, and look for a monochromatic connected matching (i.e. a matching that is contained in a monochromatic component) in this graph, which is almost complete bipartite. In our previous paper [2], we showed that it suffices to consider connected matchings in complete bipartite graphs; we give more details on these two topics in Section 3. Our main
+2
+
+efforts are thus devoted to the problem of finding monochromatic connected matchings in k-coloured complete bipartite graphs, which we consider in Section 2. We describe the lower bound mentioned in Theorem 4, as well as the best known lower bounds for general k, in Section 4. We conclude the paper in Section 5 with some remarks and open problems.
+2 Monochromatic connected matchings in Kn,n
+A connected matching in a graph H is a matching that is contained in a connected component of H, and a connected k-matching is a connected matching that consists of k edges. In an edge-coloured graph H, a c-coloured connected matching is a connected matching in the subgraph of H whose edges are the edges of H of colour c. We shall use the notation CM(n) to denote the family of connected n-matchings. We write G -k F if in every k-colouring of G there is a monochromatic copy of some graph in F, where F is some family of graphs. In particular, G -k CM(n) means that in every k-colouring of G there is a monochromatic connected n-matching. Let rk(n) denote the smallest integer N such that for any k-colouring of KN,N there is a monochromatic connected n-matching. In this section we shall prove upper bounds on rk(n + 1), from which Theorems 1 and 3 can be deduced, using Luczak's method and our Theorem 15. We shall make use of the following result which we proved in [2].
+Theorem 5. r3(n + 1) = 3n + 1.
+We begin by setting the stage and proving some simple propositions. Throughout this section, let G be a k-coloured KN,M , and denote its bipartition by {X, Y }, where |X| = N and |Y | = M . We assume that G does not have a monochromatic connected (n + 1)-matching. Let C1, . . . , Ct denote all the monochromatic components of G and let c(i) denote the colour of component Ci. By Ko¨nig's theorem, each monochromatic component has a cover of size at most n; fix a minimum cover i for Ci, so |i|  n. Let us start by observing a simple property.
+Claim 6. Let v be a vertex and suppose that it is incident with at least n + 1 edges of colour c. Then v  i for some i with c(i) = c.
+Proof. We call the colour c red. Let Ci be the red component that contains v (so v  V (Ci) and c(i) = c). We know, since |i|  n, that at least one of the red neighbours of v is not in i, say w. Since the edge vw is covered by i, it follows that v  V (Ci), as claimed.
+We will always have N, M  kn + 1 in our arguments since otherwise it is easy to find a k-colouring of KN,M without monochromatic connected (n + 1)-matchings. This implies that every vertex has degree at least n + 1 in some colour. By Claim 6, every vertex belongs to some i. We say that a vertex is special if it belongs to exactly one i, in which case we say that it is special of colour c(i). Let us prove some simple properties of special vertices. We call a component special if it contains a special vertex of its colour.
+Proposition 7. The following assertions hold.
+(1) Let v  X be a red special vertex. Then v has red degree at least M - (k - 1)n. Similarly, if v  Y is a red special vertex then it has red degree at least N - (k - 1)n.
+3
+
+(2) If there are two distinct special red components then all red special vertices belong to the same side of the bipartition.
+
+Proof. For (1) notice that since v is special in red it has degree at most n in every colour other than red, by Claim 6. In particular, since v has degree M in G and there are k - 1 colours other than red, its red degree is at least M - (k - 1)n.
+For (2) assume to the contrary that there are two red special vertices v and w, where v  X and w  Y and they belong to different red components. The edge vw is not coloured red since v and w belong to different red components, so say that vw is blue. But if Ci is the blue component containing the edge vw then at least one of v and w belongs to i, and in particular it is not a red special vertex, a contradiction.
+
+We say that a vertex v  i is somewhat special in colour c(i) if it is not c(i) special and there is a c(i)
+
+special vertex in Ci on the other side of the bipartition from v. For a component Ci let ti denote the
+
+number of somewhat special vertices of colour c(i) in Ci, and let T =
+
+t i=1
+
+ti.
+
+The
+
+double
+
+counting
+
+argument in the next lemma gives us a lower bound on the number of special vertices and is at the
+
+heart of most of our arguments.
+
+Before proceeding, let us give some intuition behind the concept of somewhat special vertices. Given a red component Ci, which contains a red special vertex in part X of the bipartition, by Proposition 7 (1) we know that Y  Ci is pretty big. Notice that all the vertices of i  Y are somewhat special and moreover Ci \ i spans no red edges, thus if we can show that Ci contains only a few somewhat special vertices we obtain a rather large set not spanning any red edges. This set can be used to induct on the number of colours. The term depending on the somewhat special vertices in the following lemma allows us to show that there will indeed be few somewhat special vertices in each special component.
+
+Lemma 8. There are at least N M/n - (N + M )(k - 2) + T (min(N, M )/n - k) special vertices.
+
+Proof. Let P be the set of pairs (v, e) where v  i and e is an edge of colour c(i) incident to v, for some i.
+
+Given an edge e, let c be its colour, and let Ci be the component of colour c that contains e. Since
+
+i is a cover of Ci, it contains one of the vertices in e, so there is at least one pair in P that contains
+
+e. In particular,
+
+|P|  N M.
+
+(1)
+
+On the other hand, given i, write xi = |i  X| and yi = |i  Y |, and let zi = |(V (Ci)  X) \ i| and wi = |(V (Ci)  Y ) \ i|. In particular, xi + yi = |i|  n and xi + yi + zi + wi = |Ci|. Moreover, as i is a minimum cover of Ci of size xi + yi, and V (Ci)  X is another cover of Ci, of size xi + zi, we find that zi  yi; similarly, wi  xi.
+In fact, we know more: if there is a special vertex of Ci in Y then, by Proposition 7 (1), xi + zi  N - (k - 1)n implying that zi - yi  N - (k - 1)n - xi - yi  N - kn. Similarly if Ci has a special vertex in X then wi - xi  M - kn. We claim that the following inequality holds, where ti is the number of somewhat special vertices in Ci.
+
+xi(zi - yi) + yi(wi - xi)  ti(min(N, M ) - kn).
+
+(2)
+
+4
+
+Indeed, if Ci is not a special component, then ti = 0 and the inequality follows from the observation that zi  yi and wi  xi. Now suppose that Ci is a special component, but all its special vertices (in colour c(i)) appear in one side of the bipartition, say X. Then ti  yi, hence, as explained above, yi(wi - xi)  yi(M - kn)  ti(min(N, M ) - kn). Finally, if Ci contains special vertices in both sides of the bipartition, then xi(zi -yi)+yi(wi -xi)  xi(N -kn)+yi(M -kn)  (xi +yi)(min(N, M )-kn)  ti(min(N, M ) - kn), where the last inequality holds because, trivially, ti  xi + yi.
+Now let us count the number of pairs (v, e) in P for which e is an edge of Ci. Let e = vw be an edge of Ci. If both v and w are in i then e appears in two pairs of P, and otherwise it appears in exactly one pair in P. As there are at most xiyi edges of the former type and at most xiwi + yizi of the latter type, we find that the number of pairs in P that contain an edge from Ci is bounded from above by
+
+2xiyi + ziyi + wixi = (zi + wi)(xi + yi) - xi(zi - yi) - yi(wi - xi)  (|Ci| - xi - yi)n - ti(min(N, M ) - kn) = (|Ci| - |i|)n - ti(min(N, M ) - kn).
+
+where we used the inequality in (2) for the inequality. Summing over all components we obtain:
+
+t
+
+min(N, M )
+
+|P| 
+
+|Ci| - |i| - ti
+
+-k n n
+
+i=1
+
+(3)
+
+t
+
+min(N, M )
+
+= (N + M )kn - |i|n - T
+
+- k n, n
+
+i=1
+
+where we used the fact that the sum of sizes of components of any given colour is N + M , because every vertex belongs to exactly one component of each colour.
+
+By comparing (1) and (3) we find that
+
+t
+
+NM
+
+min(N, M )
+
+|i|  (N + M )k - n - T
+
+-k . n
+
+(4)
+
+i=1
+
+Finally, denote the number of special vertices by s. Since every vertex is in at least one set i and
+
+every non-special vertex is in at least two such sets, we have
+
+t i=1
+
+|i|
+
+
+
+2(N
+
++ M ) - s.
+
+Combining
+
+this with (4) we obtain the inequality
+
+NM
+
+min(N, M )
+
+s
+
+- (N + M )(k - 2) + T
+
+-k ,
+
+n
+
+n
+
+as desired.
+
+Let us now use Lemma 8 to obtain an upper bound on rk(n + 1) which is tight for k = 4 and is not far from being tight in general.
+Theorem 9. For k  3 we have rk(n + 1)  (2k - 3)n + 1.
+
+Proof. Our proof is by induction on k. The base case of k = 3 follows from our previous result Theorem 5. For the induction step, let k  4 and N = (2k - 3)n + 1. Assume that rk-1(n + 1) 
+
+5
+
+(2k - 5)n + 1 = N - 2n, so every (k - 1)-coloured KN-2n,N-2n contains a monochromatic connected (n + 1)-matching.
+Suppose towards a contradiction that G is a k-coloured KN,N that does not have an connected (n+1)matching. We shall be using the notation introduced earlier in the section. In particular, we assume that C1, . . . , Ct is the list of monochromatic components of G and i is some minimum cover of Ci, for every 1  i  t. By Lemma 8, there are at least N 2/n-2N (k-2) > N (2k-3-2(k-2)) = N  kn+1 special vertices. In particular, there are at least n + 1 special vertices of the same colour, say red.
+Claim. Precisely two red components contain red special vertices.
+
+Proof. Notice that any red special vertex is a cover vertex of its own red component. Since each component contains at most n cover vertices, at least two distinct red components contain a red special vertex. Together with Proposition 7 (2), it follows that all the red special vertices are in the same side of the bipartition of G, say X. By (1) in the same proposition, every red special vertex has red degree at least (2k - 3)n + 1 - (k - 1)n = (k - 2)n + 1. In particular, every red special component contains at least (k - 2)n + 1 vertices of Y and these sets are disjoint for distinct components. But |Y | = (2k - 3)n + 1 < 3((k - 2)n + 1), so at most two red components contain red special vertices.
+
+Let Ci and Cj be the red components that contain red special vertices. Recall that all red special vertices are in the same side of G (by Proposition 7 (2)), say X. Let X := X \ (i  j) and Y := (Y  (V (Ci)  V (Cj))) \ (i  j). Note that |X |  |X| - 2n = N - 2n. Moreover, since all the red special vertices are contained in (i  j)  X, and there are at least n + 1 such vertices, we have |(i  j)  Y |  n - 1. Since each of Ci and Cj contains at least (k - 2)n + 1 vertices of Y (by Proposition 7 (1)), we have |Y |  2((k - 2)n + 1) - |(i  j)  Y |  (2k - 5)n + 3 > N - 2n. Notice also that since neither X nor Y contain a vertex of i or j, and Y  V (Ci)  V (Cj), there are no red edges between X and Y . This means that G[X , Y ] is a (k - 1)-coloured complete bipartite graph where each side has size at least N - 2n. By our inductive assumption, G[X , Y ] contains a monochromatic connected (n + 1)-matching, a contradiction.
+Theorem 10. Let k  4, N = (2k - 3.5)n + 1 and M = (2k -2)n+1. Then KN,M -k CM(n+1).
+
+Proof. Suppose, towards a contradiction, that G is a k-coloured KN,M that does not have a monochromatic connected (n + 1)-matching. As usual, we shall be using the notation introduced earlier in the section. By Lemma 8 we know that G contains at least the following number of special vertices.
+
+NM
+
+1
+
+- (N + M )(k - 2)  ((2k - 3.5)n + 1)((2k - 2)n + 1) - ((4k - 5.5)n + 2.5)(k - 2)
+
+n
+
+n
+
+1 = 2.5kn - 4n + 1.5k - 0.5 +
+
+(5)
+
+n
+
+> (2k - 1)n + 1,
+
+where in the first inequality we used N = (2k - 3.5)n + 1  (2k - 3.5)n + 1.5 and in the last inequality k  6. Note that any special vertex of colour c in X has c-degree at least M - (k - 1)n > M/2. This means that X does not contain two special vertices of the same colour which belong to distinct components of this colour. Similarly, since every special vertex of colour c in Y has c-degree at least N - (k - 1)n > N/3, Y does not contain three special vertices of colour c, each from a
+
+6
+
+distinct component. In particular, by Proposition 7 (2), there are at most 2n special vertices of any colour and if there are more than n they all lie in Y. Together with (5) this implies that every colour must have more than n special vertices, so they all lie in Y, which is a contradiction since |Y | = (2k - 2)n + 1 < (2k - 1)n + 1.
+For k = 4, 5 we have 5kn/2 - 4n + 2 > (2k - 2)n + 2 so we know there can be at most one colour which has at most n special vertices and all other colours have all their special vertices in Y. If all colours have more than n then we can reach a contradiction as before, so we assume that exactly k - 1 colours have more than n special vertices. For any of these k - 1 colours, if Ci, Cj are the special components of this colour we know |(Ci  Cj)  X|  (2(k - 1) - 3)n + 1 so if |Y \ (Ci  Cj)|  (2(k - 1) - 3)n + 1 we are done by Theorem 9. In particular, we may assume that |Y  (Ci  Cj)|  3n + 1. Inheriting notation from the proof of Lemma 8 this means that yi + wi + yj + wj  3n + 1, so (using wi  xi, xi + yi  n, and the anologous inequalities for j)
+yi(wi - xi) + yj(wj - xj)  yi max(wi + yi - n, 0) + yj max(wj + yj - n, 0)  min(yi, yj)(yi + wi + yj + wj - 2n)  min(yi, yj)(n + 1) > (yi + yj - n)n.
+Now, we find that the sum of xi(zi - yi) + yi(wi - xi) over all monochromatic components Ci, is at least the sum of yi(wi - xi) over all components with colours with more than n special vertices (using wi  xi and zi  yi), which by the above inequality is at least (s - n)n - (k - 1)n2  (k - 2)n2  2n2, where s is the number of special vertices. Continuing as in the proof of Lemma 8, we find that the number of special vertices is, in fact, at least N M/n - (N + M )(k - 2) + 2n  2kn + 2, a contradiction.
+
+In the above two theorems we used a weaker estimate than the one provided by Lemma 8, namely we ignored the term that includes T , the number of somewhat special vertices. In the next lemma, which will lead to the proof of our main results, Theorems 1 and 3, we shall make use of the stronger statement given by Lemma 8.
+Lemma 11. Let k  5 and let N, M be integers that satisfy the following conditions.
+
+1. N, M  (2k - 3.5)n,
+
+2. N M/n - (k - 2)(N + M ) > kn,
+
+3.
+
+KN ,M
+
+-k-1 CM(n + 1), when N
+
+= N - 2n and M
+
+=
+
+2M
+
+-
+
+2n(k
+
+-
+
+1)
+
+-
+
+2n 2k-5
+
+,
+
+4.
+
+KN ,M
+
+-k-1 CM(n + 1), when N
+
+=
+
+2N
+
+-
+
+2n(k
+
+-
+
+1)
+
+-
+
+2n 2k-5
+
+and M
+
+= M - 2n.
+
+Then KN,M -k-1 CM(n + 1).
+
+Proof. Suppose, towards a contradiction, that G is a k-coloured KN,M that does not have an connected (n + 1)-matching. Recall that, by Proposition 7 (1), every special vertex of colour c in X has c-degree at least M - (k - 1)n > M/3, thus there are at most two special vertices of colour c in X
+
+7
+
+that belong to distinct components. It follows from this and the corresponding statement for Y , as well as Proposition 7 (2), that at most two components of any given colour contain special vertices of that colour.
+Claim 12. There is a colour in which there are precisely two components that contain special vertices, and which has most 2n/(2k - 5) somewhat special vertices.
+
+Proof. By Lemma 8, the number of special vertices is at least
+
+NM
+
+min(N, M )
+
+- (k - 2)(N + M ) + T
+
+- k > kn + T (k - 3.5),
+
+(6)
+
+n
+
+n
+
+where we used Conditions 1 and 2. Let S be the set of colours in which there are at least n + 1 special vertices, and denote m = |S|. As the number of special vertices is larger than kn, we have m  1. Call the colour in S, with the least number of somewhat special vertices, red, and let t be this number. We shall show that t  2n/(2k - 5), an assertion which would complete the proof of the claim.
+
+As T is the number of somewhat special vertices, we have T  mt. Since there are at most (k - m)n special vertices in colours outside of S, the number of special vertices in the colours in S is at least kn + T (k - 3.5) - (k - m)n  mn + mt(k - 3.5). It follows that for some colour in S, say blue, there are at least n + t(k - 3.5) special vertices. Since the blue special and somewhat special vertices all belong to a minimum cover of one of two blue components, there are at most 2n such vertices. It follows that there are at most n - t(k - 3.5) blue somewhat special vertices. By definition of t, we find that n - t(k - 3.5)  t, i.e. t  2n/(k - 5), as needed.
+
+Let red be the colour given by the above claim and let Ci and Cj be the red special components. Recall that all red special vertices need to be on the same side of G (by Proposition 7 (2)).
+Let us first assume that this side is X. In this case, (i  j)  Y constitutes the set of all red somewhat special vertices of this colour and |(i  j)  Y |  2n/(2k - 5) by the above claim. Let X := X \ (i  j) and Y := (Y  (Ci  Cj)) \ (i  j). Note that |X |  |X| - 2n = N - 2n. Since each of Ci and Cj contains at least M - (k - 1)n vertices of Y (by Proposition 7 (1)), we have |Y |  2(M - (k - 1)n) - |(i  j)  Y |  2(M - (k - 1)n) - 2n/(2k - 5). Notice also that since neither X nor Y contain a vertex of i or j, and Y  V (Ci)V (Cj), there are no red edges between X and Y . This means that G[X , Y ] is a (k - 1)-coloured complete bipartite graph with sides of sizes at least N - 2n and 2M - 2n(k - 1 + 1/(2k - 5)), respectively, so by Condition 3 contains a monochromatic connected (n + 1)-matching, a contradiction to our assumption that G does not have a monochromatic connected (n + 1)-matching.
+In the other case we analogously obtain X , Y with |Y |  M - 2n and |X |  2N - 2n(k - 1 + 1/(2k - 5))n, which gives a contradiction, using Condition 4.
+
+Theorem 13. Let k  7, N = KN,M -k CM(n + 1).
+
+2k
+
+-
+
+3
+
++
+
+1 2k-5
+
+n
+
++ 1 and M =
+
+2k
+
+-
+
+3.5
+
++
+
+1 2k-5
+
+n
+
++ 1. Then
+
+8
+
+Proof. We use Lemma 11. To that end, let us check that Conditions 1 to 4 hold. Condition 1, that N, M  (2k - 3.5)n, clearly holds. Next, note that
+
+NM - (N + M )(k - 2) > (2k - 3) (2k - 3.5) n - (4k - 6.5) n(k - 2)
+n
+
+= kn + (k - 5)n/2
+
+(7)
+
+ kn,
+
+where we used the fact that N M/n - (N + M )(k - 2) is increasing for both N and M whenever N, M  (k - 2)n, and the assumption that k  5. This implies that Condition 2 holds.
+Next, notice that
+
+N - 2n  (2(k - 1) - 3)n + 1
+
+2n
+
+2M - 2n(k - 1) -
+
+ (2(k - 1) - 3)n + 1,
+
+2k - 5
+
+so Condition 3 holds by Theorem 9. Similarly,
+
+2n
+
+2N - 2n(k - 1) -
+
+ (2(k - 1) - 2)n + 1
+
+2k - 5
+
+M - 2n  (2(k - 1) - 3.5)n + 1.
+
+Thus, Condition 4 holds by Theorem 10, for which we require k - 1  6. We have seen that all the conditions of Lemma 11 hold. The proof follows.
+
+Theorem 14. For k  6 we have rk(n + 1) 
+
+2k
+
+-
+
+3.5
+
++
+
+1 k-2
+
+n + 1.
+
+Proof. We again use Lemma 11 with M = N =
+
+2k
+
+-
+
+3.5
+
++
+
+1 k-2
+
+n + 1. Note that Condition 1 of
+
+Lemma 11 holds, as M, N  (2k - 3.5)n. Next, note that
+
+N2
+
+1
+
+- 2N (k - 2) > 2k - 3.5 +
+
+- 2(k - 2) N
+
+n
+
+k-2
+
+11
+
+=+
+
+N
+
+2 k-2
+
+1 1.5
+
+> k+ +
+
+n
+
+4 k-2
+
+ kn,
+
+so Condition 2 holds. Finally, note that
+
+1
+
+1
+
+N - 2n  2(k - 1) - 3.5 +
+
+n + 1  2(k - 1) - 3.5 +
+
+n + 1,
+
+k-2
+
+2(k - 1) - 5
+
+9
+
+as k  5, and, using k  6,
+
+2n
+
+2N - 2n(k - 1) -
+
+=
+
+2k - 5
+
+
+
+2
+
+2
+
+2k - 5 +
+
+-
+
+n+2
+
+k - 2 2k - 5
+
+1
+
+2(k - 1) - 3 +
+
+n + 1.
+
+2(k - 1) - 5
+
+It follows from Theorem 13 that Conditions 3 and 4 hold (note that they are equivalent here, since N = M ). The proof now follows from Lemma 11.
+
+We note that it is not hard to obtain a slightly weaker result, that still beats Theorem 1, and applies for k = 5 as well (the only issue in the above proof for k = 5 is the last inequality, which does not hold for k = 5; this can be overcome by modifying the term 1/(k - 2) slights). We omit further details.
+
+3 From connected matchings to paths and cycles
+
+In [17] Luczak introduced a method that reduces problems about paths and cycles to problems about connected matchings. As this method has become standard, we do not give precise details here, instead we give a brief overview of how to make use of Theorems 9 and 14 to deduce Theorems 1 and 3 (see, e.g., our previous paper [2] on this subject for more details in a very similar setup).
+
+Let k be an integer, and suppose that we have an upper bound of the form rk(n + 1)  kn which holds for every large enough n (this is what we get from Theorems 9 and 14). Let n be very large, and consider a k-colouring of KN,N , denoted G, where N is a bit larger than kn. Our aim is to find a cycle (or path) of length 2n.
+
+Apply Szemer´edi's regularity lemma (see [20]) to G. We obtain a partition of the vertices into a not-too-small and not-too-large number of clusters of almost equal size, such that the graph between almost every pair of clusters behaves almost randomly in every colour. Now consider the graph G, whose vertices represent the clusters, and for which there is an edge of colour c between two clusters if the graph of c-coloured edges between them behaves randomly and is somewhat dense. By removing a few clusters and insisting that clusters are subsets of one of the parts of G, we may assume that G is a balanced bipartite graph, whose every vertex is joined to almost every vertex on the other side.
+
+Luczak's interesting observation is that a monochromatic connected matching M in this graph can
+
+be lifted to a path that covers almost all the vertices in the clusters of M and very few other vertices.
+
+Thus, in order to find a path (or, with a little more effort, a cycle) of length 2n in G, it suffices to
+
+find
+
+a
+
+connected
+
+matching
+
+of
+
+size
+
+almost
+
+1 2k
+
+|G
+
+|
+
+in
+
+G.
+
+So, our task boils down to proving that G has a monochromatic connected matching of the required
+
+size. The next theorem allows us to reduce the problem of finding monochromatic connected matchings
+
+in almost complete bipartite graphs to the same problem in complete bipartite graphs. Thus, by the
+
+assumption that rk(n + 1)  kn, we are done. Theorems 1 and 3 follow by the above argument, the
+
+following theorem, and Theorems 9 and 14.
+
+Theorem 15. Let 0 <  < (8k)-2k = c-k 1 and N  (1 + ck)rk(n + 1). Let G be a subgraph of KN,N of minimum degree at least N - n. Then, in every k-colouring of G, there is a monochromatic
+connected (n + 1)-matching.
+
+10
+
+We omit the proof of this theorem since it is essentially the same as the one given in our previous paper [2], albeit only for 3 colours. In [2] we also discuss the by now standard connected matching method of Luczak described in this section in more details.
+
+4 Lower bounds
+
+The authors in [5] were interested in the function f (k), defined to be the minimum N such that in every k-colouring of KN,N there is a monochromatic P4 (i.e. a path of length 3). Since a bipartite graph is P4-free if and only if it is a star forest, f (k) - 1 is the maximum N such that KN,N can be k-coloured in such a way that all monochromatic components are stars. They determined f (k) for every k, as follows.
+
+ k+1 k3
+
+
+
+f (k) = 6
+
+k=4
+
+(8)
+
+ 2k - 3 k  5.
+
+The function f (k) is relevant to the study of bipartite Ramsey numbers of paths, cycles, or connected matchings. Indeed, we note the following observation made in [5]; here rbip(H, k) denotes the k-colour bipartite Ramsey number of H.
+
+Observation 16. Let N = (f (k) - 1)n. There is a k-colouring of KN,N without a monochromatic connected (n + 1)-matching, which can be obtained by blowing up a construction for f (k), by replacing each vertex by n new vertices. In particular, by (8), we have
+
+ kn  rbip(C2(n+1), k)  rbip(P2(n+1), k)  rbip(CM(n + 1), k) > 5n
+
+k3
+
+k=4
+
+(9)
+
+ (2k - 4)n k  5.
+
+This establishes the lower bound in Corollary 2. It also shows that the upper bounds in Theorems 1 and 3 are close to being tight.
+We believe that the lower bounds in Observation 16 could be improved, possibly close to (2k - 3.5)n (thus almost matching the upper bound in Theorem 3). For five colours, we indeed obtain such an improvement.
+Initially, we found a better example than the one mentioned above for five colours by a computer, using a technique called simulated annealing. The example we present here is constructed by hand, based on observations of the properties of the example found by a computer.
+While, by (8), it is not possible to 5-colour K7,7 such that all monochromatic components are stars, such a colouring exists for the graph obtained from K7,7 by removing a single edge, see Figure 1 below.
+To make it easier to check the claimed properties of the figure, we coloured the vertices as follows: for each monochromatic component, we know it is a star, and we colour a centre of the star by the colour of the comonent (for stars that consist of a single edge we pick exactly one of its vertices). In order to check that all monochromatic components in this example are stars one only needs to check
+
+11
+
+v0
+
+v1
+
+v2
+
+v3
+
+v4
+
+v5
+
+v6
+
+u0
+
+u1
+
+u2
+
+u3
+
+u4
+
+u5
+
+u6
+
+Figure 1: A 5-colouring of the graph K7,7 with the edge u0v0 removed, where all the monochromatic components are stars.
+
+that for every edge one of its endpoints is coloured in its colour (this might be easier using Figure 2) and that every vertex has degree exactly one in all colours it is not coloured in (easier in Figure 1).
+We are now ready to prove Theorem 4, which asserts that the bipartite Ramsey number of a path or a cycle of order 2(n + 1) is larger than 6.5n.
+Proof of Theorem 4. Note that the statement holds for n = 1, by (9).
+Let G be the graph depicted in Figure 1, with an additional black edge between u0 and v0. Note that all monochromatic components in G are stars, with the exception of the black component that contains u0 and v0, for which the set {v0, u0} is a vertex cover.
+Replace each vertex vi (resp. ui) with a set of vertices Vi (resp. Ui) of size n if i  1 and of size n/2 if i = 0. Next, add all edges between Ui and Vj and colour them by the colour of uivj in G. Call the resulting graph H.
+The graph H is a 5-coloured KN,N , where N = 6.5n , and we claim that H does not contain a monochromatic connected (n + 1)-matching. Indeed, note that every monochromatic connected component in H is a blow-up of a monochromatic connected component in G. Now, the black component that contains U0  V0 (i.e. that corresponds to black component that contains u0v0) has a cover U0  V0, of size 2 n/2  n. All other components are blow-ups of a star by sets of size at most n, in particular they all have covers of size at most n. Since, as we have now shown, every connected component has a cover of size at most n, it follows that there are no monochromatic connected (n + 1)-matchings, as needed.
+
+5 Concluding remarks and open problems
+In this paper we determined, asymptotically, the 4-colour bipartite Ramsey number of even cycles and consequently for paths. Specifically, we showed here that rbip(C2n, k) = (2k - 3 + o(1))n holds for k = 4, a bound which also holds for k = 3 (as we showed in [2]). This is in contrast to the nonbipartite Ramsey numbers, where already the four colours case remains unresolved. We also showed that the behaviour changes as k grows, by showing that rk(n + 1)  (2k - 3.5 + 1/(k - 2) + o(1))n for
+12
+
+6
+
+66
+
+66
+
+26
+
+42
+
+0
+
+5
+
+55
+
+55
+
+15
+
+31
+
+6
+
+4
+
+44
+
+24
+
+44
+
+66
+
+5
+
+3
+
+33
+
+13
+
+33
+
+55
+
+4
+
+2
+
+22
+
+42
+
+62
+
+24
+
+3
+
+1
+
+11
+
+31
+
+51
+
+13
+
+2
+
+0
+
+00
+
+00
+
+00
+
+00
+
+1
+
+Figure 2: A decomposition of the colouring given in Figure 1 making it more readable (the numbers correspond to the indices of the vertices in Figure 1; the vertices on the left-hand side are permuted so as to make the colouring in each subfigure look nicer).
+
+k  8, which is quite close to the lower bound of (2k - 4)n + 1 from [5]. We believe that our bound might be asymptotically optimal, which is in part supported by our example for five colours which shows that rk(n + 1)  (2k - 3.5)n when k = 5. Our approach for obtaining upper bounds relies on having at least kn + 1 special vertices, which guarantees the existence of two components of the same colour that contain special vertices. As the smallest value of N for which this is no longer guaranteed to occur is (2k - 3.5 + 1/k + O(1/k2))n, this value seems to be a natural barrier for our arguments, giving further evidence towards this bound being close to the truth. The most natural next question is to determine what is the correct behaviour for five or more colours.
+Another interesting direction might be to strengthen our results by obtaining exact bounds for long enough paths or cycles, possibly by obtaining a stability version of our results, similarly to [1, 10, 13].
+
+References
+[1] F. S. Benevides and J. Skokan, The 3-colored Ramsey number of even cycles, J. Combin. Theory Ser. B 99 (2009), no. 4, 690­708.
+[2] M. Buci´c, B. Sudakov, and S. Letzter Three colour bipartite Ramsey number of cycles and paths, arXiv:1808.10127 (2018), preprint.
+[3] D. Conlon, J. Fox, and B. Sudakov, Recent developments in graph Ramsey theory, Surveys in combinatorics 424 (2015), 49­118.
+[4] A. N. Day and J. R. Johnson, Multicolour Ramsey numbers of odd cycles, J. Combin. Theory Ser. B 124 (2017), 56­63.
+[5] L. DeBiasio, A. Gy´arfa´s, R. A. Krueger, M. Ruszinko´, and G. N. Sa´rko¨zy, Monochromatic bal-
+13
+
+anced components, matchings, and paths in multicolored complete bipartite graphs, J. Combin., to appear. [6] R. J. Faudree and R. H. Schelp, All Ramsey numbers for cycles in graphs, Discr. Math. 8 (1974), 313­329. [7] R.J. Faudree and R. H. Schelp, Path-path Ramsey-type numbers for the complete bipartite graph, J. Combin. Theory Ser. B 19 (1975), no. 2, 161­173. [8] L. Gerencs´er and A. Gy´arfa´s, On Ramsey-type problems, Ann. Univ. Sci. Budapest. E¨otv¨os Sect. Math. 10 (1967), 167­170. [9] A. Gya´rf´as and J. Lehel, A Ramsey-type problem in directed and bipartite graphs, Pereodica Math. Hung. 3 (1973), no. 3-4, 299­304. [10] A. Gya´rf´as, M. Ruszinko´, G. N. Sa´rk¨ozy, and E. Szemer´edi, Three-color Ramsey numbers for paths, Combinatorica 27 (2007), no. 1, 35­69. [11] M. Jenssen and J. Skokan, Exact Ramsey numbers of odd cycles via nonlinear optimisation, arXiv:1608.05705 (2016), preprint. [12] E. J. Joubert, Some generalized bipartite ramsey numbers involving short cycles, Graphs Combin. 33 (2017), no. 2, 433­448. [13] Y. Kohayakawa, M. Simonovits, and J. Skokan, The 3-colored Ramsey number of odd cycles, Electron. Notes Discr. Math. 19 (2005), 397­402. [14] C. Knierim and P. Su Improved bounds on the multicolor Ramsey numbers of paths and even cycles, arXiv:1801.04128 (2018), preprint. [15] Z. Luo and Y. Peng 3-colored asymmetric bipartite Ramsey number of connected matchings and cycles, arXiv:1809.05413 (2018), preprint. [16] S. Liu and Y. Peng Bipartite Ramsey numbers of large cycles, arXiv:1808.10127 (2018), preprint. [17] T. Luczak, R(Cn, Cn, Cn)  (4 + o(1))n, J. Combin. Theory Ser. B 75 (1999), no. 2, 174­187. [18] F. P. Ramsey, On a Problem of Formal Logic, Proc. London Math. Soc. S2-30 (1929), no. 1, 264. [19] V. Rosta, On a Ramsey-type problem of J. A. Bondy and P. Erdos. I, II, J. Combin. Theory Ser. B 15 (1973), 105­120. [20] E. Szemer´edi, Regular partitions of graphs, Probl`emes combinatoires et th´eorie des graphes, Proc. Colloq. Internat. CNRS, vol. 260, Paris, 1978, pp. 399­401. [21] S. Yongqi, Y. Yuansheng, F. Xu, and L. Bingxi, New lower bounds on the multicolor Ramsey numbers Rr(C2m), Graphs Combin. 22 (2006), no. 2, 283­288. [22] R. Zhang and Y. Sun, The bipartite Ramsey numbers b(C2m; K2,2), Electron. J. Combin. 18 (2011), no. 1, Paper 51, 10. [23] R. Zhang, Y. Sun, and Y. Wu, The bipartite ramsey numbers b(C2m; C2n), Int. J. Math. Comp. Sci. Eng. 7 (2013), no. 1, 152­155.
+14
+
+

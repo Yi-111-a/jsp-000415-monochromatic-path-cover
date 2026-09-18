@@ -1,0 +1,166 @@
+302                       GYARFAS, LEHEL: A RAMSlDY-'l'YPE PROBLEM
+
+select a vertex? from V(G) - 8 in the class which does not contain X.
+
+         (X, P) EE(G)           = 8'  (B1 , B 2, : . . , B 8 , A 1 , A 2 , . . . , X, P)
+
+     If                   then
+
+         (X, P) ~ E(G)          = 8" (A, A,_ 1 , ... , Av B 8 , .·· , B 2, B 1 , X, P)
+
++ is a bipath the length of which is greater then r sand this contradicts to the
+
+maximality of 8.
+
+                                1/./llA1X             ~
+
+                                        I~ /1 I / ~/
+
+                                        II  I   I
+                                            I1
+                                        II
+
+                                        It  1/
+                                · · Jl ~
+                                                      ·
+                                                      p
+
+        (ii) A 1, B 8 and X belong to the same class of V(G) (Fig. 3). Then we can
+select a vertex P from V(G) - 8 in the "lower" class. (P, B8 ) EE(G) (P, A 1 ) 1
+~ E(G) by the maximality of 8.
+
+         (X, P) EE(G)           = 8' B (Al' A 2, .·· , A, X, P, B 8 , ··· , 1 )
+
+     If                   then
+
+         (X, P) ~ E(G)          = · 8" (B8 , B 8 _ 1 , ·.. , B1 , X, P, A1 , . . . , A,.)
+
++ is a bipath the. length of which is greater then r s ~tnd this also contradicts
+
+to .the maximality of 8.
+
+     We conclude that if 8 is a maximal bipath then it belong!::! to the type:
+
+        (iii) Al' B 8 belong to the same class. X belongs to the "lower" one. In
+this case the lengths of the branches of 8 are odd numbers. If the length t?f 8 1
+is not less then k or the length of 8 2 is not less than l, our theorem· follows.
+
++ + Otherwise the length of 8 1 (82) is not greater than k - 2 (l ~- 2) so the length
+
+of .the bipath 8 is at most k l 4 that is 8 contains at most k l - 3
+
+vertices. So' we can select two different vertices P, Q from thA "lower" class of
+
+V(G) so that P, Q ~ 8 (Fig .. 4). Now we assert that the graph spanned by 8 1 is a
+cmnplete bipartite graph, and the graph spanned by 82 contains no edges.
+
+             B1 Bs
+
+         · ~;~ /J? ·                                     ·
+             /1\ /I
+         I/ 1 I I I I                                    ·
+         1I           I
+             I II .I                                                  (Case E. and F)
+             I I ( I
+
+             I /1
+         I I' 1/
+
+         · . / !.' ·
+     Ar.. X               P Q.
+
+         ( ~ose A and B)
+                       GYARFAS, LEHEL: A RAMSEY-TYPE PROBLEM                                                     303
+
+       A. (A1, X) EE(G) since in case of (A11 X) ~ E(G) the bipath
+(An Ar ..1 , .. -, A 11 X, B1, ... , Bs) would be one of maximal length and its
+midpoint A 1 is in the same class than its endpoints (cf. (ii)), this is a contra-
+diction. (X, B 8 ) ~ E(G) follows in the same way.
+
+        B. (B1, A 1) rt. E(G) (lis even). If we assume that (B11 A 1) E E(G) for some
+lthen the maximal bipath (A1 ___ 1 , A1_ 2 , ·· · , A 1 , X, An Ar_1 , ... , A1, B 11 ·· ·, B 8 )
+has its n1.idpoint B 1 in the same class than its endpoints (cf. (ii)) and that leads
+to contradiction.
+
+        C. (P, A 1) ~ E(G) for odd l. If (P, A 1) E E(G) then the length of the
+
++ bipath (P, AI> A 1_ 1, ... , A1 , X, An ... , A 1+1 , B 1 , ... , B 8 ) would be greater
+
+than r s.
+
+          D. The circuit A1 A 2 ·.. Ar X A1 contains all edges of the form (Aj, Ai+ 3).4
+
+If for example (Aj, Ai+ 3) El: E(G) then the length of the bipath (Ai-v Ai_2 , ·.·
+
+.  .  .,  A1,  X,  An  Ar_1,  ...  ,  Ai+ 4 , Q,  Aj,  2,  P,  Aj,  Aj   .  3  ,  Bv  B2,  ·  ··  ,  B8)  would  be
+                                                                        1
+
+greater than the length of S.
+
+        E. Let At and Ai be the vertices of 81 belonging to different classes of
+V(G). We prove that (Ai, Aj) EE(G). It is enough to consider the case when
+
++ i 3 < j and Ai is in the "upper" class. If (A1, Aj) 1 E(G) then the maximal
+
+bipa~th (At +v ... , A 1 _ 2, Ai --n ... , Ar __ 1 , An X, A1 , ... , At_2, At-~· P, Ai, At, B1 ,
+B B 2, ··. , 8 ) has its midpoint A 1__ 1 in the same class of V(G) than its end-
+points (cf. (ii)) and this is a contradiction. (Ai+l·Ai_ 2 )EE(G) by D and
+(P, A 1_ 1), (P, Ai) ~ E(G) by C. So we conclude that the graph spanned by 8 1
+is a complete bipartite graph. The graph spanned by 8 2 contains no edges,
+this can be proved by the same reasoning (applying propositions analogous
+
+to A, B, 0, D, E).
+
+       The following assertions (included in F, G, H) can be easily checked.
+
+       F. (A 1, Bi) EE(G) if i is odd and j is even, (Ai, Bi) El: E(G) if i is even and
+
+j is odd. We split the vertices of V(G) :--- S belonging to the same class of V(G)
+as A1 into two parts as follows:
+
+               P EBi\ if (X, P) EE(G),
+
+               P E@2 if (X, P) ¢. E(G).                                               (Case Gand H)
+
+                                                                                          f'ig. 5
+
+          G. (P, A 1) anet (P, B1) EE(G) for P E&1\ \i is even) ,
+
+                   (P, A 1) and (P, Bi) ~ E(G) for P ESYz (i is even) .
+
+          4 .i is considered to be eqq_al to .i' if J == j' (mod r + 1), X = AT+ 1 ·
+304  GYARFAS, LEHEL: A RAMSEY-TYPE PROBLEM
+
+        H. (P, R) ~ E(G) if P E &'1 and R E V(G) - (S U &1 U &'2) ,
+
+                (P, R) EE(G) if P E &2 and R E V(G) - (S U &1 U &2) ·
+
+Considering the structure of the graphs spanned by S1 and S2 and applying the
+propositions F, G, H, 0 and the proposition analogous. to 0 ((P, B1) E E(G) if
+lis odd and P E V(G) - S) we conclude that G can be written as the union of
+two complete bipartite graphs G1 and G2. It is easy to see that G1 or G2 has
+a path of length k, or the complement of G conta]ns a path of length l. 8o
+Theorem 3 follows.
+
+                                                     REFERENCES
+
+[1] L. GERENcs:Em and A. GYARFAS, On Ramsey-type problems, Ann. Univ. Sci.
+          Budapest. Eotvos Sect. Math. 10 (1967), 167-170.
+
+[2] L. R:EDEI, Ein kombinatorischer Satz, Acta Sci. Math. (Szeged) 7 (1934), 39-43.
+[3] T. GALLA!, On directed paths and circuits, Theory of Graphs (Proc. Colloq., Tihany,
+
+          1966), New York, 1968, ll5-ll8.
+[4] H. RAYNAUD, Sur le circuit hamiltonien hi-colore dans les graphes orientes, Period.
+
+          Math. Hunga'r. 3 (1973), 289-297.
+
+                                         (Received Septembel' 26', t9·7o)
+
+MTA SZAMfTASTECHNIKAI KOZPONTJA
+H-1250 BUDAPEST
+
+URI U. 49.
+
+HUNGARY
+
