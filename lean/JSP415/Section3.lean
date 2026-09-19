@@ -2030,6 +2030,110 @@ theorem weak_sqrt_bound (n : ℕ) :
     exact HasCoverLt.comap e.symm.injective e.symm.surjective
       (weak_sqrt_step ih hnR (G.comap e.symm))
 
+/-- Transport of `HasCoverLe` through the complement graph (colour swap). -/
+private theorem HasCoverLe.of_compl {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) {b : ℝ} (h : HasCoverLe Gᶜ b) : HasCoverLe G b := by
+  obtain ⟨c, F, ⟨hmono, hcov⟩, hcard⟩ := h
+  cases c with
+  | red =>
+    exact ⟨.blue, F, ⟨fun p hp ↦ (hmono p hp).imp fun _ _ hab ↦
+      (compl_red_iff G).mp hab, hcov⟩, hcard⟩
+  | blue =>
+    exact ⟨.red, F, ⟨fun p hp ↦ (hmono p hp).imp fun _ _ hab ↦
+      (compl_blue_iff G).mp hab, hcov⟩, hcard⟩
+
+/-- Membership in `fullNbr`. -/
+private theorem mem_fullNbr {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) [DecidableRel G.Adj] {X Y : Finset V} {x : V} :
+    x ∈ fullNbr G X Y ↔ x ∈ X ∧ (G.neighborFinset x).card = Y.card :=
+  Finset.mem_filter
+
+/-- Sharp form of Lemma 3.3 for a blue path: the cover built in
+`tail_pairing_bound` has size at most `1 + ⌈|Y ∖ Y₀|/2⌉ + |Y₀|`. -/
+private theorem tail_pairing_sharp_aux {n : ℕ} (G : SimpleGraph (Fin n))
+    (P : VertPath (Fin n)) (hP : P.IsMonochromatic G .blue)
+    (Y Y₀ : Finset (Fin n))
+    (hY : ∀ y, y ∈ Y ↔ y ∉ P.toList)
+    (hY0 : ∀ y, y ∈ Y₀ ↔ y ∉ P.toList ∧
+      ∀ x ∈ P.toList, ¬ Color.adj G .blue x y) :
+    HasCoverLe G (1 + (((Y \ Y₀).card + 1) / 2 : ℕ) + Y₀.card) := by
+  classical
+  have hY0sub : Y₀ ⊆ Y := fun y hy => (hY y).mpr ((hY0 y).mp hy).1
+  have hS : ∀ y ∈ Y \ Y₀, y ∉ P.toList ∧
+      ∃ x ∈ P.toList, Color.adj G .blue x y := by
+    intro y hy
+    rw [Finset.mem_sdiff] at hy
+    have hyP : y ∉ P.toList := (hY y).mp hy.1
+    refine ⟨hyP, ?_⟩
+    by_contra hcon
+    push_neg at hcon
+    exact hy.2 ((hY0 y).mpr ⟨hyP, hcon⟩)
+  obtain ⟨F, hFmono, hFcov, hFcard⟩ := pair_family G P hP (Y \ Y₀) hS
+  refine ⟨.blue, insert P (F ∪ Y₀.map VertPath.singletonEmbedding),
+    ⟨⟨?_, ?_⟩, ?_⟩⟩
+  · intro q hq
+    rw [Finset.mem_insert] at hq
+    rcases hq with rfl | hq
+    · exact hP
+    · rw [Finset.mem_union] at hq
+      rcases hq with hq | hq
+      · exact hFmono q hq
+      · obtain ⟨y, -, rfl⟩ := Finset.mem_map.mp hq
+        exact List.isChain_singleton y
+  · intro v
+    by_cases hvP : v ∈ P.toList
+    · exact ⟨P, Finset.mem_insert_self _ _, hvP⟩
+    · have hvY : v ∈ Y := (hY v).mpr hvP
+      by_cases hv0 : v ∈ Y₀
+      · refine ⟨VertPath.singletonEmbedding v,
+          Finset.mem_insert_of_mem (Finset.mem_union_right _
+            (Finset.mem_map.mpr ⟨v, hv0, rfl⟩)), ?_⟩
+        exact VertPath.mem_singleton.mpr rfl
+      · have hv1 : v ∈ Y \ Y₀ := Finset.mem_sdiff.mpr ⟨hvY, hv0⟩
+        obtain ⟨q, hq, hvq⟩ := hFcov v hv1
+        exact ⟨q, Finset.mem_insert_of_mem (Finset.mem_union_left _ hq), hvq⟩
+  · have hc : (insert P (F ∪ Y₀.map VertPath.singletonEmbedding)).card ≤
+        ((Y \ Y₀).card + 1) / 2 + 1 + Y₀.card := by
+      calc (insert P (F ∪ Y₀.map VertPath.singletonEmbedding)).card
+          ≤ (F ∪ Y₀.map VertPath.singletonEmbedding).card + 1 :=
+            Finset.card_insert_le _ _
+        _ ≤ F.card + Y₀.card + 1 := by
+            have h1 := Finset.card_union_le F
+              (Y₀.map VertPath.singletonEmbedding)
+            rw [Finset.card_map] at h1
+            omega
+        _ ≤ ((Y \ Y₀).card + 1) / 2 + 1 + Y₀.card := by omega
+    have h2 : ((insert P (F ∪ Y₀.map VertPath.singletonEmbedding)).card : ℝ) ≤
+        ((((Y \ Y₀).card + 1) / 2 : ℕ) : ℝ) + 1 + Y₀.card := by
+      have h3 : ((insert P (F ∪ Y₀.map VertPath.singletonEmbedding)).card : ℝ) ≤
+          ((((Y \ Y₀).card + 1) / 2 + 1 + Y₀.card : ℕ) : ℝ) := by
+        exact_mod_cast hc
+      rwa [Nat.cast_add, Nat.cast_add, Nat.cast_one] at h3
+    linarith
+
+/-- `tail_pairing_sharp_aux` for a monochromatic path of either colour. -/
+private theorem tail_pairing_sharp {n : ℕ} (G : SimpleGraph (Fin n))
+    (P : VertPath (Fin n)) {γ : Color} (hP : P.IsMonochromatic G γ)
+    (Y Y₀ : Finset (Fin n))
+    (hY : ∀ y, y ∈ Y ↔ y ∉ P.toList)
+    (hY0 : ∀ y, y ∈ Y₀ ↔ y ∉ P.toList ∧
+      ∀ x ∈ P.toList, ¬ Color.adj G γ x y) :
+    HasCoverLe G (1 + (((Y \ Y₀).card + 1) / 2 : ℕ) + Y₀.card) := by
+  cases γ with
+  | blue => exact tail_pairing_sharp_aux G P hP Y Y₀ hY hY0
+  | red =>
+    have hP' : P.IsMonochromatic Gᶜ .blue :=
+      hP.imp fun _ _ h ↦ (compl_blue_iff G).mpr h
+    have hY0' : ∀ y, y ∈ Y₀ ↔
+        y ∉ P.toList ∧ ∀ x ∈ P.toList, ¬ Color.adj Gᶜ .blue x y := by
+      intro y
+      rw [hY0 y]
+      exact Iff.and Iff.rfl (forall_congr' fun x ↦ forall_congr' fun _ ↦
+        not_congr (compl_blue_iff G).symm)
+    exact HasCoverLe.of_compl G
+      (tail_pairing_sharp_aux Gᶜ P hP' Y Y₀ hY hY0')
+
+set_option maxHeartbeats 1000000 in
 /-- **PVW24 Theorem 1.3 — the Erdős–Gyárfás conjecture.**  For all
 `n > 20^{40}`, every 2-edge-coloured `K_n` has a vertex cover by at most `√n`
 monochromatic paths, all of the same colour. -/
@@ -2037,6 +2141,435 @@ theorem monochromatic_path_cover {n : ℕ} (hn : 20 ^ 40 < n)
     (G : SimpleGraph (Fin n)) :
     ∃ c : Color, ∃ P : Finset (VertPath (Fin n)),
       IsSameColorCover G c P ∧ (P.card : ℝ) ≤ Real.sqrt n := by
-  sorry
+  classical
+  show HasCoverLe G (Real.sqrt n)
+  by_cases hG : HasCoverLe G (Real.sqrt n)
+  · exact hG
+  -- Constants: `C = 20⁴`, `a = n^{1/4}`, `α = 11C/a`.
+  set C : ℝ := 20 ^ 4 with hCdef
+  have hCpos : (0 : ℝ) < C := by rw [hCdef]; norm_num
+  have hnR40 : (20 : ℝ) ^ 40 < (n : ℝ) := by exact_mod_cast hn
+  have hnR : (0 : ℝ) < n := by linarith [hnR40]
+  have hn0 : 0 < n := by exact_mod_cast hnR
+  have hsqrt : (0 : ℝ) < Real.sqrt n := Real.sqrt_pos.mpr hnR
+  -- Induction hypothesis from the weak bound (Proposition 3.4).
+  have hind : ∀ m < n, AllCoverLt m (Real.sqrt m + C) := by
+    intro m _
+    rw [hCdef]
+    exact weak_sqrt_bound m
+  -- Lemma 3.2 with `C₁ = C`, `C₂ = 0`, so `Δ = C + 1`.
+  have hncond : (10 : ℝ) ^ 4 * (C - 0 + 1) ^ 4 < (n : ℝ) := by
+    have h1 : (10 : ℝ) ^ 4 * (C - 0 + 1) ^ 4 ≤ (20 : ℝ) ^ 40 := by
+      rw [hCdef]; norm_num
+    exact lt_of_le_of_lt h1 hnR40
+  obtain ⟨γ, P, hPmono, hPleft, hNbrs⟩ :=
+    long_path_structure (C₁ := C) (C₂ := 0) hCpos.le hncond hind G
+      (by simpa using hG)
+  simp only [sub_zero] at hPleft hNbrs
+  set a : ℝ := (n : ℝ) ^ ((1 : ℝ) / 4) with hadef
+  have hapos : (0 : ℝ) < a := Real.rpow_pos_of_pos hnR _
+  have hane : a ≠ 0 := hapos.ne'
+  have ha2 : a ^ 2 = Real.sqrt n := by
+    have h2 : a ^ 2 = a ^ ((2 : ℕ) : ℝ) := (Real.rpow_natCast _ 2).symm
+    rw [h2, hadef, ← Real.rpow_mul hnR.le,
+      show (1 : ℝ) / 4 * ((2 : ℕ) : ℝ) = 1 / 2 by norm_num, Real.sqrt_eq_rpow]
+  have ha4 : a ^ 4 = (n : ℝ) := by
+    have e : a ^ 4 = (a ^ 2) ^ 2 := by ring
+    rw [e, ha2, Real.sq_sqrt hnR.le]
+  have h2040 : ((20 : ℝ) ^ 40) ^ ((1 : ℝ) / 4) = (20 : ℝ) ^ 10 := by
+    have e1 : (20 : ℝ) ^ 40 = (20 : ℝ) ^ ((40 : ℕ) : ℝ) :=
+      (Real.rpow_natCast 20 40).symm
+    rw [e1, ← Real.rpow_mul (by norm_num : (0 : ℝ) ≤ 20),
+      show ((40 : ℕ) : ℝ) * (1 / 4) = ((10 : ℕ) : ℝ) by norm_num,
+      Real.rpow_natCast]
+  have ha20 : (20 : ℝ) ^ 10 < a := by
+    rw [← h2040, hadef]
+    exact Real.rpow_lt_rpow (by norm_num) hnR40 (by norm_num)
+  have ha1 : (1 : ℝ) ≤ a := by nlinarith [ha20]
+  have ha2big : (5 : ℝ) ≤ a ^ 2 := by
+    have h1 : (20 : ℝ) ^ 10 * a < a * a := mul_lt_mul_of_pos_right ha20 hapos
+    nlinarith [h1, ha20]
+  set α : ℝ := 11 * C / a with hαdef
+  have hαpos : (0 : ℝ) < α := div_pos (mul_pos (by norm_num) hCpos) hapos
+  have hαlt : α < 1 / 4 := by
+    rw [hαdef, hCdef, div_lt_iff₀ hapos]
+    nlinarith [ha20]
+  have hαsq : α * Real.sqrt n = 11 * C * a := by
+    rw [← ha2, hαdef]
+    field_simp
+  -- `X` = vertex set of `P`, `Y` = complement, `Y₀` = no `γ`-edge to `P`.
+  set X := P.toList.toFinset with hXdef
+  set Y := Xᶜ with hYdef
+  set Y₀ := Y.filter (fun y ↦ ∀ x ∈ P.toList, ¬ Color.adj G γ x y) with hY0def
+  have hXcard : X.card = P.toList.length := List.toFinset_card_of_nodup P.nodup
+  have hXlen : X.card ≤ n := by
+    rw [hXcard]
+    exact le_trans P.nodup.length_le_card (le_of_eq (Fintype.card_fin n))
+  have hYcard : Y.card = n - X.card := by
+    rw [hYdef, Finset.card_compl, Fintype.card_fin]
+  have hYcardR : (Y.card : ℝ) = (n : ℝ) - X.card := by
+    rw [hYcard, Nat.cast_sub hXlen]
+  have hXcardR : (X.card : ℝ) = (n : ℝ) - Y.card := by linarith [hYcardR]
+  have hdisjXY : Disjoint X Y :=
+    Finset.disjoint_left.mpr fun a ha hb ↦ (Finset.mem_compl.mp hb) ha
+  have hY0sub : Y₀ ⊆ Y := Finset.filter_subset _ _
+  have hYiff : ∀ y, y ∈ Y ↔ y ∉ P.toList := fun y ↦ by
+    rw [hYdef, Finset.mem_compl, hXdef, List.mem_toFinset]
+  have hY0iff : ∀ y, y ∈ Y₀ ↔
+      y ∉ P.toList ∧ ∀ x ∈ P.toList, ¬ Color.adj G γ x y := by
+    intro y
+    rw [hY0def, Finset.mem_filter, hYiff y]
+  -- `|Y| ≤ (1 + α) √n`.
+  have hYle : (Y.card : ℝ) ≤ Real.sqrt n + 10 * (C + 1) * a := by
+    have hle : ((n - X.card : ℕ) : ℝ) ≤ Real.sqrt n + 10 * (C + 1) * a := by
+      rw [Nat.cast_sub hXlen, hXcard]
+      exact hPleft
+    rw [hYcard]
+    exact hle
+  have h10 : 10 * (C + 1) ≤ 11 * C := by rw [hCdef]; norm_num
+  have hYbound : (Y.card : ℝ) ≤ (1 + α) * Real.sqrt n := by
+    have h1 : 10 * (C + 1) * a ≤ 11 * C * a :=
+      mul_le_mul_of_nonneg_right h10 hapos.le
+    have h2 : (Y.card : ℝ) ≤ Real.sqrt n + 11 * C * a := by
+      linarith [hYle, h1]
+    nlinarith [h2, hαsq, hsqrt]
+  -- Dichotomy (Lemma 3.3): if `|Y₀| ≤ (1-2α)√n` or `|Y| ≤ √n - 1`, the sharp
+  -- tail-pairing count gives a cover of size `≤ √n`, contradiction.
+  by_cases hcase : (Y₀.card : ℝ) ≤ (1 - 2 * α) * Real.sqrt n ∨
+      (Y.card : ℝ) ≤ Real.sqrt n - 1
+  · obtain ⟨c, F, ⟨hmono, hcov⟩, hcard⟩ :=
+      tail_pairing_sharp G P hPmono Y Y₀ hYiff hY0iff
+    have hY1eq : ((Y \ Y₀).card : ℝ) + Y₀.card = Y.card := by
+      exact_mod_cast Finset.card_sdiff_add_card_eq_card hY0sub
+    have hbound : (1 : ℝ) + (((Y \ Y₀).card + 1) / 2 : ℕ) + Y₀.card ≤
+        Real.sqrt n := by
+      rcases hcase with hA | hB
+      · have hdu : ((((Y \ Y₀).card + 1) / 2 : ℕ) : ℝ) ≤
+            (((Y \ Y₀).card : ℝ) + 1) / 2 := by
+          have h : ((((Y \ Y₀).card + 1) / 2 : ℕ) : ℝ) ≤
+              (((Y \ Y₀).card + 1 : ℕ) : ℝ) / ((2 : ℕ) : ℝ) :=
+            Nat.cast_div_le
+          push_cast at h
+          linarith
+        have hαs3 : (3 : ℝ) ≤ α * Real.sqrt n := by
+          have h3 : (3 : ℝ) ≤ 11 * C := by rw [hCdef]; norm_num
+          have h4 := mul_le_mul h3 ha1 (by norm_num : (0 : ℝ) ≤ 1)
+            (le_of_lt (mul_pos (by norm_num : (0 : ℝ) < 11) hCpos))
+          nlinarith [h4, hαsq]
+        nlinarith [hdu, hY1eq, hA, hYbound, hαs3]
+      · have hdu : ((((Y \ Y₀).card + 1) / 2 : ℕ) : ℝ) ≤
+            ((Y \ Y₀).card : ℝ) := by
+          have h2 : ((Y \ Y₀).card + 1) / 2 ≤ (Y \ Y₀).card := by omega
+          exact_mod_cast h2
+        nlinarith [hdu, hY1eq, hB]
+    exact absurd ⟨c, F, ⟨hmono, hcov⟩, le_trans hcard hbound⟩ hG
+  push_neg at hcase
+  obtain ⟨hY0gt, hYgt⟩ := hcase
+  -- The bipartite `γ.other`-coloured graph between `X` and `Y`.
+  set H := adjXYGraph G hdisjXY γ.other with hHdef
+  have hbip : BipartiteOn H X Y :=
+    ⟨hdisjXY, fun a b h ↦ bip_ramsey_path.Color.adjXY.across
+      (show Color.adjXY G X Y γ.other a b from h)⟩
+  set Yf := fullNbr H Y X with hYfdef
+  set Y₁ := Y \ Yf with hY1def
+  set X₀ := fullNbr H X Y with hX0def
+  set X₁ := X \ X₀ with hX1def
+  -- `Y₀ ⊆ Yf`: a vertex with no `γ`-edge to `P` has full `H`-degree.
+  have hY0Yf : Y₀ ⊆ Yf := by
+    intro y hy
+    have hyY : y ∈ Y := hY0sub hy
+    rw [hY0iff y] at hy
+    obtain ⟨hyP, hyadj⟩ := hy
+    rw [hYfdef, mem_fullNbr]
+    refine ⟨hyY, ?_⟩
+    have hsup : H.neighborFinset y ⊆ X := fun z hz ↦
+      (bip_ramsey_path.Color.adjXY.right_mem_iff hdisjXY
+        (show Color.adjXY G X Y γ.other y z from
+          (H.mem_neighborFinset _ _).mp hz)).mp hyY
+    have hsub : X ⊆ H.neighborFinset y := by
+      intro x hx
+      have hxP : x ∈ P.toList := by
+        rw [hXdef] at hx
+        exact List.mem_toFinset.mp hx
+      have hne : x ≠ y := fun e ↦ by subst e; exact hyP hxP
+      have hnadj : ¬ Color.adj G γ x y := hyadj x hxP
+      have hadj : Color.adj G γ.other x y :=
+        (Color.adj_iff_not_adj_other G (c := γ.other) hne).mpr
+          (show ¬ Color.adj G γ.other.other x y by
+            rw [Color.other_other]; exact hnadj)
+      rw [SimpleGraph.mem_neighborFinset]
+      show Color.adjXY G X Y γ.other y x
+      exact adjXY_of_across_adj G (Or.inr ⟨hyY, hx⟩) (Color.adj_symm G hadj)
+    have heq : H.neighborFinset y = X :=
+      Finset.eq_of_subset_of_card_le hsup (Finset.card_le_card hsub)
+    rw [heq]
+  -- `|Y₁| ≤ |Y| - |Y₀| < 3α√n = 33Ca`.
+  have hY1sub : Y₁ ⊆ Y \ Y₀ := by
+    intro y hy
+    rw [hY1def, Finset.mem_sdiff] at hy
+    rw [Finset.mem_sdiff]
+    exact ⟨hy.1, fun h ↦ hy.2 (hY0Yf h)⟩
+  have hY1le : (Y₁.card : ℝ) ≤ (Y.card : ℝ) - Y₀.card := by
+    have h1 : Y₁.card ≤ (Y \ Y₀).card := Finset.card_le_card hY1sub
+    have h2 : (Y \ Y₀).card = Y.card - Y₀.card :=
+      Finset.card_sdiff_of_subset hY0sub
+    have h3 : ((Y \ Y₀).card : ℝ) = (Y.card : ℝ) - Y₀.card := by
+      rw [h2, Nat.cast_sub (Finset.card_le_card hY0sub)]
+    linarith [show (Y₁.card : ℝ) ≤ ((Y \ Y₀).card : ℝ) by exact_mod_cast h1]
+  have hY1bound : (Y₁.card : ℝ) ≤ 33 * C * a := by
+    nlinarith [hY1le, hYbound, hY0gt, hαsq]
+  -- Every `x ∈ X₁` has a `γ`-edge to some `y ∈ Y₁`.
+  have hX1edge : ∀ x ∈ X₁, ∃ y ∈ Y₁, Color.adj G γ x y := by
+    intro x hx
+    rw [hX1def, Finset.mem_sdiff] at hx
+    obtain ⟨hxX, hxnot⟩ := hx
+    have hxfull : ¬ (H.neighborFinset x).card = Y.card := by
+      intro hc
+      exact hxnot ((mem_fullNbr H).mpr ⟨hxX, hc⟩)
+    have hnotall : ∃ y ∈ Y, ¬ H.Adj x y := by
+      by_contra hall
+      push_neg at hall
+      have hsub : Y ⊆ H.neighborFinset x :=
+        fun y hy ↦ (H.mem_neighborFinset _ _).mpr (hall y hy)
+      have hsup : H.neighborFinset x ⊆ Y := fun z hz ↦
+        (bip_ramsey_path.Color.adjXY.left_mem_iff hdisjXY
+          (show Color.adjXY G X Y γ.other x z from
+            (H.mem_neighborFinset _ _).mp hz)).mp hxX
+      have heq : H.neighborFinset x = Y :=
+        Finset.eq_of_subset_of_card_le hsup (Finset.card_le_card hsub)
+      exact hxfull (congrArg Finset.card heq)
+    obtain ⟨y, hyY, hnadjH⟩ := hnotall
+    have hne : x ≠ y := fun e ↦ by
+      subst e
+      exact (Finset.disjoint_left.mp hdisjXY hxX) hyY
+    have hnadj' : ¬ Color.adj G γ.other x y := fun h ↦
+      hnadjH (adjXY_of_across_adj G (Or.inl ⟨hxX, hyY⟩) h)
+    have hadj : Color.adj G γ x y :=
+      (Color.adj_iff_not_adj_other G hne).mpr hnadj'
+    have hyY1 : y ∈ Y₁ := by
+      rw [hY1def, Finset.mem_sdiff]
+      refine ⟨hyY, fun hyf ↦ ?_⟩
+      rw [hYfdef, mem_fullNbr] at hyf
+      obtain ⟨-, hcard⟩ := hyf
+      have hsup : H.neighborFinset y ⊆ X := fun z hz ↦
+        (bip_ramsey_path.Color.adjXY.right_mem_iff hdisjXY
+          (show Color.adjXY G X Y γ.other y z from
+            (H.mem_neighborFinset _ _).mp hz)).mp hyY
+      have heq : H.neighborFinset y = X :=
+        Finset.eq_of_subset_of_card_le hsup (le_of_eq hcard.symm)
+      exact hnadjH (((H.mem_neighborFinset _ _).mp (heq.symm ▸ hxX)).symm)
+    exact ⟨y, hyY1, hadj⟩
+  -- `|X₁| ≤ |Y₁| · 2(C+1)√n ≤ 67 C² a³`, by counting `γ`-edges `X₁–Y₁`.
+  have hX1bound : (X₁.card : ℝ) ≤
+      (Y₁.card : ℝ) * (2 * (C + 1) * Real.sqrt n) := by
+    have hsub : X₁ ⊆ Y₁.biUnion
+        (fun y ↦ X₁.filter (fun x ↦ Color.adj G γ x y)) := by
+      intro x hx
+      obtain ⟨y, hy, hadj⟩ := hX1edge x hx
+      rw [Finset.mem_biUnion]
+      exact ⟨y, hy, Finset.mem_filter.mpr ⟨hx, hadj⟩⟩
+    have hcard1 : X₁.card ≤ (Y₁.biUnion _).card := Finset.card_le_card hsub
+    have hcard2 : (Y₁.biUnion _).card ≤
+        Y₁.sum (fun y ↦ (X₁.filter fun x ↦ Color.adj G γ x y).card) :=
+      Finset.card_biUnion_le
+    have hfib : ∀ y ∈ Y₁,
+        ((X₁.filter fun x ↦ Color.adj G γ x y).card : ℝ) ≤
+          2 * (C + 1) * Real.sqrt n := by
+      intro y hy
+      have hyY : y ∈ Y := (Finset.mem_sdiff.mp (hY1def ▸ hy)).1
+      have hyP : y ∉ P.toList := (hYiff y).mp hyY
+      have hB := hNbrs y hyP
+      have hset : {x : Fin n | x ∈ P.toList ∧ Color.adj G γ x y} =
+          ((X.filter fun x ↦ Color.adj G γ x y) : Set (Fin n)) := by
+        ext x
+        simp [hXdef, Finset.coe_filter, List.mem_toFinset]
+      rw [hset, Set.ncard_coe_finset] at hB
+      have hsub2 : X₁.filter (fun x ↦ Color.adj G γ x y) ⊆
+          X.filter (fun x ↦ Color.adj G γ x y) := by
+        intro z hz
+        rw [Finset.mem_filter] at hz ⊢
+        exact ⟨(Finset.sdiff_subset (hX1def ▸ hz.1)), hz.2⟩
+      exact le_trans (by exact_mod_cast Finset.card_le_card hsub2) hB
+    have hsum : ((Y₁.sum fun y ↦
+        (X₁.filter fun x ↦ Color.adj G γ x y).card : ℕ) : ℝ) ≤
+        (Y₁.card : ℝ) * (2 * (C + 1) * Real.sqrt n) := by
+      rw [Nat.cast_sum]
+      calc ∑ y ∈ Y₁, ((X₁.filter fun x ↦ Color.adj G γ x y).card : ℝ)
+          ≤ ∑ _y ∈ Y₁, 2 * (C + 1) * Real.sqrt n :=
+            Finset.sum_le_sum fun y hy ↦ hfib y hy
+        _ = Y₁.card * (2 * (C + 1) * Real.sqrt n) := by
+            rw [Finset.sum_const, nsmul_eq_mul]
+    have h12 : (X₁.card : ℝ) ≤
+        (Y₁.sum fun y ↦ (X₁.filter fun x ↦ Color.adj G γ x y).card : ℕ) := by
+      exact_mod_cast le_trans hcard1 hcard2
+    linarith [h12, hsum]
+  have h67 : 66 * C * (C + 1) ≤ 67 * C ^ 2 := by rw [hCdef]; norm_num
+  have hX1b : (X₁.card : ℝ) ≤ 67 * C ^ 2 * a ^ 3 := by
+    have hb : 2 * (C + 1) * Real.sqrt n = 2 * (C + 1) * a ^ 2 := by rw [← ha2]
+    have h1 : (Y₁.card : ℝ) * (2 * (C + 1) * Real.sqrt n) ≤
+        (33 * C * a) * (2 * (C + 1) * a ^ 2) := by
+      rw [hb]
+      exact mul_le_mul_of_nonneg_right hY1bound
+        (mul_nonneg (mul_nonneg (by norm_num)
+          (add_nonneg hCpos.le zero_le_one)) (pow_nonneg hapos.le 2))
+    have h2 : (33 * C * a) * (2 * (C + 1) * a ^ 2) =
+        66 * C * (C + 1) * a ^ 3 := by ring
+    calc (X₁.card : ℝ) ≤ (Y₁.card : ℝ) * (2 * (C + 1) * Real.sqrt n) := hX1bound
+      _ ≤ (33 * C * a) * (2 * (C + 1) * a ^ 2) := h1
+      _ = 66 * C * (C + 1) * a ^ 3 := h2
+      _ ≤ 67 * C ^ 2 * a ^ 3 :=
+          mul_le_mul_of_nonneg_right h67 (pow_nonneg hapos.le 3)
+  -- `|X₀| = |X| - |X₁| ≥ n/2`.
+  have hX0sub : X₀ ⊆ X := by rw [hX0def]; exact Finset.filter_subset _ _
+  have hX0card : (X₀.card : ℝ) = (X.card : ℝ) - X₁.card := by
+    have h1 : X₁.card + X₀.card = X.card := by
+      rw [hX1def]
+      exact Finset.card_sdiff_add_card_eq_card hX0sub
+    have h2 : (X₁.card : ℝ) + (X₀.card : ℝ) = X.card := by exact_mod_cast h1
+    linarith
+  have h67b : 67 * C ^ 2 * a ^ 3 ≤ a ^ 4 / 4 := by
+    have hnum : (268 : ℝ) * (20 ^ 4) ^ 2 < 20 ^ 10 := by norm_num
+    have h1 : (268 : ℝ) * C ^ 2 ≤ a := by
+      rw [hCdef]
+      nlinarith [hnum, ha20]
+    have h2 := mul_le_mul_of_nonneg_right h1 (pow_nonneg hapos.le 3)
+    have h3 : a * a ^ 3 = a ^ 4 := by ring
+    nlinarith [h2, h3]
+  have hYsmall : (1 + α) * Real.sqrt n ≤ a ^ 4 / 4 := by
+    have hα14 : 1 + α ≤ 5 / 4 := by linarith [hαlt]
+    have h1 : (1 + α) * Real.sqrt n ≤ (5 / 4) * a ^ 2 := by
+      rw [← ha2]
+      exact mul_le_mul_of_nonneg_right hα14 (pow_nonneg hapos.le 2)
+    have h2 : (5 : ℝ) / 4 * a ^ 2 ≤ a ^ 4 / 4 := by
+      have h3 := mul_nonneg (pow_nonneg hapos.le 2) (sub_nonneg.mpr ha2big)
+      nlinarith [h3]
+    linarith [h1, h2]
+  have hX0bound : (n : ℝ) / 2 ≤ (X₀.card : ℝ) := by
+    have h1 : (Y.card : ℝ) ≤ a ^ 4 / 4 := hYbound.trans hYsmall
+    have h2 : (X₁.card : ℝ) ≤ a ^ 4 / 4 := hX1b.trans h67b
+    rw [hX0card, hXcardR]
+    nlinarith [h1, h2, ha4]
+  -- `|Yf| ≥ |Y₀| > (1 - 2α) √n ≥ √n/2`.
+  have hYfbound : Real.sqrt n / 2 ≤ ((fullNbr H Y X).card : ℝ) := by
+    have h1 : (Y₀.card : ℝ) ≤ ((fullNbr H Y X).card : ℝ) := by
+      exact_mod_cast Finset.card_le_card hY0Yf
+    have h12 : (1 : ℝ) / 2 ≤ 1 - 2 * α := by linarith [hαlt]
+    have h2 := mul_le_mul_of_nonneg_right h12 hsqrt.le
+    nlinarith [h1, h2, hY0gt]
+  have hYfne : (fullNbr H Y X).Nonempty := by
+    have h1 : (0 : ℝ) < ((fullNbr H Y X).card : ℝ) := by
+      linarith [hYfbound, hsqrt]
+    exact Finset.card_pos.mp (by exact_mod_cast h1)
+  have hcardXY : Y.card < X.card := by
+    have h1 : (Y.card : ℝ) < (X.card : ℝ) := by
+      rw [hXcardR]
+      have h2 : (Y.card : ℝ) ≤ a ^ 4 / 4 := hYbound.trans hYsmall
+      nlinarith [h2, ha4, hapos]
+    exact_mod_cast h1
+  -- The `hcond` disjunction of Lemma 2.4.
+  have hcond : (X \ X₀ = ∅ ∧ Y \ Yf = ∅) ∨
+      ((X₀.card : ℝ) / (Y₁.card : ℝ) >
+        2 * (X₁.card : ℝ) / ((fullNbr H Y X).card : ℝ)) := by
+    by_cases hY1e : Y₁ = ∅
+    · left
+      have hYYf : Y ⊆ Yf :=
+        Finset.sdiff_eq_empty_iff_subset.mp (hY1def ▸ hY1e)
+      have hXX0 : X ⊆ X₀ := by
+        intro x hxX
+        rw [hX0def, mem_fullNbr]
+        refine ⟨hxX, ?_⟩
+        have hYsub : Y ⊆ H.neighborFinset x := by
+          intro y hy
+          have hyf := hYYf hy
+          rw [hYfdef, mem_fullNbr] at hyf
+          obtain ⟨-, hcard⟩ := hyf
+          have hsup : H.neighborFinset y ⊆ X := fun z hz ↦
+            (bip_ramsey_path.Color.adjXY.right_mem_iff hdisjXY
+              (show Color.adjXY G X Y γ.other y z from
+                (H.mem_neighborFinset _ _).mp hz)).mp hy
+          have heq : H.neighborFinset y = X :=
+            Finset.eq_of_subset_of_card_le hsup (le_of_eq hcard.symm)
+          rw [SimpleGraph.mem_neighborFinset]
+          exact ((H.mem_neighborFinset _ _).mp (heq.symm ▸ hxX)).symm
+        have hsup' : H.neighborFinset x ⊆ Y := fun z hz ↦
+          (bip_ramsey_path.Color.adjXY.left_mem_iff hdisjXY
+            (show Color.adjXY G X Y γ.other x z from
+              (H.mem_neighborFinset _ _).mp hz)).mp hxX
+        exact congrArg Finset.card
+          (Finset.eq_of_subset_of_card_le hsup' (Finset.card_le_card hYsub))
+      exact ⟨Finset.sdiff_eq_empty_iff_subset.mpr hXX0, hY1e⟩
+    · right
+      have hY1pos : (0 : ℝ) < (Y₁.card : ℝ) := by
+        have h : 0 < Y₁.card := Finset.card_pos.mpr
+          (Finset.nonempty_iff_ne_empty.mpr hY1e)
+        exact_mod_cast h
+      have hYfpos : (0 : ℝ) < ((fullNbr H Y X).card : ℝ) := by
+        linarith [hYfbound, hsqrt]
+      -- `2 |X₁| |Y₁| < |X₀| |Yf|`, the cross-multiplied ratio condition.
+      have hL : 2 * (X₁.card : ℝ) * (Y₁.card : ℝ) ≤ 4422 * C ^ 3 * a ^ 4 := by
+        have hA : 2 * (X₁.card : ℝ) ≤ 2 * (67 * C ^ 2 * a ^ 3) :=
+          mul_le_mul_of_nonneg_left hX1b (by norm_num)
+        have hB : (0 : ℝ) ≤ 2 * (67 * C ^ 2 * a ^ 3) := by
+          have h1 := mul_nonneg (pow_nonneg hCpos.le 2) (pow_nonneg hapos.le 3)
+          nlinarith [h1]
+        have hmul := mul_le_mul hA hY1bound (Nat.cast_nonneg _) hB
+        have heq : 2 * (67 * C ^ 2 * a ^ 3) * (33 * C * a) =
+            4422 * C ^ 3 * a ^ 4 := by ring
+        linarith [hmul]
+      have hR : (n : ℝ) / 2 * (Real.sqrt n / 2) ≤
+          (X₀.card : ℝ) * ((fullNbr H Y X).card : ℝ) :=
+        mul_le_mul hX0bound hYfbound (by positivity) (Nat.cast_nonneg _)
+      have hR' : (n : ℝ) / 2 * (Real.sqrt n / 2) = a ^ 6 / 4 := by
+        rw [← ha2, ← ha4]; ring
+      have hRlt : 4422 * C ^ 3 * a ^ 4 < a ^ 6 / 4 := by
+        have hnum : (17688 : ℝ) * (20 ^ 4) ^ 3 < 20 ^ 20 := by norm_num
+        have ha2gt : (20 : ℝ) ^ 20 < a ^ 2 := by
+          have h1 : (20 : ℝ) ^ 10 * (20 : ℝ) ^ 10 < (20 : ℝ) ^ 10 * a :=
+            mul_lt_mul_of_pos_left ha20 (by norm_num)
+          have h2 : (20 : ℝ) ^ 10 * a < a * a :=
+            mul_lt_mul_of_pos_right ha20 hapos
+          nlinarith [h1, h2]
+        have h1 : (17688 : ℝ) * C ^ 3 < a ^ 2 := by
+          rw [hCdef]
+          nlinarith [hnum, ha2gt]
+        have h2 := mul_lt_mul_of_pos_right h1 (pow_pos hapos 4)
+        nlinarith [h2]
+      have hfinal : 2 * (X₁.card : ℝ) * (Y₁.card : ℝ) <
+          (X₀.card : ℝ) * ((fullNbr H Y X).card : ℝ) :=
+        lt_of_le_of_lt hL (lt_of_lt_of_le (hR'.symm ▸ hRlt) hR)
+      rw [gt_iff_lt, div_lt_div_iff₀ hYfpos hY1pos]
+      exact hfinal
+  -- Lemma 2.4: `⌊n / (|Y|+1)⌋ < √n` paths of colour `γ.other` cover `X ∪ Y`.
+  obtain ⟨P_fam, hPf_chain, hPf_cov, hPf_card⟩ :=
+    refined_path_cover H X Y hbip hcardXY hYfne hcond
+  have hPfmono : ∀ p ∈ P_fam, p.IsMonochromatic G γ.other := fun p hp ↦
+    (hPf_chain p hp).imp fun _ _ h ↦ adjXY_to_adj G hdisjXY h
+  have hcovall : ∀ v : Fin n, ∃ p ∈ P_fam, v ∈ p := by
+    intro v
+    have hv : v ∈ X ∪ Y := by
+      by_cases hvX : v ∈ X
+      · exact Finset.mem_union_left _ hvX
+      · exact Finset.mem_union_right _ (Finset.mem_compl.mpr hvX)
+    exact hPf_cov v hv
+  have hcardlt : (P_fam.card : ℝ) < Real.sqrt n := by
+    have hXY : X.card + Y.card = n := by omega
+    have h1 : P_fam.card ≤ n / (Y.card + 1) := by
+      calc P_fam.card ≤ (X.card + Y.card) / (Y.card + 1) := hPf_card
+        _ = n / (Y.card + 1) := by rw [hXY]
+    have h2 : (P_fam.card : ℝ) ≤ (n : ℝ) / ((Y.card : ℝ) + 1) := by
+      calc (P_fam.card : ℝ) ≤ ((n / (Y.card + 1) : ℕ) : ℝ) := by
+            exact_mod_cast h1
+        _ ≤ (n : ℝ) / ((Y.card + 1 : ℕ) : ℝ) := Nat.cast_div_le
+        _ = (n : ℝ) / ((Y.card : ℝ) + 1) := by push_cast; ring
+    have h3 : (n : ℝ) / ((Y.card : ℝ) + 1) < Real.sqrt n := by
+      have hY1 : Real.sqrt n < (Y.card : ℝ) + 1 := by linarith [hYgt]
+      have hpos : (0 : ℝ) < (Y.card : ℝ) + 1 := by linarith [hsqrt, hY1]
+      rw [div_lt_iff₀ hpos]
+      calc (n : ℝ) = Real.sqrt n * Real.sqrt n :=
+            (Real.mul_self_sqrt hnR.le).symm
+        _ < Real.sqrt n * ((Y.card : ℝ) + 1) :=
+            mul_lt_mul_of_pos_left hY1 hsqrt
+    linarith [h2, h3]
+  exact absurd ⟨γ.other, P_fam, ⟨hPfmono, hcovall⟩, le_of_lt hcardlt⟩ hG
 
 end JSP415
