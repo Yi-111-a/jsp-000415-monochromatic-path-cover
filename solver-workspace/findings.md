@@ -105,3 +105,25 @@ Lemma 3.3 rules out small Y0/Y; then bipartite red graph + Lemma 2.4
   push_neg deprecated; ((x+1)/2:ℝ) parses as real div — cast ℕ first;
   Nat.cast_div_le for (a/b:ℕ):ℝ ≤ a/b; Option.mem_some reversed eq.
 - Agent downloaded gl.pdf/gl.txt (Gyarfas-Lehel paper) — cleaned from repo.
+
+## Round 5 (commit 9266a68, cleanup 5ee12fd)
+- long_path_structure GREEN (Lemma 3.2 proved by agent 54d7b8ae which
+  then died on connection error; I fixed residual syntax/API errors:
+  docstring must come AFTER set_option...in; Nat.cast_div_le implicit;
+  div_le_div_of_nonneg_right wants 0<=; lt_div_iff -> lt_div_iff0).
+- sorries: 6 = BipLemmas 4 + Section3 2 (weak_sqrt_bound, headline).
+- Active: 9c054b25 bip_ramsey (huge bipath/component infra ~1400 lines),
+  c78582fd weak_sqrt_bound (Prop 3.4).
+- NOTE for weak_sqrt: HasCoverLe(sqrt n + C - 1) trick avoids the
+  integer-boundary gap between Le and Lt; G.dual (complement graph)
+  swaps red/blue exactly — use for colour-symmetric lemmas.
+- Stray agent downloads (.pdf/.png/.txt) keep appearing — now gitignored.
+
+## Round 6
+- Agent 9c054b25 (bip_ramsey) VANISHED (not found — session loss), but left
+  ~1300 lines of committed infrastructure in BipLemmas.lean namespace
+  bip_ramsey_path: IsBipath + exists_max_bipath, Reach/ReachIn/compOf
+  components, chain_not_cross, comp_subset_or, interleave machinery.
+  File compiles clean. Relaunched as agent 1ae94cdb to finish the proof.
+- Agent c78582fd on weak_sqrt_bound (Prop 3.4) running.
+- sorries still 6 = BipLemmas 4 + Section3 2.

@@ -1458,11 +1458,577 @@ theorem tail_pairing_bound {n : ℕ} (G : SimpleGraph (Fin n))
       rwa [Nat.cast_add, Nat.cast_add, Nat.cast_one] at h3
     linarith
 
+/-- In the complement graph `Gᶜ`, blue adjacency is red adjacency. -/
+private theorem compl_blue_iff {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {a b : V} : Color.adj Gᶜ .blue a b ↔ Color.adj G .red a b := by
+  refine ⟨fun h ↦ ?_, fun h ↦ ⟨h.ne, fun hc ↦ ?_⟩⟩
+  · by_contra hna
+    exact h.2 ((SimpleGraph.compl_adj _ _ _).mpr ⟨h.1, hna⟩)
+  · exact ((SimpleGraph.compl_adj _ _ _).mp hc).2 h
+
+/-- In the complement graph, red adjacency is blue adjacency. -/
+private theorem compl_red_iff {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {a b : V} : Color.adj Gᶜ .red a b ↔ Color.adj G .blue a b :=
+  SimpleGraph.compl_adj _ _ _
+
+/-- A monochromatic cover of `Gᶜ` is a monochromatic cover of `G`. -/
+private theorem HasCoverLt.of_compl {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) {b : ℝ} (h : HasCoverLt Gᶜ b) : HasCoverLt G b := by
+  obtain ⟨c, F, ⟨hmono, hcov⟩, hcard⟩ := h
+  cases c with
+  | red =>
+    exact ⟨.blue, F, ⟨fun p hp ↦ (hmono p hp).imp fun _ _ hab ↦
+      (compl_red_iff G).mp hab, hcov⟩, hcard⟩
+  | blue =>
+    exact ⟨.red, F, ⟨fun p hp ↦ (hmono p hp).imp fun _ _ hab ↦
+      (compl_blue_iff G).mp hab, hcov⟩, hcard⟩
+
+/-- `tail_pairing_bound` for a monochromatic path of either color.
+For a red path we apply the lemma in `Gᶜ`. -/
+private theorem tail_pairing_bound_color {n : ℕ} (G : SimpleGraph (Fin n))
+    (P : VertPath (Fin n)) {γ : Color} (hP : P.IsMonochromatic G γ)
+    (Y Y₀ : Finset (Fin n))
+    (hY : ∀ y, y ∈ Y ↔ y ∉ P.toList)
+    (hY0 : ∀ y, y ∈ Y₀ ↔ y ∉ P.toList ∧ ∀ x ∈ P.toList, ¬ Color.adj G γ x y) :
+    HasCoverLt G (2 + (Y.card : ℝ) / 2 + (Y₀.card : ℝ) / 2) := by
+  cases γ with
+  | blue => exact tail_pairing_bound G P hP Y Y₀ hY hY0
+  | red =>
+    have hP' : P.IsMonochromatic Gᶜ .blue :=
+      hP.imp fun _ _ h ↦ (compl_blue_iff G).mpr h
+    have hY0' : ∀ y, y ∈ Y₀ ↔
+        y ∉ P.toList ∧ ∀ x ∈ P.toList, ¬ Color.adj Gᶜ .blue x y := by
+      intro y
+      rw [hY0 y]
+      exact Iff.and Iff.rfl (forall_congr' fun x ↦ forall_congr' fun _ ↦
+        not_congr (compl_blue_iff G).symm)
+    exact HasCoverLt.of_compl G (tail_pairing_bound Gᶜ P hP' Y Y₀ hY hY0')
+
+/-- Alternating-path construction.  Given disjoint nodup lists `xs` and
+`ys` with `|ys| = |xs| + 1`, where every `x ∈ xs` is `R`-related to every
+`y ∈ ys`, the list `y₀ x₁ y₁ ⋯ x_t y_t` is an `R`-chain covering `xs`.
+Built by induction on `xs`. -/
+private theorem alt_path_list {n : ℕ} {R : Fin n → Fin n → Prop}
+    (hR : ∀ a b, R a b → R b a) (xs ys : List (Fin n)) :
+    ys.length = xs.length + 1 → xs.Nodup → ys.Nodup →
+      (∀ z ∈ xs, z ∉ ys) → (∀ x ∈ xs, ∀ y ∈ ys, R x y) →
+      ∃ p : VertPath (Fin n), p.toList.IsChain R ∧
+        (∀ z ∈ p.toList, z ∈ xs ∨ z ∈ ys) ∧
+        (∀ z ∈ p.toList.head?, z ∈ ys) ∧ ∀ x ∈ xs, x ∈ p.toList := by
+  induction xs generalizing ys with
+  | nil =>
+    intro hlen hxs hys hdisj hedge
+    cases ys with
+    | nil => simp at hlen
+    | cons y ys =>
+      cases ys with
+      | nil =>
+        refine ⟨⟨[y], List.cons_ne_nil _ _, List.nodup_singleton y⟩,
+          List.isChain_singleton y, ?_, ?_, ?_⟩
+        · intro z hz
+          rw [List.mem_singleton] at hz
+          subst hz
+          exact Or.inr List.mem_cons_self
+        · intro z hz
+          rw [List.head?_singleton, Option.mem_some] at hz
+          subst hz
+          exact List.mem_cons_self
+        · intro z hz
+          exact (List.not_mem_nil hz).elim
+      | cons z zs => simp at hlen
+  | cons x xs ih =>
+    intro hlen hxs hys hdisj hedge
+    cases ys with
+    | nil => simp at hlen
+    | cons y ys =>
+      rw [List.nodup_cons] at hxs hys
+      obtain ⟨hx, hxs'⟩ := hxs
+      obtain ⟨hy, hys'⟩ := hys
+      have hlen' : ys.length = xs.length + 1 := by
+        simp only [List.length_cons] at hlen
+        omega
+      have hdisj' : ∀ z ∈ xs, z ∉ ys := fun z hz hzy ↦
+        hdisj z (List.mem_cons_of_mem x hz) (List.mem_cons_of_mem y hzy)
+      have hedge' : ∀ x' ∈ xs, ∀ y' ∈ ys, R x' y' := fun x' hx' y' hy' ↦
+        hedge x' (List.mem_cons_of_mem x hx') y' (List.mem_cons_of_mem y hy')
+      obtain ⟨p', hchain', hmem', hhead', hcov'⟩ :=
+        ih ys hlen' hxs' hys' hdisj' hedge'
+      refine ⟨⟨y :: x :: p'.toList, List.cons_ne_nil _ _, ?_⟩, ?_, ?_, ?_, ?_⟩
+      · rw [List.nodup_cons]
+        refine ⟨?_, ?_⟩
+        · intro hmem
+          rw [List.mem_cons] at hmem
+          rcases hmem with heq | hmem
+          · exact (hdisj x List.mem_cons_self)
+              (List.mem_cons.mpr (Or.inl heq.symm))
+          · rcases hmem' _ hmem with hz | hz
+            · exact (hdisj y (List.mem_cons_of_mem x hz)) List.mem_cons_self
+            · exact hy hz
+        · rw [List.nodup_cons]
+          refine ⟨?_, p'.nodup⟩
+          intro hmem
+          rcases hmem' _ hmem with hz | hz
+          · exact hx hz
+          · exact (hdisj x List.mem_cons_self) (List.mem_cons_of_mem y hz)
+      · refine List.isChain_cons.mpr ⟨?_, List.isChain_cons.mpr ⟨?_, hchain'⟩⟩
+        · intro z hz
+          rw [List.head?_cons, Option.mem_some] at hz
+          subst hz
+          exact hR _ _ (hedge x List.mem_cons_self y List.mem_cons_self)
+        · intro z hz
+          exact hedge x List.mem_cons_self z
+            (List.mem_cons_of_mem y (hhead' z hz))
+      · intro z hz
+        rw [List.mem_cons, List.mem_cons] at hz
+        rcases hz with rfl | rfl | hz
+        · exact Or.inr List.mem_cons_self
+        · exact Or.inl List.mem_cons_self
+        · rcases hmem' _ hz with h | h
+          · exact Or.inl (List.mem_cons_of_mem x h)
+          · exact Or.inr (List.mem_cons_of_mem y h)
+      · intro z hz
+        rw [List.head?_cons, Option.mem_some] at hz
+        subst hz
+        exact List.mem_cons_self
+      · intro z hz
+        rw [List.mem_cons] at hz
+        rcases hz with rfl | hz
+        · exact List.mem_cons_of_mem y List.mem_cons_self
+        · exact List.mem_cons_of_mem y (List.mem_cons_of_mem x (hcov' z hz))
+
+/-- Finset version of `alt_path_list`: any `S` with `|S| + 1 ≤ |Y₀|` and
+all `S`–`Y₀` pairs `R`-related is covered by a single `R`-chain. -/
+private theorem alt_path_exists {n : ℕ} {R : Fin n → Fin n → Prop}
+    (hR : ∀ a b, R a b → R b a)
+    {S Y₀ : Finset (Fin n)} (hdisj : Disjoint S Y₀)
+    (hedge : ∀ x ∈ S, ∀ y ∈ Y₀, R x y)
+    (hcard : S.card + 1 ≤ Y₀.card) :
+    ∃ p : VertPath (Fin n), p.toList.IsChain R ∧ ∀ x ∈ S, x ∈ p.toList := by
+  classical
+  obtain ⟨p, hchain, _, _, hcov⟩ := alt_path_list hR S.toList
+    (Y₀.toList.take (S.card + 1))
+    (by rw [List.length_take, Finset.length_toList, Finset.length_toList,
+        min_eq_left hcard])
+    (Finset.nodup_toList _)
+    ((Finset.nodup_toList _).sublist (List.take_sublist _ _))
+    (fun z hz hzy ↦
+      (Finset.disjoint_left.mp hdisj (Finset.mem_toList.mp hz))
+        (Finset.mem_toList.mp (List.Sublist.mem hzy (List.take_sublist _ _))))
+    (fun x hx y hy ↦
+      hedge x (Finset.mem_toList.mp hx) y
+        (Finset.mem_toList.mp (List.Sublist.mem hy (List.take_sublist _ _))))
+  exact ⟨p, hchain, fun x hx ↦ hcov x (Finset.mem_toList.mpr hx)⟩
+
+/-- Grouped alternating cover: if every `x ∈ X'` is `R`-related to every
+`y ∈ Y₀`, and `|X'| ≤ k · (|Y₀| - 1)`, then `X'` is covered by at most `k`
+`R`-chains.  Used for the ≤ 21 extra paths of Proposition 3.4. -/
+private theorem alt_cover {n : ℕ} {R : Fin n → Fin n → Prop}
+    (hR : ∀ a b, R a b → R b a) (Y₀ : Finset (Fin n))
+    (X' : Finset (Fin n)) (k : ℕ) (hdisj : Disjoint X' Y₀)
+    (hedge : ∀ x ∈ X', ∀ y ∈ Y₀, R x y)
+    (hcard : X'.card ≤ k * (Y₀.card - 1)) :
+    ∃ F : Finset (VertPath (Fin n)), (∀ p ∈ F, p.toList.IsChain R) ∧
+      (∀ x ∈ X', ∃ p ∈ F, x ∈ p.toList) ∧ F.card ≤ k := by
+  classical
+  revert k hdisj hedge hcard
+  refine Finset.strongInductionOn X' (p := fun T ↦ ∀ k : ℕ, Disjoint T Y₀ →
+      (∀ x ∈ T, ∀ y ∈ Y₀, R x y) → T.card ≤ k * (Y₀.card - 1) →
+      ∃ F : Finset (VertPath (Fin n)), (∀ p ∈ F, p.toList.IsChain R) ∧
+        (∀ x ∈ T, ∃ p ∈ F, x ∈ p.toList) ∧ F.card ≤ k)
+    fun T ihT k hdisjT hedgeT hcardT ↦ ?_
+  rcases T.eq_empty_or_nonempty with rfl | hTne
+  · exact ⟨∅, fun p hp ↦ by simp at hp, fun x hx ↦ by simp at hx, by simp⟩
+  · have hk1 : 1 ≤ k := by
+      rcases Nat.eq_zero_or_pos k with rfl | hk
+      · rw [Nat.zero_mul] at hcardT
+        have h2 := Finset.card_pos.mpr hTne
+        omega
+      · exact hk
+    have hY0 : 2 ≤ Y₀.card := by
+      by_contra hlt
+      push_neg at hlt
+      have hz : Y₀.card - 1 = 0 := by omega
+      rw [hz, Nat.mul_zero] at hcardT
+      have h2 := Finset.card_pos.mpr hTne
+      omega
+    by_cases hsmall : T.card ≤ Y₀.card - 1
+    · obtain ⟨p, hpchain, hpcov⟩ := alt_path_exists hR hdisjT hedgeT (by omega)
+      exact ⟨{p},
+        fun q hq ↦ by rw [Finset.mem_singleton] at hq; rwa [hq],
+        fun x hx ↦ ⟨p, Finset.mem_singleton_self _, hpcov x hx⟩,
+        by rw [Finset.card_singleton]; exact hk1⟩
+    · push_neg at hsmall
+      obtain ⟨S, hST, hScard⟩ := Finset.exists_subset_card_eq (le_of_lt hsmall)
+      have hSne : S.Nonempty := Finset.card_pos.mp (by omega)
+      obtain ⟨p, hpchain, hpcov⟩ := alt_path_exists hR
+        (Finset.disjoint_left.mpr fun x hx hy ↦
+          Finset.disjoint_left.mp hdisjT (hST hx) hy)
+        (fun x hx y hy ↦ hedgeT x (hST hx) y hy) (by omega)
+      have hcard' : (T \ S).card ≤ (k - 1) * (Y₀.card - 1) := by
+        rw [Finset.card_sdiff_of_subset hST]
+        have hmul : (k - 1) * (Y₀.card - 1) =
+            k * (Y₀.card - 1) - (Y₀.card - 1) := by
+          rw [Nat.sub_mul, Nat.one_mul]
+        omega
+      obtain ⟨F', hF'chain, hF'cov, hF'card⟩ := ihT (T \ S)
+        (Finset.sdiff_ssubset hST hSne) (k - 1)
+        (Finset.disjoint_left.mpr fun x hx hy ↦
+          Finset.disjoint_left.mp hdisjT (Finset.mem_sdiff.mp hx).1 hy)
+        (fun x hx y hy ↦ hedgeT x (Finset.mem_sdiff.mp hx).1 y hy)
+        hcard'
+      refine ⟨insert p F', ?_, ?_, ?_⟩
+      · intro q hq
+        rw [Finset.mem_insert] at hq
+        rcases hq with rfl | hq
+        · exact hpchain
+        · exact hF'chain q hq
+      · intro x hx
+        by_cases hxS : x ∈ S
+        · exact ⟨p, Finset.mem_insert_self _ _, hpcov x hxS⟩
+        · obtain ⟨q, hq, hqx⟩ := hF'cov x (Finset.mem_sdiff.mpr ⟨hx, hxS⟩)
+          exact ⟨q, Finset.mem_insert_of_mem hq, hqx⟩
+      · calc (insert p F').card ≤ F'.card + 1 := Finset.card_insert_le p F'
+          _ ≤ k := by omega
+
+/-- Pushing a `HasCoverLt` through a bijection. -/
+private theorem HasCoverLt.comap {V W : Type*} [Fintype V] [DecidableEq V]
+    [Fintype W] [DecidableEq W] {G : SimpleGraph W} {f : V → W}
+    (hf : Function.Injective f) (hfs : Function.Surjective f) {b : ℝ}
+    (h : HasCoverLt (G.comap f) b) : HasCoverLt G b := by
+  classical
+  obtain ⟨c, P, ⟨hmono, hcover⟩, hcard⟩ := h
+  have hinj : Function.Injective fun p : VertPath V ↦ p.map f hf :=
+    fun p q hpq ↦
+      VertPath.ext (List.map_injective_iff.mpr hf (congrArg VertPath.toList hpq))
+  refine ⟨c, P.map ⟨fun p ↦ p.map f hf, hinj⟩, ⟨⟨?_, ?_⟩, ?_⟩⟩
+  · intro q hq
+    obtain ⟨p, hp, rfl⟩ := Finset.mem_map.mp hq
+    exact (hmono p hp).map hf
+  · intro w
+    obtain ⟨v, rfl⟩ := hfs w
+    obtain ⟨p, hp, hvp⟩ := hcover v
+    exact ⟨p.map f hf, Finset.mem_map.mpr ⟨p, hp, rfl⟩,
+      VertPath.mem_map.mpr ⟨v, hvp, rfl⟩⟩
+  · rw [Finset.card_map]
+    exact hcard
+
+set_option maxHeartbeats 1000000 in
+/-- Inductive step of Proposition 3.4: for `n > 20⁴`, if the bound
+`√m + 20⁴` holds for all `m < n`, then every graph on `n` vertices has a
+same-color cover of size `< √n + 20⁴`.
+
+Following the paper: apply `long_path_structure` to get a long
+monochromatic path `P` such that every `y ∉ P` has at most `4√n`
+`γ`-neighbors on `P`.  If the `Y₀`-set (no `γ`-neighbor on `P`) or `Y`
+itself is small, `tail_pairing_bound` finishes.  Otherwise use
+`few_paths_of_min_degree` to cover `Y` and almost all of `P` by fewer than
+`√n` paths of the other color; the uncovered subset `X'` of `P` has at
+most `21 (|Y₀| - 1)` vertices, so it is covered by ≤ 21 alternating
+paths of the other color through `Y₀`. -/
+private theorem weak_sqrt_step {n : ℕ}
+    (hind : ∀ m < n, AllCoverLt m (Real.sqrt m + (20 : ℝ) ^ 4))
+    (hn : (20 : ℝ) ^ 4 < (n : ℝ))
+    (G : SimpleGraph (Fin n)) :
+    HasCoverLt G (Real.sqrt n + (20 : ℝ) ^ 4) := by
+  classical
+  set C : ℝ := 20 ^ 4 with hCdef
+  have hnR : (0 : ℝ) < n := by
+    have : (0 : ℝ) < (20 : ℝ) ^ 4 := by norm_num
+    linarith
+  have hn0 : 0 < n := by exact_mod_cast hnR
+  have hsqrt : (0 : ℝ) < Real.sqrt n := Real.sqrt_pos.mpr hnR
+  have hn4pos : (0 : ℝ) < (n : ℝ) ^ ((1 : ℝ) / 4) :=
+    Real.rpow_pos_of_pos hnR _
+  have hn4sq : ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 = Real.sqrt n := by
+    have h2 : ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 =
+        ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ ((2 : ℕ) : ℝ) :=
+      (Real.rpow_natCast _ 2).symm
+    rw [h2, ← Real.rpow_mul hnR.le, Real.sqrt_eq_rpow]
+    have e : (1 : ℝ) / 4 * ((2 : ℕ) : ℝ) = 1 / 2 := by norm_num
+    rw [e]
+  have hn4gt : (20 : ℝ) < (n : ℝ) ^ ((1 : ℝ) / 4) := by
+    have h204 : (20 : ℝ) = ((20 : ℝ) ^ 4) ^ ((1 : ℝ) / 4) := by
+      rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : (0:ℝ) ≤ 20),
+        show ((4:ℕ):ℝ) * (1/4) = 1 by norm_num, Real.rpow_one]
+    rw [h204]
+    exact Real.rpow_lt_rpow (by norm_num) hn (by norm_num)
+  have h20n4 : 20 * (n : ℝ) ^ ((1 : ℝ) / 4) ≤ Real.sqrt n := by
+    have h := mul_lt_mul_of_pos_right hn4gt hn4pos
+    rw [← pow_two, hn4sq] at h
+    exact h.le
+  have hsqrt400 : (400 : ℝ) < Real.sqrt n := by
+    have e : ((400 : ℝ) ^ 2) < n := by
+      have h2 : (20:ℝ)^4 = 400^2 := by norm_num
+      linarith
+    calc (400 : ℝ) = Real.sqrt ((400:ℝ)^2) := (Real.sqrt_sq (by norm_num)).symm
+      _ < Real.sqrt n := Real.sqrt_lt_sqrt (by positivity) e
+  have hbig : 12 * Real.sqrt n + 2 < n := by
+    calc 12 * Real.sqrt n + 2 < 400 * Real.sqrt n := by linarith
+      _ < Real.sqrt n * Real.sqrt n := mul_lt_mul_of_pos_right hsqrt400 hsqrt
+      _ = n := Real.mul_self_sqrt hnR.le
+  by_cases hG : HasCoverLe G (Real.sqrt n + (C - 1))
+  · obtain ⟨c, F, hF, hcard⟩ := hG
+    exact ⟨c, F, hF, lt_of_le_of_lt hcard (by linarith)⟩
+  obtain ⟨γ, P, hPmono, hPleft, hNbrs⟩ := long_path_structure
+    (C₁ := C) (C₂ := C - 1) (by linarith)
+    (by
+      have e : C - (C - 1) + 1 = 2 := by ring
+      rw [e]
+      calc (10:ℝ)^4 * 2^4 = 20^4 := by norm_num
+        _ = C := hCdef.symm
+        _ < n := hn)
+    hind G hG
+  have hΔ : C - (C - 1) + 1 = 2 := by ring
+  rw [hΔ] at hPleft hNbrs
+  set X := P.toList.toFinset with hXdef
+  set Y := Xᶜ with hYdef
+  set Y₀ := Y.filter (fun y ↦ ∀ x ∈ P.toList, ¬ Color.adj G γ x y) with hY0def
+  have hXcard : X.card = P.toList.length := List.toFinset_card_of_nodup P.nodup
+  have hXlen : X.card ≤ n := by
+    rw [hXcard]
+    exact le_trans P.nodup.length_le_card (le_of_eq (Fintype.card_fin n))
+  have hXlenR : (X.card : ℝ) ≤ n := by exact_mod_cast hXlen
+  have hYcard : Y.card = n - X.card := by
+    rw [hYdef, Finset.card_compl, Fintype.card_fin]
+  have hdisjXY : Disjoint X Y :=
+    Finset.disjoint_left.mpr fun a ha hb ↦ (Finset.mem_compl.mp hb) ha
+  have hY0sub : Y₀ ⊆ Y := Finset.filter_subset _ _
+  have hYiff : ∀ y, y ∈ Y ↔ y ∉ P.toList := fun y ↦ by
+    rw [hYdef, Finset.mem_compl, hXdef, List.mem_toFinset]
+  have hY0iff : ∀ y, y ∈ Y₀ ↔
+      y ∉ P.toList ∧ ∀ x ∈ P.toList, ¬ Color.adj G γ x y := by
+    intro y
+    rw [hY0def, Finset.mem_filter, hYiff y]
+  have hYle : (Y.card : ℝ) ≤ Real.sqrt n + 20 * (n : ℝ) ^ ((1 : ℝ) / 4) := by
+    have hle : ((n - X.card : ℕ) : ℝ) ≤
+        Real.sqrt n + 20 * (n : ℝ) ^ ((1 : ℝ) / 4) := by
+      rw [Nat.cast_sub hXlen, hXcard]
+      linarith [hPleft]
+    rw [hYcard]
+    exact hle
+  have hYle2 : (Y.card : ℝ) ≤ 2 * Real.sqrt n := by linarith
+  have hYleA : (Y.card : ℝ) ≤ 3 * Real.sqrt n / 2 + (2 * C - 4) := by
+    have h20half : 20 * (n : ℝ) ^ ((1 : ℝ) / 4) ≤
+        Real.sqrt n / 2 + (2 * C - 4) := by
+      by_cases h40 : (40 : ℝ) ^ 4 ≤ n
+      · have h404 : (40 : ℝ) = ((40 : ℝ) ^ 4) ^ ((1 : ℝ) / 4) := by
+          rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : (0:ℝ) ≤ 40),
+            show ((4:ℕ):ℝ) * (1/4) = 1 by norm_num, Real.rpow_one]
+        have h40n4 : (40 : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 4) := by
+          rw [h404]
+          exact Real.rpow_le_rpow (by norm_num) h40 (by norm_num)
+        have hC4 : (0:ℝ) ≤ 2 * C - 4 := by rw [hCdef]; norm_num
+        nlinarith [hn4sq, mul_nonneg (sub_nonneg.mpr h40n4) hn4pos.le, hC4]
+      · push_neg at h40
+        have h404 : (40 : ℝ) = ((40 : ℝ) ^ 4) ^ ((1 : ℝ) / 4) := by
+          rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : (0:ℝ) ≤ 40),
+            show ((4:ℕ):ℝ) * (1/4) = 1 by norm_num, Real.rpow_one]
+        have h40n4 : (n : ℝ) ^ ((1 : ℝ) / 4) < 40 := by
+          rw [h404]
+          exact Real.rpow_lt_rpow (by positivity) h40 (by norm_num)
+        have hCv : C = 160000 := by rw [hCdef]; norm_num
+        linarith [h40n4, hCv, hsqrt.le]
+    linarith
+  by_cases hcase : (Y₀.card : ℝ) ≤ Real.sqrt n / 2 ∨
+      (Y.card : ℝ) ≤ Real.sqrt n
+  · obtain ⟨c, F, ⟨hmono, hcov⟩, hcard⟩ :=
+      tail_pairing_bound_color G P hPmono Y Y₀ hYiff hY0iff
+    refine ⟨c, F, ⟨hmono, hcov⟩, ?_⟩
+    have hC2 : (2 : ℝ) ≤ C := by rw [hCdef]; norm_num
+    have hbound : (2 : ℝ) + (Y.card : ℝ) / 2 + (Y₀.card : ℝ) / 2 ≤
+        Real.sqrt n + C := by
+      rcases hcase with hY0 | hY
+      · linarith
+      · have hY0b : (Y₀.card : ℝ) ≤ Real.sqrt n := by
+          have hsub := Finset.card_le_card hY0sub
+          have hle : (Y₀.card : ℝ) ≤ Y.card := by exact_mod_cast hsub
+          linarith
+        linarith
+    exact lt_of_lt_of_le hcard hbound
+  · push_neg at hcase
+    obtain ⟨hY0gt, hYgt⟩ := hcase
+    set m := ⌈4 * Real.sqrt (n : ℝ)⌉₊ with hmdef
+    set H := adjXYGraph G hdisjXY γ.other with hHdef
+    have hmR : (m : ℝ) < 4 * Real.sqrt n + 1 := by
+      rw [hmdef]
+      exact Nat.ceil_lt_add_one (mul_nonneg (by norm_num) hsqrt.le)
+    have hYpos' : 0 < Y.card := by
+      have h : (0:ℝ) < Y.card := lt_trans hsqrt hYgt
+      exact_mod_cast h
+    have hYposR : (0:ℝ) < (Y.card : ℝ) := by exact_mod_cast hYpos'
+    have hdegN : ∀ y ∈ Y, X.card - m ≤
+        (X.filter fun x ↦ Color.adj G γ.other x y).card := by
+      intro y hy
+      have hyP : y ∉ P.toList := (hYiff y).mp hy
+      have hB := hNbrs y hyP
+      set B := X.filter (fun x ↦ Color.adj G γ x y) with hBdef
+      have hBset : {x : Fin n | x ∈ P.toList ∧ Color.adj G γ x y} =
+          (B : Set (Fin n)) := by
+        ext x
+        simp [hBdef, hXdef, Finset.coe_filter, List.mem_toFinset]
+      rw [hBset, Set.ncard_coe_finset] at hB
+      have hBm : B.card ≤ m := by
+        rw [hmdef]
+        have h' := Nat.ceil_le_ceil
+          (show (B.card : ℝ) ≤ 4 * Real.sqrt n by linarith)
+        rwa [Nat.ceil_natCast] at h'
+      have hunion : B ∪ (X.filter fun x ↦ Color.adj G γ.other x y) = X := by
+        ext x
+        simp only [hBdef, Finset.mem_union, Finset.mem_filter]
+        constructor
+        · rintro (⟨hxX, -⟩ | ⟨hxX, -⟩) <;> exact hxX
+        · intro hxX
+          have hxy : x ≠ y := fun e ↦ by
+            subst e
+            exact (Finset.mem_compl.mp hy) hxX
+          rcases Color.adj_or_adj_other G hxy with h | h
+          · exact Or.inl ⟨hxX, h⟩
+          · exact Or.inr ⟨hxX, h⟩
+      have hsplit : X.card ≤ B.card +
+          (X.filter fun x ↦ Color.adj G γ.other x y).card := by
+        have hc : X.card =
+            (B ∪ (X.filter fun x ↦ Color.adj G γ.other x y)).card :=
+          congrArg Finset.card hunion.symm
+        rw [hc]
+        exact Finset.card_union_le B _
+      omega
+    have hcardXY : Y.card + 2 * m ≤ X.card := by
+      have hXY : (X.card : ℝ) + Y.card = n := by
+        have hcast : ((n - X.card : ℕ) : ℝ) = (n : ℝ) - X.card :=
+          Nat.cast_sub hXlen
+        have hYc : (Y.card : ℝ) = (n : ℝ) - X.card := by
+          rw [hYcard]
+          exact hcast
+        linarith
+      have hR : (Y.card : ℝ) + 2 * m < (X.card : ℝ) := by linarith
+      exact_mod_cast hR.le
+    have hbip : BipartiteOn H X Y :=
+      ⟨hdisjXY, fun a b h ↦ bip_ramsey_path.Color.adjXY.across
+        (show Color.adjXY G X Y γ.other a b from h)⟩
+    have hdeg : ∀ y ∈ Y, (H.neighborFinset y).card ≥ X.card - m := by
+      intro y hy
+      have hsub : (X.filter fun x ↦ Color.adj G γ.other x y) ⊆
+          H.neighborFinset y := by
+        intro x hx
+        rw [Finset.mem_filter] at hx
+        obtain ⟨hxX, hadj⟩ := hx
+        rw [SimpleGraph.mem_neighborFinset]
+        show Color.adjXY G X Y γ.other y x
+        exact adjXY_of_across_adj G (Or.inr ⟨hy, hxX⟩) (Color.adj_symm G hadj)
+      calc X.card - m ≤ (X.filter fun x ↦ Color.adj G γ.other x y).card :=
+            hdegN y hy
+        _ ≤ (H.neighborFinset y).card := Finset.card_le_card hsub
+    obtain ⟨P_fam, hPf_chain, hPf_mem, hPf_cov, hPf_card, hPf_uncov⟩ :=
+      few_paths_of_min_degree H X Y m hbip hYpos' hcardXY hdeg
+    have hPfmono : ∀ p ∈ P_fam, p.IsMonochromatic G γ.other := fun p hp ↦
+      (hPf_chain p hp).imp fun _ _ h ↦ adjXY_to_adj G hdisjXY h
+    set T := P_fam.biUnion VertPath.verts with hTdef
+    set X' := X \ T with hX'def
+    have hX'card : (X'.card : ℝ) ≤ 10 * Real.sqrt n + 2 := by
+      have h1 : (X'.card : ℝ) ≤ (Y.card : ℝ) + 2 * m := by
+        have hle : X'.card ≤ Y.card + 2 * m := by
+          rw [hX'def, hTdef]
+          exact hPf_uncov
+        exact_mod_cast hle
+      linarith
+    have hdisjX' : Disjoint X' Y₀ :=
+      Finset.disjoint_left.mpr fun x hx hy ↦
+        Finset.disjoint_left.mp hdisjXY (Finset.mem_sdiff.mp hx).1 (hY0sub hy)
+    have hedge : ∀ x ∈ X', ∀ y ∈ Y₀, Color.adj G γ.other x y := by
+      intro x hx y hy
+      have hxX : x ∈ X := (Finset.mem_sdiff.mp hx).1
+      have hxP : x ∈ P.toList := by
+        rw [hXdef] at hxX
+        exact List.mem_toFinset.mp hxX
+      have hyP : y ∉ P.toList := (hYiff y).mp (hY0sub hy)
+      have hxy : x ≠ y := fun e ↦ by
+        subst e
+        exact hyP hxP
+      have hnadj : ¬ Color.adj G γ x y := by
+        have h : y ∈ Y₀ := hy
+        rw [hY0iff y] at h
+        exact h.2 x hxP
+      exact (Color.adj_iff_not_adj_other G (c := γ.other) hxy).mpr
+        (show ¬ Color.adj G γ.other.other x y by
+          rw [Color.other_other]
+          exact hnadj)
+    have hcardX' : X'.card ≤ 21 * (Y₀.card - 1) := by
+      have hY0ge1 : 1 ≤ Y₀.card := by
+        have h : (0:ℝ) < Y₀.card := by linarith
+        exact_mod_cast h
+      have hR : (X'.card : ℝ) ≤ ((21 * (Y₀.card - 1) : ℕ) : ℝ) := by
+        have hcast : ((21 * (Y₀.card - 1) : ℕ) : ℝ) =
+            21 * ((Y₀.card : ℝ) - 1) := by
+          rw [Nat.cast_mul, Nat.cast_sub hY0ge1, Nat.cast_one]
+          norm_num
+        rw [hcast]
+        linarith
+      exact_mod_cast hR
+    obtain ⟨F₂, hF₂chain, hF₂cov, hF₂card⟩ := alt_cover
+      (fun _ _ h ↦ Color.adj_symm G h) Y₀ X' 21 hdisjX' hedge hcardX'
+    refine ⟨γ.other, P_fam ∪ F₂, ⟨⟨?_, ?_⟩, ?_⟩⟩
+    · intro p hp
+      rw [Finset.mem_union] at hp
+      rcases hp with hp | hp
+      · exact hPfmono p hp
+      · exact hF₂chain p hp
+    · intro v
+      by_cases hvY : v ∈ Y
+      · obtain ⟨p, hp, hvp⟩ := hPf_cov v hvY
+        exact ⟨p, Finset.mem_union_left _ hp, hvp⟩
+      · have hvX : v ∈ X := by
+          by_contra h
+          exact hvY (Finset.mem_compl.mpr h)
+        by_cases hvT : v ∈ T
+        · rw [hTdef, Finset.mem_biUnion] at hvT
+          obtain ⟨p, hp, hvp⟩ := hvT
+          exact ⟨p, Finset.mem_union_left _ hp, VertPath.mem_verts.mp hvp⟩
+        · obtain ⟨p, hp, hvp⟩ := hF₂cov v (Finset.mem_sdiff.mpr ⟨hvX, hvT⟩)
+          exact ⟨p, Finset.mem_union_right _ hp, hvp⟩
+    · have hF1 : (P_fam.card : ℝ) < Real.sqrt n := by
+        calc (P_fam.card : ℝ) ≤ ((X.card / Y.card : ℕ) : ℝ) := by
+              exact_mod_cast hPf_card
+          _ ≤ (X.card : ℝ) / Y.card := Nat.cast_div_le
+          _ ≤ (n : ℝ) / Y.card :=
+              div_le_div_of_nonneg_right hXlenR hYposR.le
+          _ < (n : ℝ) / Real.sqrt n :=
+              div_lt_div_of_pos_left hnR hsqrt hYgt
+          _ = Real.sqrt n := by
+              rw [div_eq_iff hsqrt.ne']
+              exact (Real.mul_self_sqrt hnR.le).symm
+      have hF2 : (F₂.card : ℝ) ≤ 21 := by exact_mod_cast hF₂card
+      have h1 : ((P_fam ∪ F₂).card : ℝ) ≤ (P_fam.card : ℝ) + F₂.card := by
+        exact_mod_cast Finset.card_union_le P_fam F₂
+      have hC21 : (21:ℝ) < C := by rw [hCdef]; norm_num
+      linarith
+
 /-- **PVW24 Proposition 3.4 (weak bound).**  For all `n`,
 `f(n) < √n + 20⁴`. -/
 theorem weak_sqrt_bound (n : ℕ) :
     AllCoverLt n (Real.sqrt n + 20 ^ 4) := by
-  sorry
+  classical
+  refine Nat.strong_induction_on n fun n ih ↦ ?_
+  intro W instF instD hW G
+  by_cases hbase : n ≤ 20 ^ 4
+  · refine HasCoverLt.self G ?_
+    rw [hW]
+    by_cases hn0 : n = 0
+    · subst hn0
+      simp only [Nat.cast_zero, Real.sqrt_zero, zero_add]
+      norm_num
+    · have hn1 : 1 ≤ n := Nat.one_le_iff_ne_zero.mpr hn0
+      have hnR : (0:ℝ) < n := by exact_mod_cast hn1
+      have hsqrt : (0:ℝ) < Real.sqrt n := Real.sqrt_pos.mpr hnR
+      have hle : (n:ℝ) ≤ 20^4 := by exact_mod_cast hbase
+      linarith
+  · have hnlt : 20 ^ 4 < n := Nat.lt_of_not_ge hbase
+    have hnR : (20 : ℝ) ^ 4 < (n : ℝ) := by
+      have h : ((20 ^ 4 : ℕ) : ℝ) < n := by exact_mod_cast hnlt
+      norm_num at h ⊢
+      exact h
+    have e : W ≃ Fin n := Fintype.equivFinOfCardEq hW
+    exact HasCoverLt.comap e.symm.injective e.symm.surjective
+      (weak_sqrt_step ih hnR (G.comap e.symm))
 
 /-- **PVW24 Theorem 1.3 — the Erdős–Gyárfás conjecture.**  For all
 `n > 20^{40}`, every 2-edge-coloured `K_n` has a vertex cover by at most `√n`

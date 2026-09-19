@@ -1359,6 +1359,88 @@ theorem bipath_cover {A B : List V} {z : V} {k ℓ : ℕ}
     simp only [List.length_append, List.length_cons, List.length_nil]
     omega
 
+/-!
+### Either-order bipaths
+
+Gyárfás–Lehel's extension arguments produce vertex sequences whose single
+colour switch runs either red-to-blue (`IsBipath`) or blue-to-red
+(`IsBipathB`).  A *maximal* either-order bipath forces the colouring into the
+two-clique structure that settles the Ramsey alternative.
+-/
+
+variable {G : SimpleGraph V} {X Y : Finset V}
+
+/-- A "blue-first" bipath: `A ++ [z]` is a blue chain, `z :: B` a red chain.
+This is exactly `IsBipath` in the complement colouring `Gᶜ`. -/
+def IsBipathB (G : SimpleGraph V) (X Y : Finset V) (A : List V) (z : V)
+    (B : List V) : Prop :=
+  (A ++ [z]).IsChain (Color.adjXY G X Y .blue) ∧
+  (z :: B).IsChain (Color.adjXY G X Y .red) ∧
+  (A ++ z :: B).Nodup
+
+theorem acrossXY.ne {a b : V} (hXY : Disjoint X Y) (h : acrossXY X Y a b) :
+    a ≠ b := by
+  rintro rfl
+  obtain ⟨h1, h2⟩ | ⟨h1, h2⟩ := h
+  · exact Disjoint.notMem_left hXY h1 h2
+  · exact Disjoint.notMem_right hXY h1 h2
+
+theorem Color.adjXY.ne {c : Color} {a b : V} (hXY : Disjoint X Y)
+    (h : Color.adjXY G X Y c a b) : a ≠ b :=
+  acrossXY.ne hXY (Color.adjXY.across h)
+
+/-- `Gᶜ`-red across `X Y` is `G`-blue. -/
+theorem Color.adjXY.compl_red {a b : V} (hXY : Disjoint X Y)
+    (h : Color.adjXY Gᶜ X Y .red a b) : Color.adjXY G X Y .blue a b := by
+  obtain ⟨hx, hadj⟩ := h
+  rw [SimpleGraph.compl_adj] at hadj
+  exact ⟨hx, hadj.2⟩
+
+/-- `Gᶜ`-blue across `X Y` is `G`-red. -/
+theorem Color.adjXY.compl_blue {a b : V} (hXY : Disjoint X Y)
+    (h : Color.adjXY Gᶜ X Y .blue a b) : Color.adjXY G X Y .red a b := by
+  obtain ⟨hx, hadj⟩ := h
+  rw [SimpleGraph.compl_adj] at hadj
+  push_neg at hadj
+  exact ⟨hx, hadj (acrossXY.ne hXY hx)⟩
+
+theorem IsBipath.of_compl {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (h : IsBipath Gᶜ X Y A z B) : IsBipathB G X Y A z B :=
+  ⟨h.1.imp fun _ _ hh ↦ Color.adjXY.compl_red hXY hh,
+   h.2.1.imp fun _ _ hh ↦ Color.adjXY.compl_blue hXY hh, h.2.2⟩
+
+theorem IsBipathB.of_compl {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (h : IsBipathB Gᶜ X Y A z B) : IsBipath G X Y A z B :=
+  ⟨h.1.imp fun _ _ hh ↦ Color.adjXY.compl_blue hXY hh,
+   h.2.1.imp fun _ _ hh ↦ Color.adjXY.compl_red hXY hh, h.2.2⟩
+
+/-- An either-order bipath: a vertex list with a single colour switch. -/
+def IsBipathO (G : SimpleGraph V) (X Y : Finset V) (A : List V) (z : V)
+    (B : List V) : Prop :=
+  IsBipath G X Y A z B ∨ IsBipathB G X Y A z B
+
+/-- A maximum either-order bipath exists and is red- or blue-first. -/
+theorem exists_max_bipathO (G : SimpleGraph V) (X Y : Finset V)
+    (hXY : Disjoint X Y) (v : V) :
+    ∃ A z B, IsBipathO G X Y A z B ∧
+      ∀ A' z' B', IsBipathO G X Y A' z' B' → bipathLen A' z' B' ≤ bipathLen A z B := by
+  obtain ⟨A₁, z₁, B₁, h1, hmax1⟩ := exists_max_bipath G X Y v
+  obtain ⟨A₂, z₂, B₂, h2, hmax2⟩ := exists_max_bipath Gᶜ X Y v
+  have h2' : IsBipathB G X Y A₂ z₂ B₂ := IsBipath.of_compl hXY h2
+  rcases Nat.le_or_ge (bipathLen A₂ z₂ B₂) (bipathLen A₁ z₁ B₁) with hle | hle
+  · refine ⟨A₁, z₁, B₁, Or.inl h1, fun A' z' B' h ↦ ?_⟩
+    rcases h with h | h
+    · exact hmax1 _ _ _ h
+    · have : IsBipath Gᶜ X Y A' z' B' := by
+        simpa [SimpleGraph.compl_compl] using IsBipathB.of_compl hXY h
+      exact (hmax2 _ _ _ this).trans hle
+  · refine ⟨A₂, z₂, B₂, Or.inr h2', fun A' z' B' h ↦ ?_⟩
+    rcases h with h | h
+    · exact (hmax1 _ _ _ h).trans hle
+    · have : IsBipath Gᶜ X Y A' z' B' := by
+        simpa [SimpleGraph.compl_compl] using IsBipathB.of_compl hXY h
+      exact hmax2 _ _ _ this
+
 end bip_ramsey_path
 
 /-- **Gyárfás–Lehel 1973** (PVW24 Lemma 2.1).  For distinct `k ℓ`, every
