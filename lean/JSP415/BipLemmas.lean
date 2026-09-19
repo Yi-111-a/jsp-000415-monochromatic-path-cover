@@ -1414,6 +1414,28 @@ theorem IsBipathB.of_compl {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y
   ⟨h.1.imp fun _ _ hh ↦ Color.adjXY.compl_blue hXY hh,
    h.2.1.imp fun _ _ hh ↦ Color.adjXY.compl_red hXY hh, h.2.2⟩
 
+/-- `G`-blue across `X Y` is `Gᶜ`-red. -/
+theorem Color.adjXY.to_compl_red {a b : V} (hXY : Disjoint X Y)
+    (h : Color.adjXY G X Y .blue a b) : Color.adjXY Gᶜ X Y .red a b := by
+  obtain ⟨hx, hadj⟩ := h
+  refine ⟨hx, ?_⟩
+  rw [SimpleGraph.compl_adj]
+  exact ⟨acrossXY.ne hXY hx, hadj⟩
+
+/-- `G`-red across `X Y` is `Gᶜ`-blue. -/
+theorem Color.adjXY.to_compl_blue {a b : V} (hXY : Disjoint X Y)
+    (h : Color.adjXY G X Y .red a b) : Color.adjXY Gᶜ X Y .blue a b := by
+  obtain ⟨hx, hadj⟩ := h
+  refine ⟨hx, ?_⟩
+  rw [SimpleGraph.compl_adj]
+  push_neg
+  exact fun _ ↦ hadj
+
+theorem IsBipathB.to_compl {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (h : IsBipathB G X Y A z B) : IsBipath Gᶜ X Y A z B :=
+  ⟨h.1.imp fun _ _ hh ↦ Color.adjXY.to_compl_red hXY hh,
+   h.2.1.imp fun _ _ hh ↦ Color.adjXY.to_compl_blue hXY hh, h.2.2⟩
+
 /-- An either-order bipath: a vertex list with a single colour switch. -/
 def IsBipathO (G : SimpleGraph V) (X Y : Finset V) (A : List V) (z : V)
     (B : List V) : Prop :=
@@ -1431,15 +1453,589 @@ theorem exists_max_bipathO (G : SimpleGraph V) (X Y : Finset V)
   · refine ⟨A₁, z₁, B₁, Or.inl h1, fun A' z' B' h ↦ ?_⟩
     rcases h with h | h
     · exact hmax1 _ _ _ h
-    · have : IsBipath Gᶜ X Y A' z' B' := by
-        simpa [SimpleGraph.compl_compl] using IsBipathB.of_compl hXY h
+    · have : IsBipath Gᶜ X Y A' z' B' := IsBipathB.to_compl hXY h
       exact (hmax2 _ _ _ this).trans hle
   · refine ⟨A₂, z₂, B₂, Or.inr h2', fun A' z' B' h ↦ ?_⟩
     rcases h with h | h
     · exact (hmax1 _ _ _ h).trans hle
-    · have : IsBipath Gᶜ X Y A' z' B' := by
-        simpa [SimpleGraph.compl_compl] using IsBipathB.of_compl hXY h
+    · have : IsBipath Gᶜ X Y A' z' B' := IsBipathB.to_compl hXY h
       exact hmax2 _ _ _ this
+
+/-!
+### Extension moves for maximal bipaths
+
+Gyárfás–Lehel's argument exhibits, in each configuration that is *not* the
+surviving type (iii), an either-order bipath strictly longer than the maximum
+— a contradiction.  The two workhorse lemmas below cover case (i) (endpoints
+in different classes) and case (ii) (endpoints and midpoint in one class).
+-/
+
+theorem List.head?_eq_head {l : List V} (hl : l ≠ []) :
+    l.head? = some (l.head hl) := by
+  cases l with
+  | nil => exact absurd rfl hl
+  | cons a l => simp
+
+/-- The last edge of the red branch of a nonempty bipath. -/
+theorem IsBipath.red_last_edge {A : List V} {z : V} {B : List V}
+    (hb : IsBipath G X Y A z B) (hA : A ≠ []) :
+    Color.adjXY G X Y .red (A.getLast hA) z := by
+  obtain ⟨hred, -, -⟩ := hb
+  have h := List.IsChain.rel_getLast_head_of_append hred hA (by simp)
+  rwa [List.head_cons] at h
+
+/-- The first edge of the blue branch of a nonempty bipath. -/
+theorem IsBipath.blue_first_edge {A : List V} {z : V} {B : List V}
+    (hb : IsBipath G X Y A z B) (hB : B ≠ []) :
+    Color.adjXY G X Y .blue z (B.head hB) := by
+  obtain ⟨-, hblue, -⟩ := hb
+  have h := List.isChain_cons.mp hblue
+  exact h.1 _ (by rw [List.head?_eq_head hB]; exact Option.mem_some_iff.mpr rfl)
+
+/-- A vertex outside the bipath is outside every piece of it. -/
+theorem IsBipath.notMem_pieces {A : List V} {z : V} {B : List V}
+    (hb : IsBipath G X Y A z B) {u : V} (hu : u ∉ A ++ z :: B) :
+    u ∉ A ∧ u ≠ z ∧ u ∉ B := by
+  refine ⟨fun h ↦ hu (List.mem_append_left _ h),
+    fun h ↦ hu (List.mem_append_right _ (List.mem_cons.mpr (Or.inl h))),
+    fun h ↦ hu (List.mem_append_right _ (List.mem_cons_of_mem _ h))⟩
+
+/-- The pieces of a bipath are pairwise disjoint. -/
+theorem IsBipath.disjoint_pieces {A : List V} {z : V} {B : List V}
+    (hb : IsBipath G X Y A z B) :
+    z ∉ A ∧ z ∉ B ∧ A.Disjoint B := by
+  obtain ⟨-, -, hnd⟩ := hb
+  obtain ⟨-, hndzB, hdis⟩ := List.nodup_append.mp hnd
+  obtain ⟨hzB, -⟩ := List.nodup_cons.mp hndzB
+  refine ⟨?_, hzB, fun a ha hb' ↦ ?_⟩
+  · intro h
+    exact hdis _ h _ List.mem_cons_self rfl
+  · exact hdis _ ha _ (List.mem_cons_of_mem _ hb') rfl
+
+
+/-- **GL case (i).**  If the endpoints `A.head`, `B.getLast` of a maximal
+either-order bipath lie in different classes, then no vertex outside the
+bipath lies in the midpoint's opposite class. -/
+theorem bipathO_leftover_opp_of_diff_ends
+    {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (hb : IsBipath G X Y A z B)
+    (hmax : ∀ A' z' B', IsBipathO G X Y A' z' B' →
+      bipathLen A' z' B' ≤ bipathLen A z B)
+    {u : V} (hu : u ∉ A ++ z :: B) (hz : z ∈ X) (huY : u ∈ Y)
+    (hA : A ≠ []) (hB : B ≠ [])
+    (hdiff : acrossXY X Y (A.head hA) (B.getLast hB)) : False := by
+  have harz := IsBipath.red_last_edge hb hA
+  have hzb1 := IsBipath.blue_first_edge hb hB
+  obtain ⟨hred, hblue, hnd⟩ := hb
+  set a₁ := A.head hA
+  set aᵣ := A.getLast hA
+  set bₛ := B.getLast hB
+  have huz : acrossXY X Y u z := Or.inr ⟨huY, hz⟩
+  have hArev : A.reverse.IsChain (Color.adjXY G X Y .red) :=
+    Color.adjXY.isChain_reverse hred.left_of_append
+  have hBrev : B.reverse.IsChain (Color.adjXY G X Y .blue) :=
+    Color.adjXY.isChain_reverse hblue.tail
+  have hndS : (u :: A ++ z :: B).Nodup := List.nodup_cons.mpr ⟨hu, hnd⟩
+  have hAl : 1 ≤ A.length := List.length_pos_of_ne_nil hA
+  have hBl : 1 ≤ B.length := List.length_pos_of_ne_nil hB
+  -- list identities
+  have hBsnoc : B.dropLast ++ [bₛ] = B :=
+    List.dropLast_append_getLast? _
+      (by rw [List.getLast?_eq_getLast_of_ne_nil hB]
+          exact Option.mem_some_iff.mpr rfl)
+  have hBrev_eq : B.reverse = bₛ :: B.dropLast.reverse := by
+    conv_lhs => rw [← hBsnoc]
+    simp
+  have hAcons : a₁ :: A.tail = A := List.cons_head_tail hA
+  have hAtail : A.tail.reverse ++ [a₁] = A.reverse := by
+    conv_rhs => rw [← hAcons, List.reverse_cons]
+  -- permutations of the extended vertex list
+  have hp1 : List.Perm (A ++ z :: B) (z :: A ++ B) := List.perm_middle
+  have hpAB : List.Perm (A ++ B) (A.reverse ++ B.reverse) := by
+    have h : List.Perm ((B ++ A).reverse) (B ++ A) := List.reverse_perm _
+    rw [List.reverse_append] at h
+    exact List.perm_append_comm.trans h.symm
+  have hpermR : List.Perm (u :: z :: A.reverse ++ B.reverse) (u :: A ++ z :: B) :=
+    ((hpAB.symm.cons z).cons u).trans (hp1.symm.cons u)
+  have hpermB : List.Perm (u :: z :: B ++ A) (u :: A ++ z :: B) :=
+    ((List.perm_append_comm.cons z).cons u).trans (hp1.symm.cons u)
+  -- case split on the colour of `(u,z)`
+  rcases Color.adjXY_cases huz with huzc | huzc
+  · -- `(u,z)` red: traverse `u,z,Aᵣ,…,A₁,Bₛ,…,B₁`
+    have huzArev : (u :: z :: A.reverse).IsChain (Color.adjXY G X Y .red) := by
+      rw [List.isChain_cons]
+      refine ⟨fun y hy ↦ ?_, ?_⟩
+      · simp only [List.head?_cons, Option.mem_some_iff] at hy
+        subst hy; exact huzc
+      · rw [List.isChain_cons]
+        refine ⟨fun y hy ↦ ?_, hArev⟩
+        rw [List.head?_reverse] at hy
+        obtain ⟨-, rfl⟩ := List.mem_getLast?_eq_getLast hy
+        exact Color.adjXY.symm harz
+    rcases Color.adjXY_cases hdiff with hJ | hJ
+    · -- `(A₁,Bₛ)` red: bipath `([u,z]++A.reverse, bₛ, B.dropLast.reverse)`
+      have hbp : IsBipath G X Y ([u, z] ++ A.reverse) bₛ B.dropLast.reverse := by
+        refine ⟨?_, ?_, ?_⟩
+        · rw [List.isChain_append]
+          refine ⟨huzArev, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+          rw [List.getLast?_append_of_ne_nil _ (by simpa using hA),
+            List.getLast?_reverse, List.head?_eq_head hA] at hx
+          simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+          subst hx; subst hy; exact hJ
+        · rw [← hBrev_eq]; exact hBrev
+        · have hT : ([u, z] ++ A.reverse) ++ bₛ :: B.dropLast.reverse =
+              u :: z :: A.reverse ++ B.reverse := by
+            rw [← hBrev_eq]; simp
+          rw [hT]; exact (hpermR.nodup_iff).mpr hndS
+      exact absurd (hmax _ _ _ (Or.inl hbp)) (by simp [bipathLen]; omega)
+    · -- `(A₁,Bₛ)` blue: bipath `([u,z]++A.tail.reverse, a₁, B.reverse)`
+      have hbp : IsBipath G X Y ([u, z] ++ A.tail.reverse) a₁ B.reverse := by
+        refine ⟨?_, ?_, ?_⟩
+        · have : ([u, z] ++ A.tail.reverse) ++ [a₁] =
+              [u, z] ++ A.reverse := by
+            rw [List.append_assoc, hAtail]
+          rw [this]; exact huzArev
+        · rw [List.isChain_cons]
+          refine ⟨fun y hy ↦ ?_, hBrev⟩
+          rw [List.head?_reverse, List.getLast?_eq_getLast_of_ne_nil hB] at hy
+          simp only [Option.mem_some_iff] at hy; subst hy
+          exact hJ
+        · have hT : ([u, z] ++ A.tail.reverse) ++ a₁ :: B.reverse =
+              u :: z :: A.reverse ++ B.reverse := by
+            rw [List.append_assoc, List.append_cons, hAtail]
+            rfl
+          rw [hT]; exact (hpermR.nodup_iff).mpr hndS
+      exact absurd (hmax _ _ _ (Or.inl hbp)) (by simp [bipathLen]; omega)
+  · -- `(u,z)` blue: traverse `u,z,B₁,…,Bₛ,A₁,…,Aᵣ` (blue-first)
+    have huzB : (u :: z :: B).IsChain (Color.adjXY G X Y .blue) := by
+      rw [List.isChain_cons]
+      refine ⟨fun y hy ↦ ?_, ?_⟩
+      · simp only [List.head?_cons, Option.mem_some_iff] at hy
+        subst hy; exact huzc
+      · rw [List.isChain_cons]
+        refine ⟨fun y hy ↦ ?_, hblue.tail⟩
+        rw [List.head?_eq_head hB] at hy
+        simp only [Option.mem_some_iff] at hy; subst hy
+        exact hzb1
+    rcases Color.adjXY_cases (acrossXY.symm hdiff) with hJ | hJ
+    · -- `(Bₛ,A₁)` red: blue-first bipath `([u,z]++B.dropLast, bₛ, A)`
+      have hbp : IsBipathB G X Y ([u, z] ++ B.dropLast) bₛ A := by
+        refine ⟨?_, ?_, ?_⟩
+        · have : ([u, z] ++ B.dropLast) ++ [bₛ] = [u, z] ++ B := by
+            rw [List.append_assoc, hBsnoc]
+          rw [this]; exact huzB
+        · rw [List.isChain_cons]
+          refine ⟨fun y hy ↦ ?_, hred.left_of_append⟩
+          rw [List.head?_eq_head hA] at hy
+          simp only [Option.mem_some_iff] at hy; subst hy; exact hJ
+        · have hT : ([u, z] ++ B.dropLast) ++ bₛ :: A =
+              u :: z :: B ++ A := by
+            rw [List.append_assoc, List.append_cons, hBsnoc]
+            rfl
+          rw [hT]; exact (hpermB.nodup_iff).mpr hndS
+      exact absurd (hmax _ _ _ (Or.inr hbp)) (by simp [bipathLen]; omega)
+    · -- `(Bₛ,A₁)` blue: blue-first bipath `([u,z]++B, a₁, A.tail)`
+      have hbp : IsBipathB G X Y ([u, z] ++ B) a₁ A.tail := by
+        refine ⟨?_, ?_, ?_⟩
+        · rw [List.isChain_append]
+          refine ⟨huzB, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+          rw [List.getLast?_append_of_ne_nil _ hB,
+            List.getLast?_eq_getLast_of_ne_nil hB] at hx
+          simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+          subst hx; subst hy; exact hJ
+        · rw [hAcons]; exact hred.left_of_append
+        · have hT : ([u, z] ++ B) ++ a₁ :: A.tail =
+              u :: z :: B ++ A := by
+            rw [List.append_assoc, hAcons]
+            rfl
+          rw [hT]; exact (hpermB.nodup_iff).mpr hndS
+      exact absurd (hmax _ _ _ (Or.inr hbp)) (by simp [bipathLen]; omega)
+
+/-- **GL case (ii).**  If the endpoints `A.head`, `B.getLast` and the midpoint
+`z` of a maximal either-order bipath all lie in the same class, then no vertex
+outside the bipath lies in the opposite class: any such vertex `u` extends the
+bipath, contradicting maximality. -/
+theorem bipathO_leftover_opp_of_same_ends
+    {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (hb : IsBipath G X Y A z B)
+    (hmax : ∀ A' z' B', IsBipathO G X Y A' z' B' →
+      bipathLen A' z' B' ≤ bipathLen A z B)
+    {u : V} (hu : u ∉ A ++ z :: B) (hz : z ∈ X) (huY : u ∈ Y)
+    (hA : A ≠ []) (hB : B ≠ [])
+    (haX : A.head hA ∈ X) (hbX : B.getLast hB ∈ X) : False := by
+  have hzb1 := IsBipath.blue_first_edge hb hB
+  have harz := IsBipath.red_last_edge hb hA
+  obtain ⟨hred, hblue, hnd⟩ := hb
+  set a₁ := A.head hA
+  set bₛ := B.getLast hB
+  have hndS : (u :: A ++ z :: B).Nodup := List.nodup_cons.mpr ⟨hu, hnd⟩
+  have hAl : 1 ≤ A.length := List.length_pos_of_ne_nil hA
+  have hBl : 1 ≤ B.length := List.length_pos_of_ne_nil hB
+  have hBsnoc : B.dropLast ++ [bₛ] = B :=
+    List.dropLast_append_getLast? _
+      (by rw [List.getLast?_eq_getLast_of_ne_nil hB]
+          exact Option.mem_some_iff.mpr rfl)
+  have hBrev_eq : B.reverse = bₛ :: B.dropLast.reverse := by
+    conv_lhs => rw [← hBsnoc]
+    simp
+  have hAcons : a₁ :: A.tail = A := List.cons_head_tail hA
+  have hBrev : B.reverse.IsChain (Color.adjXY G X Y .blue) :=
+    Color.adjXY.isChain_reverse hblue.tail
+  have huz : acrossXY X Y u z := Or.inr ⟨huY, hz⟩
+  -- the `u–a₁` edge cannot be red: else `(u::A, z, B)` is longer
+  rcases Color.adjXY_cases (show acrossXY X Y u a₁ from Or.inr ⟨huY, haX⟩)
+    with hua | hua
+  · have hbp : IsBipath G X Y (u :: A) z B := by
+      refine ⟨?_, hblue, ?_⟩
+      · rw [List.cons_append, List.isChain_cons]
+        refine ⟨fun y hy ↦ ?_, hred⟩
+        rw [List.head?_append_of_ne_nil _ hA, List.head?_eq_head hA] at hy
+        simp only [Option.mem_some_iff] at hy; subst hy
+        exact hua
+      · exact hndS
+    exact absurd (hmax _ _ _ (Or.inl hbp)) (by simp [bipathLen] <;> omega)
+  · -- `u–a₁` is blue.  If `u–bₛ` is blue, `(A, z, B++[u])` is longer.
+    rcases Color.adjXY_cases (show acrossXY X Y u bₛ from Or.inr ⟨huY, hbX⟩)
+      with hub | hub
+    · -- `u–bₛ` red: the colour of `u–z` decides the splice
+      rcases Color.adjXY_cases huz with huzc | huzc
+      · -- `u–z` red: bipath `(A++[z,u], bₛ, B.dropLast.reverse)`
+        have hbp : IsBipath G X Y (A ++ [z, u]) bₛ B.dropLast.reverse := by
+          refine ⟨?_, ?_, ?_⟩
+          · rw [List.isChain_append]
+            refine ⟨?_, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+            · rw [List.isChain_append]
+              refine ⟨(List.isChain_append.mp hred).1, ?_, fun x hx y hy ↦ ?_⟩
+              · rw [List.isChain_cons]
+                refine ⟨fun y hy ↦ ?_, List.isChain_singleton _⟩
+                simp only [List.head?_cons, Option.mem_some_iff] at hy
+                subst hy; exact Color.adjXY.symm huzc
+              · simp only [List.head?_cons, Option.mem_some_iff] at hy
+                subst hy
+                obtain ⟨_, rfl⟩ := List.mem_getLast?_eq_getLast hx
+                exact harz
+            · rw [List.getLast?_append_of_ne_nil _ (List.cons_ne_nil _ _),
+                List.getLast?_cons_cons, List.getLast?_singleton] at hx
+              simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+              subst hx; subst hy; exact hub
+          · rw [← hBrev_eq]; exact hBrev
+          · have hT : (A ++ [z, u]) ++ bₛ :: B.dropLast.reverse =
+                A ++ z :: u :: B.reverse := by
+              rw [List.append_assoc, ← hBrev_eq]
+              rfl
+            rw [hT]
+            have hp : List.Perm (A ++ z :: u :: B.reverse)
+                (u :: A ++ z :: B) :=
+              (List.perm_middle.trans (List.perm_middle.cons z)).trans <|
+                (List.Perm.swap u z _).trans <|
+                  ((((List.reverse_perm B).append_left A).cons z).cons u).trans
+                    (List.perm_middle.symm.cons u)
+            exact hp.nodup_iff.mpr hndS
+        exact absurd (hmax _ _ _ (Or.inl hbp)) (by simp [bipathLen] <;> omega)
+      · -- `u–z` blue: blue-first bipath `(B.reverse++[z,u], a₁, A.tail)`
+        have hbp : IsBipathB G X Y (B.reverse ++ [z, u]) a₁ A.tail := by
+          refine ⟨?_, ?_, ?_⟩
+          · rw [List.isChain_append]
+            refine ⟨?_, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+            · rw [List.isChain_append]
+              refine ⟨hBrev, ?_, fun x hx y hy ↦ ?_⟩
+              · rw [List.isChain_cons]
+                refine ⟨fun y hy ↦ ?_, List.isChain_singleton _⟩
+                simp only [List.head?_cons, Option.mem_some_iff] at hy
+                subst hy; exact Color.adjXY.symm huzc
+              · rw [List.getLast?_reverse, List.head?_eq_head hB] at hx
+                simp only [List.head?_cons, Option.mem_some_iff] at hx hy
+                subst hx; subst hy
+                exact Color.adjXY.symm hzb1
+            · rw [List.getLast?_append_of_ne_nil _ (List.cons_ne_nil _ _),
+                List.getLast?_cons_cons, List.getLast?_singleton] at hx
+              simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+              subst hx; subst hy; exact hua
+          · rw [hAcons]; exact (List.isChain_append.mp hred).1
+          · have hT : (B.reverse ++ [z, u]) ++ a₁ :: A.tail =
+                B.reverse ++ z :: u :: A := by
+              rw [List.append_assoc, hAcons]
+              rfl
+            rw [hT]
+            have hp : List.Perm (B.reverse ++ z :: u :: A)
+                (u :: A ++ z :: B) :=
+              (List.perm_middle.trans (List.perm_middle.cons z)).trans <|
+                (List.Perm.swap u z _).trans <|
+                  (((List.perm_append_comm.trans
+                    ((List.reverse_perm B).append_left A)).cons z).cons u).trans
+                    (List.perm_middle.symm.cons u)
+            exact hp.nodup_iff.mpr hndS
+        exact absurd (hmax _ _ _ (Or.inr hbp)) (by simp [bipathLen] <;> omega)
+    · -- `u–bₛ` blue: bipath `(A, z, B++[u])` is longer
+      have hbp : IsBipath G X Y A z (B ++ [u]) := by
+        refine ⟨hred, ?_, ?_⟩
+        · rw [List.isChain_cons]
+          refine ⟨fun y hy ↦ ?_, ?_⟩
+          · rw [List.head?_append_of_ne_nil _ hB, List.head?_eq_head hB] at hy
+            simp only [Option.mem_some_iff] at hy; subst hy
+            exact hzb1
+          · rw [List.isChain_append]
+            refine ⟨hblue.tail, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+            simp only [List.head?_singleton, Option.mem_some_iff] at hy
+            subst hy
+            obtain ⟨_, rfl⟩ := List.mem_getLast?_eq_getLast hx
+            exact Color.adjXY.symm hub
+        · have hp : List.Perm (A ++ z :: (B ++ [u])) (u :: A ++ z :: B) :=
+            (List.perm_middle (l₁ := A) (l₂ := B ++ [u]) (a := z)).trans <|
+              ((List.Perm.of_eq (List.append_assoc A B [u]).symm).cons z).trans <|
+                (List.perm_append_comm.cons z).trans <|
+                  (List.Perm.swap u z _).trans
+                    ((List.perm_middle (l₁ := A) (l₂ := B) (a := z)).symm.cons u)
+          exact hp.nodup_iff.mpr hndS
+      exact absurd (hmax _ _ _ (Or.inl hbp)) (by simp [bipathLen] <;> omega)
+
+/-- **GL claim A (i).**  For a maximal either-order bipath of type (iii) —
+endpoints in the same class, midpoint `z` in the other class — the edge from
+the first endpoint `A.head` to the midpoint is red.  Otherwise rotating the
+bipath yields a type-(i) or type-(ii) maximal bipath, both impossible while a
+vertex outside the bipath lies in `z`'s class. -/
+theorem bipathO_red_head_mid_of_type3
+    {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (hb : IsBipath G X Y A z B)
+    (hmax : ∀ A' z' B', IsBipathO G X Y A' z' B' →
+      bipathLen A' z' B' ≤ bipathLen A z B)
+    {u : V} (hu : u ∉ A ++ z :: B) (huY : u ∈ Y)
+    (hA : A ≠ []) (hB : B ≠ [])
+    (haX : A.head hA ∈ X) (hbX : B.getLast hB ∈ X) (hz : z ∈ Y) :
+    Color.adjXY G X Y .red (A.head hA) z := by
+  have harz := IsBipath.red_last_edge hb hA
+  obtain ⟨hred, hblue, hnd⟩ := hb
+  set a₁ := A.head hA
+  have huz : acrossXY X Y u a₁ := Or.inr ⟨huY, haX⟩
+  rcases Color.adjXY_cases (show acrossXY X Y a₁ z from Or.inl ⟨haX, hz⟩)
+    with haz | haz
+  · exact haz
+  · -- `a₁–z` blue: the rotated bipath `S' = (A.tail.reverse, a₁, z::B)`
+    -- has the same length, hence is maximal too.
+    exfalso
+    have hAl : 1 ≤ A.length := List.length_pos_of_ne_nil hA
+    have hArev : A.reverse.IsChain (Color.adjXY G X Y .red) :=
+      Color.adjXY.isChain_reverse hred.left_of_append
+    have hAtail : A.tail.reverse ++ [a₁] = A.reverse := by
+      conv_rhs => rw [← List.cons_head_tail hA, List.reverse_cons]
+    have hp : List.Perm (A.tail.reverse ++ a₁ :: z :: B) (A ++ z :: B) := by
+      have h1 : List.Perm (A.tail.reverse ++ a₁ :: z :: B)
+          ((A.tail.reverse ++ [a₁]) ++ z :: B) :=
+        (List.append_assoc _ _ _).symm ▸ List.Perm.refl _
+      rw [hAtail] at h1
+      exact h1.trans ((List.reverse_perm A).append_right _)
+    have hbS' : IsBipath G X Y A.tail.reverse a₁ (z :: B) := by
+      refine ⟨?_, ?_, ?_⟩
+      · rw [hAtail]; exact hArev
+      · rw [List.isChain_cons]
+        refine ⟨fun y hy ↦ ?_, hblue⟩
+        simp only [List.head?_cons, Option.mem_some_iff] at hy
+        subst hy; exact haz
+      · exact hp.nodup_iff.mpr hnd
+    have hlenS' : bipathLen A.tail.reverse a₁ (z :: B) = bipathLen A z B := by
+      simp [bipathLen]; omega
+    have hmax' := hlenS'.symm ▸ hmax
+    by_cases hAt : A.tail = []
+    · -- `r = 1`, so `A = [a₁]` and `S = a₁ :: z :: B`: `u–a₁` extends directly
+      have hA2 : A = [a₁] := by
+        have h := List.cons_head_tail hA; rw [hAt] at h; exact h.symm
+      rw [hA2] at hu hnd
+      rcases Color.adjXY_cases huz with hua | hua
+      · -- `u–a₁` red: bipath `([u], a₁, z::B)` is longer
+        have hbp : IsBipath G X Y [u] a₁ (z :: B) := by
+          refine ⟨?_, ?_, ?_⟩
+          · rw [List.isChain_append]
+            refine ⟨List.isChain_singleton _, List.isChain_singleton _,
+              fun x hx y hy ↦ ?_⟩
+            simp only [List.getLast?_singleton, List.head?_singleton,
+              Option.mem_some_iff] at hx hy
+            subst hx; subst hy; exact hua
+          · rw [List.isChain_cons]
+            refine ⟨fun y hy ↦ ?_, hblue⟩
+            simp only [List.head?_cons, Option.mem_some_iff] at hy
+            subst hy; exact haz
+          · exact List.nodup_cons.mpr ⟨hu, hnd⟩
+        exact absurd (hmax _ _ _ (Or.inl hbp))
+          (by simp [bipathLen, hA2] <;> omega)
+      · -- `u–a₁` blue: bipath `([], u, a₁::z::B)` is longer
+        have hbp : IsBipath G X Y [] u (a₁ :: z :: B) := by
+          refine ⟨List.isChain_singleton _, ?_, ?_⟩
+          · rw [List.isChain_cons]
+            refine ⟨fun y hy ↦ ?_, ?_⟩
+            · simp only [List.head?_cons, Option.mem_some_iff] at hy
+              subst hy; exact hua
+            · rw [List.isChain_cons]
+              refine ⟨fun y hy ↦ ?_, hblue⟩
+              simp only [List.head?_cons, Option.mem_some_iff] at hy
+              subst hy; exact haz
+          · exact List.nodup_cons.mpr ⟨hu, hnd⟩
+        exact absurd (hmax _ _ _ (Or.inl hbp))
+          (by simp [bipathLen, hA2] <;> omega)
+    · -- `r ≥ 2`: `S'` has a genuine first endpoint `aᵣ = A.getLast`
+      have hAtr : A.tail.reverse ≠ [] := by
+        rwa [List.reverse_ne_nil_iff]
+      have hhead? : (A.tail.reverse).head? = some (A.getLast hA) := by
+        rw [List.head?_reverse, ← List.getLast?_cons_of_ne_nil hAt,
+          List.cons_head_tail hA, List.getLast?_eq_getLast_of_ne_nil hA]
+      have hhead : (A.tail.reverse).head hAtr = A.getLast hA :=
+        Option.some.inj (List.head?_eq_head hAtr ▸ hhead?)
+      have hgl : (z :: B).getLast (List.cons_ne_nil _ _) = B.getLast hB :=
+        List.getLast_cons hB
+      -- `aᵣ ∈ X` since `aᵣ–z` is an edge and `z ∈ Y`
+      have haᵣ : A.getLast hA ∈ X :=
+        (Color.adjXY.left_mem_iff hXY harz).mpr hz
+      -- `u` is also outside `S'`, whose vertex list is a perm of `S`'s
+      have hu' : u ∉ A.tail.reverse ++ a₁ :: z :: B :=
+        fun h ↦ hu (hp.mem_iff.mp h)
+      -- type (ii): `aᵣ, bₛ` and midpoint `a₁` all in `X`
+      exact bipathO_leftover_opp_of_same_ends hXY hbS' hmax' hu' haX huY
+        hAtr (List.cons_ne_nil _ _) (hhead ▸ haᵣ) (hgl ▸ hbX)
+
+/-- **GL claim A (ii).**  For a maximal either-order bipath of type (iii) —
+endpoints in the same class, midpoint `z` in the other class — the edge from
+the midpoint `z` to the last endpoint `B.getLast` is blue.  Otherwise rotating
+the bipath yields a type-(ii) maximal bipath. -/
+theorem bipathO_blue_mid_getLast_of_type3
+    {A : List V} {z : V} {B : List V} (hXY : Disjoint X Y)
+    (hb : IsBipath G X Y A z B)
+    (hmax : ∀ A' z' B', IsBipathO G X Y A' z' B' →
+      bipathLen A' z' B' ≤ bipathLen A z B)
+    {u : V} (hu : u ∉ A ++ z :: B) (huY : u ∈ Y)
+    (hA : A ≠ []) (hB : B ≠ [])
+    (haX : A.head hA ∈ X) (hbX : B.getLast hB ∈ X) (hz : z ∈ Y) :
+    Color.adjXY G X Y .blue z (B.getLast hB) := by
+  have hzb1 := IsBipath.blue_first_edge hb hB
+  obtain ⟨hred, hblue, hnd⟩ := hb
+  set bₛ := B.getLast hB
+  have hBl : 1 ≤ B.length := List.length_pos_of_ne_nil hB
+  have hBsnoc : B.dropLast ++ [bₛ] = B :=
+    List.dropLast_append_getLast? _
+      (by rw [List.getLast?_eq_getLast_of_ne_nil hB]
+          exact Option.mem_some_iff.mpr rfl)
+  have hBrev_eq : B.reverse = bₛ :: B.dropLast.reverse := by
+    conv_lhs => rw [← hBsnoc]
+    simp
+  have hBrev : B.reverse.IsChain (Color.adjXY G X Y .blue) :=
+    Color.adjXY.isChain_reverse hblue.tail
+  rcases Color.adjXY_cases (show acrossXY X Y z bₛ from Or.inr ⟨hz, hbX⟩)
+    with hzb | hzb
+  · -- `z–bₛ` red: `S'' = (A++[z], bₛ, B.dropLast.reverse)` is maximal too
+    exfalso
+    have hp : List.Perm ((A ++ [z]) ++ bₛ :: B.dropLast.reverse)
+        (A ++ z :: B) := by
+      have hT : (A ++ [z]) ++ bₛ :: B.dropLast.reverse =
+          (A ++ [z]) ++ B.reverse := by rw [← hBrev_eq]
+      rw [hT]
+      exact (List.Perm.of_eq (List.append_assoc A [z] B.reverse)).trans
+        (((List.reverse_perm B).cons z).append_left A)
+    have hbS'' : IsBipath G X Y (A ++ [z]) bₛ B.dropLast.reverse := by
+      refine ⟨?_, ?_, ?_⟩
+      · rw [List.isChain_append]
+        refine ⟨hred, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+        rw [List.getLast?_append_of_ne_nil _ (List.cons_ne_nil _ _),
+          List.getLast?_singleton] at hx
+        simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+        subst hx; subst hy; exact hzb
+      · rw [← hBrev_eq]; exact hBrev
+      · exact hp.nodup_iff.mpr hnd
+    have hlenS'' : bipathLen (A ++ [z]) bₛ B.dropLast.reverse =
+        bipathLen A z B := by
+      simp [bipathLen]; omega
+    have hmax' := hlenS''.symm ▸ hmax
+    have hu' : u ∉ (A ++ [z]) ++ bₛ :: B.dropLast.reverse :=
+      fun h ↦ hu (hp.mem_iff.mp h)
+    have hb1 : B.head hB ∈ X := (Color.adjXY.right_mem_iff hXY hzb1).mp hz
+    by_cases hBd : B.dropLast = []
+    · -- `s = 1`: `B = [b₁] = [bₛ]`; the edge `u–b₁` extends `S` directly
+      have hBlen : B.length = 1 := by
+        have h4 := List.length_dropLast (xs := B)
+        rw [hBd] at h4
+        simp only [List.length_nil] at h4; omega
+      have htl : B.tail = [] := by
+        apply List.eq_nil_of_length_eq_zero
+        have h5 := List.length_tail (l := B)
+        omega
+      have e1 : B.getLast? = some (B.head hB) := by
+        conv_lhs => rw [← List.cons_head_tail hB]
+        rw [htl, List.getLast?_singleton]
+      have hBgl : B.getLast hB = B.head hB :=
+        Option.some.inj ((List.getLast?_eq_getLast_of_ne_nil hB).symm.trans e1)
+      have hbs : bₛ = B.head hB := hBgl
+      have hzb' : Color.adjXY G X Y .red z (B.head hB) := hbs ▸ hzb
+      obtain ⟨hchA, -, hjoint⟩ := List.isChain_append.mp hred
+      rw [show B = [B.head hB] from
+        (by have h := List.cons_head_tail hB; rw [htl] at h; exact h.symm)]
+        at hnd hu
+      rcases Color.adjXY_cases
+          (show acrossXY X Y u (B.head hB) from Or.inr ⟨huY, hb1⟩)
+        with hub1 | hub1
+      · -- `u–b₁` red: `A, z, b₁, u` is entirely red
+        have hbp : IsBipath G X Y (A ++ [z, B.head hB]) u [] := by
+          refine ⟨?_, List.isChain_singleton _, ?_⟩
+          · rw [List.isChain_append]
+            refine ⟨?_, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+            · rw [List.isChain_append]
+              refine ⟨hchA, ?_, fun x hx y hy ↦ ?_⟩
+              · rw [List.isChain_cons]
+                refine ⟨fun y hy ↦ ?_, List.isChain_singleton _⟩
+                simp only [List.head?_singleton, Option.mem_some_iff] at hy
+                subst hy; exact hzb'
+              · simp only [List.head?_cons, Option.mem_some_iff] at hy
+                subst hy; exact hjoint x hx z (by simp)
+            · rw [List.getLast?_append_of_ne_nil _ (List.cons_ne_nil _ _),
+                List.getLast?_cons_cons, List.getLast?_singleton] at hx
+              simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+              subst hx; subst hy; exact Color.adjXY.symm hub1
+          · have hp2 : List.Perm ((A ++ [z, B.head hB]) ++ [u])
+                (u :: A ++ z :: [B.head hB]) := List.perm_append_comm
+            exact hp2.nodup_iff.mpr (List.nodup_cons.mpr ⟨hu, hnd⟩)
+        exact absurd (hmax _ _ _ (Or.inl hbp)) (by
+          simp only [bipathLen, hBlen, List.length_append, List.length_cons,
+            List.length_nil]
+          omega)
+      · -- `u–b₁` blue: `(A++[z], b₁, [u])` is longer
+        have hbp : IsBipath G X Y (A ++ [z]) (B.head hB) [u] := by
+          refine ⟨?_, ?_, ?_⟩
+          · rw [List.isChain_append]
+            refine ⟨hred, List.isChain_singleton _, fun x hx y hy ↦ ?_⟩
+            rw [List.getLast?_append_of_ne_nil _ (List.cons_ne_nil _ _),
+              List.getLast?_singleton] at hx
+            simp only [List.head?_singleton, Option.mem_some_iff] at hx hy
+            subst hx; subst hy; exact hzb'
+          · rw [List.isChain_cons]
+            refine ⟨fun y hy ↦ ?_, List.isChain_singleton _⟩
+            simp only [List.head?_singleton, Option.mem_some_iff] at hy
+            subst hy; exact Color.adjXY.symm hub1
+          · have s4 : List.Perm (B.head hB :: A ++ [z]) (A ++ z :: [B.head hB]) :=
+              List.perm_middle.symm.trans
+                ((List.Perm.swap z (B.head hB) []).append_left A)
+            have hp2 : List.Perm ((A ++ [z]) ++ B.head hB :: [u])
+                (u :: A ++ z :: [B.head hB]) :=
+              List.perm_middle.trans <|
+                (List.perm_append_comm.cons _).trans <|
+                  (List.Perm.swap u (B.head hB) _).trans (s4.cons _)
+            exact hp2.nodup_iff.mpr (List.nodup_cons.mpr ⟨hu, hnd⟩)
+        exact absurd (hmax _ _ _ (Or.inl hbp)) (by
+          simp only [bipathLen, hBlen, List.length_append, List.length_cons,
+            List.length_nil]
+          omega)
+    · -- `s ≥ 2`: `S''` is a type-(ii) maximal bipath
+      have hAz : A ++ [z] ≠ [] :=
+        fun h ↦ absurd (List.append_eq_nil_iff.mp h).2 (List.cons_ne_nil _ _)
+      have hBdr : B.dropLast.reverse ≠ [] := by rwa [List.reverse_ne_nil_iff]
+      have hgl : (B.dropLast.reverse).getLast hBdr = B.head hB :=
+        (List.getLast_reverse hBdr).trans (List.head_dropLast _)
+      have hhd? : (A ++ [z]).head? = some (A.head hA) := by
+        rw [List.head?_append_of_ne_nil _ hA, List.head?_eq_head hA]
+      have hhd : (A ++ [z]).head hAz = A.head hA := by
+        have e := List.head?_eq_head hAz
+        rw [hhd?] at e
+        exact (Option.some.inj e).symm
+      have hend1 : (A ++ [z]).head hAz ∈ X := by rw [hhd]; exact haX
+      have hend2 : (B.dropLast.reverse).getLast hBdr ∈ X := by rw [hgl]; exact hb1
+      exact bipathO_leftover_opp_of_same_ends hXY hbS'' hmax' hu' hbX huY
+        hAz hBdr hend1 hend2
+  · exact hzb
 
 end bip_ramsey_path
 
@@ -1455,48 +2051,5 @@ theorem bip_ramsey_path (G : SimpleGraph V) (X Y : Finset V)
       (p.toList.IsChain (Color.adjXY G X Y .blue) ∧ ℓ + 1 ≤ p.toList.length) := by
   sorry
 
-/-- **PVW24 Lemma 2.2.**  If every vertex of `Y` has degree at least
-`(|X| + |Y|)/2` in the bipartite graph `G`, then `G` contains a path covering
-all of `Y`, with `2|Y|` vertices. -/
-theorem path_cover_two_mul (G : SimpleGraph V) [DecidableRel G.Adj]
-    (X Y : Finset V) (hbip : BipartiteOn G X Y)
-    (hdeg : ∀ y ∈ Y, 2 * (G.neighborFinset y).card ≥ X.card + Y.card) :
-    ∃ p : VertPath V, p.toList.IsChain G.Adj ∧
-      (∀ v ∈ p.toList, v ∈ X ∪ Y) ∧ (∀ y ∈ Y, y ∈ p) ∧
-      p.toList.length = 2 * Y.card := by
-  sorry
-
-/-- **PVW24 Lemma 2.3.**  If `|X| ≥ |Y| + 2m` and every `y ∈ Y` has degree at
-least `|X| − m`, then at most `⌊|X|/|Y|⌋` paths cover all of `Y` and all but
-`|Y| + 2m` vertices of `X`. -/
-theorem few_paths_of_min_degree (G : SimpleGraph V) [DecidableRel G.Adj]
-    (X Y : Finset V) (m : ℕ) (hbip : BipartiteOn G X Y)
-    (hY : 0 < Y.card)
-    (hcard : Y.card + 2 * m ≤ X.card)
-    (hdeg : ∀ y ∈ Y, (G.neighborFinset y).card ≥ X.card - m) :
-    ∃ P : Finset (VertPath V),
-      (∀ p ∈ P, p.toList.IsChain G.Adj) ∧
-      (∀ p ∈ P, ∀ v ∈ p.toList, v ∈ X ∪ Y) ∧
-      (∀ y ∈ Y, ∃ p ∈ P, y ∈ p) ∧
-      P.card ≤ X.card / Y.card ∧
-      (X \ P.biUnion VertPath.verts).card ≤ Y.card + 2 * m := by
-  sorry
-
-/-- **PVW24 Lemma 2.4.**  Refined covering lemma: with
-`X₀ = {x ∈ X : d(x) = |Y|}`, `X₁ = X ∖ X₀`, `Y₀ = {y ∈ Y : d(y) = |X|} ≠ ∅`,
-`Y₁ = Y ∖ Y₀`, if `|X| > |Y|` and either `X₁ = Y₁ = ∅` or
-`|X₀|/|Y₁| > 2|X₁|/|Y₀|`, then `⌈|X|/(|Y|+1)⌉` paths cover all of `X ∪ Y`. -/
-theorem refined_path_cover (G : SimpleGraph V) [DecidableRel G.Adj]
-    (X Y : Finset V) (hbip : BipartiteOn G X Y)
-    (hcard : Y.card < X.card)
-    (hY0 : (fullNbr G Y X).Nonempty)
-    (hcond : (X \ fullNbr G X Y = ∅ ∧ Y \ fullNbr G Y X = ∅) ∨
-      ((fullNbr G X Y).card : ℝ) / ((Y \ fullNbr G Y X).card : ℝ) >
-        2 * ((X \ fullNbr G X Y).card : ℝ) / ((fullNbr G Y X).card : ℝ)) :
-    ∃ P : Finset (VertPath V),
-      (∀ p ∈ P, p.toList.IsChain G.Adj) ∧
-      (∀ v ∈ X ∪ Y, ∃ p ∈ P, v ∈ p) ∧
-      P.card ≤ (X.card + Y.card) / (Y.card + 1) := by
-  sorry
 
 end JSP415

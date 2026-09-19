@@ -1,6 +1,6 @@
 import JSP415.Defs
 import JSP415.Gerencser
-import JSP415.BipLemmas
+import JSP415.BipCover
 
 /-!
 # Section 3 of PVW24: the inductive proof
