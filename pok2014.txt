@@ -1,0 +1,614 @@
+arXiv:1205.5492v1 [math.CO] 24 May 2012
+
+Partitioning edge-coloured complete graphs into monochromatic cycles and paths
+Alexey Pokrovskiy 
+Departement of Mathematics, London School of Economics and Political Sciences,
+London WC2A 2AE, UK Email: a.pokrovskiy@lse.ac.uk
+November 27, 2024
+Abstract A conjecture of Erdos, Gy´arf´as, and Pyber says that in any edge-colouring of a complete graph with r colours, it is possible to cover all the vertices with r vertexdisjoint monochromatic cycles. So far, this conjecture has been proven only for r = 2. In this paper we show that in fact this conjecture is false for all r  3. In contrast to this, we show that in any edge-colouring of a complete graph with three colours, it is possible to cover all the vertices with three vertex-disjoint monochromatic paths, proving a particular case of a conjecture due to Gya´rfa´s. As an intermediate result we show that in any edge-colouring of the complete graph with the colours red and blue, it is possible to cover all the vertices with a red path, and a disjoint blue balanced complete bipartite graph.
+1 Introduction
+Suppose that the edges of the complete graph on n vertices, Kn, are coloured with r colours. How many vertex-disjoint monochromatic paths are needed to cover all the vertices of Kn ? Gerencs´er and Gya´rfa´s [7] showed that when r = 2, this can always be done with at most two monochromatic paths. For r > 2, Gy´arfa´s made the following conjecture.
+Conjecture 1.1 (Gya´rf´as, [9]). The vertices of every r-edge coloured complete graph can be covered with r vertex-disjoint monochromatic paths.
+Research supported by the LSE postgraduate research studentship scheme.
+1
+
+Subsequently, Erdos, Gya´rf´as, and Pyber made the following stronger conjecture.
+Conjecture 1.2 (Erdos, Gya´rf´as & Pyber, [6]). The vertices of every r-edge coloured complete graph can be covered with r vertex-disjoint monochromatic cycles.
+When dealing with these conjectures, the empty set, a single vertex, and a single edge between two vertices are considered to be paths and cycles. It is worth noting that neither of the above conjectures require the monochromatic paths covering Kn to have distinct colours. Whenever a graph G is covered by vertex-disjoint subgraphs H1, H2, . . . , Hk, we say that H1, H2, . . . , Hk partition G.
+Most effort has focused on Conjecture 1.2. It was shown in [6] that there is a function f (r) such that, for all n, any r-edge coloured Kn can be partitioned into f (r) monochromatic cycles. The best known upper bound for f (r) is due to Gya´rfa´s, Ruszink´o, S´arko¨zy, and Szemer´edi [11] who show that, for large n, 100r log r monochromatic cycles are sufficient to partition the vertices of an r-edge coloured Kn.
+For small r, there has been more progress. The case r = 2 of Conjecture 1.2 is closely related to Lehel's Conjecture, which says that any 2-edge coloured complete graph can be partitioned into two monochromatic cycles with different colours. This conjecture first appeared in [2] where it was proved for some special types of colourings of Kn. Gya´rfa´s [8] showed that the vertices of a 2-edge coloured complete graph can be covered by two monochromatic cycles with different colours intersecting in at most one vertex. Luczak, Ro¨dl, and Szemer´edi [14] showed, using the Regularity Lemma, that Lehel's Conjecture holds for r = 2 for large n. Later, Allen [1] gave an alternative proof that works for smaller (but still large) n, and which avoids the use of the Regularity Lemma. Lehel's Conjecture was finally shown to be true for all n by Bessy and Thomass´e [4], using a short, elegant argument.
+For r = 3, Gya´rf´as, Ruszinko´, Sa´rk¨ozy, and Szemer´edi proved the following theorem.
+Theorem 1.3 (Gya´rf´as, Ruszink´o, Sa´rk¨ozy & Szemer´edi, [12]). Suppose that the edges of Kn are coloured with three colours. There are three vertex-disjoint monochromatic cycles covering all but o(n) vertices in Kn.
+In [12], it is also shown that, for large n, 17 monochromatic cycles are sufficient to partition all the vertices of every 3-edge coloured Kn.
+Despite Theorem 1.3 being an approximate version of the case r = 3 of Conjecture 1.2, the conjecture turns out to be false for all r  3. We prove the following theorem in Section 2.
+Theorem 1.4. Suppose that r  3. There exist infinitely many r-edge coloured complete graphs which cannot be vertex-partitioned into r monochromatic cycles.
+For a particular counterexample of low order to the case r = 3 of Conjecture 1.2, see Figure 1. It is worth noting that in all the r-colourings of Kn that we construct, it is possible to cover n - 1 of the vertices of Kn with r disjoint monochromatic cycles. Therefore the counterexamples we construct are quite "mild" and leave room for further work to either
+2
+
+Figure 1: A 3-edge colouring of K46 which cannot be partitioned into three monochromatic cycles. The small black dots represent single vertices. The large red and blue
+circles represent red and blue complete graphs of order specified by the numbers inside.
+The coloured lines between the sets represent all the edges between them being of that colour. This particular colouring is called J31 in this paper. In Section 2 we prove that this colouring does not allow a partition into three monochromatic cycles.
+
+find better counterexamples, or to prove approximate versions of the conjecture similar to Theorem 1.3.
+Theorem 1.4 also raises the question of whether Conjecture 1.1 holds for r  3 or not. The second main result of this paper is to prove the case r = 3 of Conjecture 1.1.
+
+Theorem 1.5. For n  1, suppose that the edges of Kn are coloured with three colours. There is a vertex-partition of Kn into three monochromatic paths.
+
+Theorem 1.5 is proved in Section 3.
+
+One way of generalizing the conjectures and theorems above is to consider partitions of
+
+an r-edge coloured graph G other than the complete graph. Some results in this direction
+
+were already obtained in [15] where G is an arbitary graph with specified independence
+
+number,
+
+and
+
+in
+
+[3] where
+
+G is
+
+an arbitary graph with
+
+(G)
+
+
+
+3 4
+
+.
+
+In order to prove
+
+Theorem 1.5 we will consider partitions of a 2-edge coloured balanced complete bipartite
+
+graph (the complete bipartite graph Kn,m is called balanced if n = m holds). In order to
+
+state our result we will need the following definition.
+
+Definition 1.6. Let Kn,n be a 2-edge coloured balanced complete bipartite graph with partition classes X and Y . We say that the colouring on Kn,n is split if it is possible to partition X into two nonempty sets X1 and X2, and Y into two nonempty sets Y1 and Y2, such that the following hold.
+
+· The edges between X1 and Y2, and the edges between X2 and Y1 are red. · The edges between X1 and Y1, and the edges between X2 and Y2 are blue.
+
+3
+
+Figure 2: A split colouring of Kn,n.
+The sets X1, X2, Y1, and Y2 will be called the "classes" of the split colouring.
+When dealing with split colourings of Kn,n the classes will always be labeled "X1", "X2", "Y1", and "Y2" with colours between the classes as in the above definition. See Figure 2 for an illustation of a split colouring of Kn.
+These colourings have previously appeared in the following theorem due to Gya´rfa´s and Lehel. The proof of this theorem appears implicitly in [10], and the statement appears in [8].
+Theorem 1.7 (Gya´rf´as & Lehel, [8, 10]). Suppose that the edges of Kn,n are coloured with two colours. If the colouring is not split, then there exist two disjoint monochromatic paths with different colours which cover all, except possibly one, of the vertices of Kn,n.
+We will prove the following slight extension of Theorem 1.7.
+Theorem 1.8. Suppose that the edges of Kn,n are coloured with two colours. There is a vertex-partition of Kn,n into two monochromatic paths with different colours if, and only if, the colouring on Kn,n is not split.
+There exist split colourings of Kn,n which cannot be partitioned into two monochromatic paths even when we are allowed to repeat colours. Indeed, any split colouring with classes X1, X2, Y1, and Y2, satisfying |X1| - |Y1|  2 and |X1| - |Y2|  2 will have this property. Using Theorem 1.8, it is not hard to show that any 2-colouring of Kn,n which cannot be partitioned into two monochromatic paths must be a split colouring with class sizes as above.
+However, it is easy to check that every 2-edge coloured Kn,n which is split can be partitioned into three monochromatic paths, so the following corollary follows from either of the above two theorems.
+Corollary 1.9. Suppose that the edges of Kn,n are coloured with two colours. There is a vertex-partition of Kn,n into three monochromatic paths.
+Recall that Gerencs´er and Gya´rf´as showed that any 2-edge coloured complete graph Kn can be partitioned into two monochromatic paths. The following lemma, which may be of independent interest, shows that one of the paths partitioning Kn can be replaced by a graph which has more structure.
+4
+
+Lemma 1.10. Suppose that the edges of Kn are coloured with the colours red and blue. There is a vertex-partition of Kn into a red path and a blue balanced complete bipartite graph.
+Lemma 1.10 and Corollary 1.9 together easily imply that a 3-edge coloured complete graph can be partitioned into four monochromatic paths. Indeed suppose that Kn is coloured with the colours red, blue and green. First we treat blue and green as a single colour and apply Lemma 1.10 to obtain a partition of Kn into a red path and a blue-green balanced complete bipartite graph. Now apply Corollary 1.9 to this graph to obtain a partition of Kn into four monochromatic paths.
+The proof of Theorem 1.5 is more involved, and we will need a more refined version of Lemma 1.10 which is stated and proved in Section 3.1.
+
+2 Counterexamples to the conjecture of Erdos, Gy´arf´as, and Pyber.
+
+In this section, for r  3, we will prove Theorem 1.4, by constructing a sequence of r-edge
+coloured complete graphs, Jrm, which cannot be partitioned into r monochromatic cycles. First we will construct a sequence of r-edge coloured complete graphs, Hrm, which cannot be partitioned into r monochromatic paths with different colours.
+
+Construction 2.1. Let r and m be integers such that r  3 and m  1. We construct
+
+r-edge coloured complete graphs, Hrm, on
+
+87 250
+
+5r
+
+-
+
+1 2
+
+m vertices.
+
+First, we will consider
+
+the r = 3 and m  1 cases and define the colourings H3m. Then for r  4 we will then
+
+construct the graphs Hrm recursively out of Hr5-m1 .
+
+· Suppose that r = 3. To construct H3m, we 3-edge colour K43m as follows. We partition the vertex set of K43m into four classes A1, A2, A3, and A4 such that |A1| = 10m, |A2| = 13m, |A3| = 7m, and |A4| = 13m. The edges between A1 and A2 and between A3 and A4 are colour 1. The edges between A1 and A3 and between A2 and A4 are colour 2. The edges between A1 and A4 and between A2 and A3 are colour 3. The edges within A1 and A2 are colour 3. The edges within A3 and A4 are colour 2.
+
+· Suppose that r  4. Note that the |Hrm| = |Hr5-m1| + 2m holds, so we can partition the vertices of Hrm into two sets H and K such that |H| = |Hr5-m1| and |K| = 2m. We colour H with colours 1, . . . , r - 1 to produce a copy of Hr5-m1. All other edges are
+coloured with colour r.
+
+Construction 2.2. Let r and m be integers such that r  3 and m  1. We construct
+
+r-edge coloured complete graphs, Jrm, on
+
+87 250
+
+5r
+
+-
+
+1 2
+
+m + r vertices.
+
+We partition the vertices of |Jrm| into a set H of order |Hrm| and a set of r vertices
+
+{v1, . . . , vr}. The edges in H are coloured to produce a copy of Hrm. For each i  {1, . . . , r},
+
+we colour all the edges between vi and H with colour i. The edge v1v2 is colour 3. For
+
+5
+
+j  3 the edge v1vj is colour 2 and the edge v2vj is colour 1. For 3  i < j, the edge vivj is colour 1.
+The following simple fact will be convenient to state.
+Lemma 2.3. Let G be a graph, X an independent set in G, and P a path in G. Then we have
+|P  X|  |P  (G \ X)| + 1.
+Proof. Let x1 . . . xk be the vertex sequence of P . For i  k - 1, if xi is in X, then xi+1 must be in G \ X, implying the result.
+The only property of the graphs Hrm that we will need is that they satisfy the following lemma.
+Lemma 2.4. Let r  3 and m  1 be integers. The following both hold.
+(i) Hrm cannot be vertex-partitioned into r - 1 monochromatic paths. (ii) Hrm cannot be vertex-partitioned into r monochromatic paths with different colours. Proof. It will be convenient to prove a slight strengthening of the lemma. Let T be any set of at most m vertices of Hrm. We will prove that the graph Hrm \ T satisfies parts (i) and (ii) of the lemma.
+The proof is by induction on r. First we shall prove the lemma for the initial case, r = 3.
+Recall that H3m is partitioned into four sets A1, A2, A3, and A4. Let Bi = Ai \ T . Since |T |  m, the sets B1, B2, B3, and B4 are all nonempty. We will need the following claim. Claim 2.5. The following hold.
+(a) B2 cannot be covered by a colour 1 path.
+(b) B1 cannot be covered by a colour 2 path.
+(c) B4 cannot be covered by a colour 3 path.
+(d) B4 cannot be covered by a colour 1 path.
+(e) B1  B3 cannot be covered by a colour 1 path contained in B1  B2 and a disjoint colour 3 path contained in B2  B3.
+(f ) B2  B3 cannot be covered by a colour 1 path contained in B3  B4 and a disjoint colour 2 path contained in B2  B4.
+Proof.
+6
+
+(a) Let P be any colour 1 path in H3m \ T which intersects B2. The path P must then be contained in the colour 1 component B1  B2. The set B2 does not contain any colour 1 edges, so Lemma 2.3 implies that |P  B2|  |P  B1| + 1 holds. This, combined with the fact that |T |  m holds, implies that we have
+|P  B2|  |P  B1| + 1  |A1| + 1 = 10m + 1 < 12m  |B2|.
+This implies that P cannot cover all of B2.
+(b) This part is proved similarly to (a), using the fact that B1 does not contain any colour 2 edges and that we have |A3| + 1 = 7m + 1 < 9m  |B1|.
+(c) This part is proved similarly to (a), using the fact that B4 does not contain any colour 3 edges and that we have |A1| + 1 = 10m + 1 < 12m  |B4|.
+(d) This part is proved similarly to (a), using the fact that B4 does not contain any colour 1 edges and that we have |A3| + 1 = 7m + 1 < 12m  |B4|.
+(e) Let P be a colour 1 path contained in B1  B2 and let Q be a disjoint colour 3 path contained in B2  B3. The set B1 does not contain any colour 1 edges and B3 does not contain any colour 3 edges, so Lemma 2.3 implies that |(P  Q)  (B1  B3)|  |(P  Q)  B2| + 2 holds. This, combined with the fact that |T |  m holds, implies that we have
+|(P  Q)  (B1  B3)|  |(P  Q)  B2| + 2  |A2| + 2 = 13m + 2 < 16m  (B1  B3)
+This implies that P and Q cannot cover all of B1  B3.
+(f) This part is proved similarly to (e), using the fact that B2 does not contain any colour 2 edges, B3 does not contain any colour 1 edges, and that we have |A4| + 2 = 13m + 2 < 19m  B2  B3.
+We now prove the lemma for r = 3. We deal with parts (i) and (ii) separately
+(i) Suppose, for the sake of contradiction, that P and Q are two monochromatic paths which partition H3m \ T . Note that P and Q cannot have different colours since any two monochromatic paths with different colours in H3m can intersect at most three of the four sets B1, B2, B3, and B4. The colouring H3m \ T has exactly two components of each colour, so, for each i, the set Bi must be covered by either P or Q. This contradicts case (a), (b), or (c) of Claim 2.5 depending on whether P and Q hove colour 1, 2, or 3.
+(ii) Suppose, for the sake of contradiction, that P1, P2, and P3 are three monochromatic paths which partition H3m \ T such that Pi has colour i.
+7
+
+Suppose that P2  B1  B3. By parts (c) and (d) of Claim 2.5, both of the paths P1 and P3 must intersect B4. This leads to a contradiction since none of the paths P1, P2, and P3 intersect B2.
+Suppose that P2  B2  B4. If P1  B1  B2 then P3 must be contained in B2  B3, contradicting part (e) of Claim 2.5. If P1  B3  B4 then P3 must be contained in B1  B4, contradicting part (f) of Claim 2.5. This completes the proof of the lemma for the case r = 3.
+We now prove the lemma for r  3 by induction on r. The initial case r = 3 was proved above. Assume that the lemma holds for Hrm-1, for all m  1. Let H and K partition Hrm as in the definition of Hrm. Suppose that Hrm \ T is partitioned into r monochromatic paths P1, . . . , Pr (with possibly some of these empty). Without loss of generality we may assume that these are ordered such that each of the paths P1, . . . , Pk intersects K, and that each of the paths Pk+1, . . . , Pr is disjoint from K. Note that we have k  |K| = 2m. Let S = H  (P1  · · ·  Pk). The set H \ T does not contain any colour r edges, so Lemma 2.3 implies that we have |S|  |K| + k  4m, and so |S  T |  5m. We know that H \ (S  T ) is partitioned into r - k monochromatic paths Pk+1, . . . , Pr, so, by induction, we know that k = 1 and that the paths P2, . . . , Pr are all nonempty and do not all have different colours. This completes the proof since we know that P1 contains vertices in K, and hence P1, . . . , Pr are all nonempty, and do not all have different colours.
+We now prove the main result of this section.
+Theorem 2.6. For r  3 and m  1, Jrm cannot be vertex-partitioned into r monochromatic cycles.
+Proof. Let H and {v1, . . . , vr} partition Jrm as in the definition of Jrm Suppose that C1, . . . , Cr are r disjoint monochromatic cycles in Jrm. We need to show that C1  · · ·  Cr = Jrm. Note that, for any i = j, the edge vivj has a different colour to the edges between vi and H. This means that monochromatic cycle in Jrm cannot simultaneously pass through edges in {v1, . . . , vr} and vertices in H.
+Let Pi = Ci \ {v1, . . . , vr}. We claim that, for each i, Pi is a monochromatic path in H. If Ci  {v1, . . . , vr}  1, then this is clear. So, suppose that for j = k we have vj, vk  Ci. In this case Ci cannot contain vertices in H, since otherwise the edges of Ci which pass through vj and vk would have different colours, contradicting the fact that Ci is monochromatic. This means that Pi = , which is trivially a path.
+Therefore P1, . . . , Pr partition H into r monochromatic paths. By Lemma 2.4, they are all nonempty and not all of different colours. This means that there is a colour, say colour i, which is not present in any of the cycles C1, . . . , Cr. For each j, the fact that Pj is nonempty implies that Cj does not contain edges in {v1, . . . , vr}. But then, the vertex vi cannot be contained in any of the cycles C1, . . . , Cr since all the edges between vi and H have colour i.
+8
+
+3 Partitioning a 3-coloured complete graph into three monochromatic paths.
+In this section we prove Theorem 1.5. Throughout this section, when dealing with Kn,n, the classes of the bipartition will
+always be called X and Y . For two sets of vertices S and T in a graph G, let B(S, T ) be the subgraph of G with vertex set S  T with st an edge of B(S, T ) whenever s  S and t  T . A linear forest is a disjoint union of paths.
+For a nonempty path P , it will be convenient to distinguish between the two endpoints of P saying that one endpoint is the "start" of P and the other is the "end" of P . Thus we will often say things like "Let P be a path from u to v". Let P be a path from a to b in G and Q a path from c to d in G. If P and Q are disjoint and bc is an edge in G, then we define P + Q to be the unique path from a to d formed by joining P and Q with the edge bc. If P is a path and Q is a subpath of P sharing an endpoint with P , then P - Q will denote the subpath of P with vertex set V (P ) \ V (Q).
+We will often identify a graph G with its vertex set V (G). Whenever we say that two subgraphs of a graph are "disjoint" we will always mean vertex-disjoint. If H and K are subgraphs of G then H \ K will mean V (H) \ V (K) and H  K will mean V (H)  V (K). Additive notation will be reserved solely for concatenating paths as explained above.
+All colourings in this section will be edge-colourings. Whenever a graph is coloured with two colours, the colours will be called "red" and "blue". If there are three colours, they will be "red", "blue", and "green". If a graph G is coloured with some number of colours we define the red colour class of G to be the subgraph of G with vertex set V (G) and edge set consisting of all the red edges of G. We say that G is connected in red, if the red colour class is a connected graph. Similar definitions are made for blue and green as well.
+We will need the following special 3-colourings of the complete graph.
+Definition 3.1. Suppose that the edges of Kn are coloured with three colours. We say that the colouring is 4-partite if there exists a partition of the vertex set into four nonempty sets A1, A2, A3, and A4 such that the following hold.
+· The edges between A1 and A4, and the edges between A2 and A3 are red.
+· The edges between A2 and A4, and the edges between A1 and A3 are blue.
+· The edges between A3 and A4, and the edges between A1 and A2 are green.
+The edges within the sets A1, A2, A3, and A4 can be coloured arbitrarily. The sets A1, A2, A3, and A4 will be called the "classes" of the 4-partition.
+When dealing with 4-partite colourings of Kn, the classes will always be labeled "A1", "A2", "A3", and "A4", with colours between the classes as in the above definition. See Figure 3 for an illustation of a 4-partite colouring of Kn
+For all other notation, we refer to [5].
+9
+
+Figure 3: A 4-partite colouring of Kn.
+In Section 2, we saw that there exist 3-colourings of the complete graphs which cannot be partitioned into three monochromatic paths with different colours. It turns out that all such colourings must be 4-partite. Our proof of Theorem 1.5 will split into the following two parts. Theorem 3.2. Suppose that the edges of Kn are coloured with three colours such that the colouring is not 4-partite. Then Kn can be vertex-partitioned into three monochromatic paths with different colours. Theorem 3.3. Suppose that the edges of Kn are coloured with three colours such that the colouring is 4-partite. Then Kn can be vertex-partitioned into three monochromatic paths, at most two of which have the same colour.
+We will use Theorem 3.2 in the proof of Theorem 3.3.
+3.1 Proof of Theorem 3.2.
+We begin by proving the following strengthening of Lemma 1.10 Lemma 3.4. Let G be a graph, and v a vertex in the largest connected component of G. There is a vertex-partition of G into a path P , and two sets A and B, such that there are no edges between A and B, and |A| = |B|. In addition P is either empty or starts at v. Proof. Let C be the largest connected component of G. We claim that there is a partition of G into a path P and two sets A and B such that the following hold:
+(i) |A|  |B|.
+(ii) There are no edges between A and B.
+(iii) P is either empty or starts from v.
+(iv) |A \ C| is as large as possible (whilst keeping (i) - (iii) true).
+(v) |A| is as large as possible (whilst keeping (i) - (iv) true).
+(vi) |P | is as large as possible (whilst keeping (i) - (v) true).
+10
+
+To see that such a partition exists, note that letting P = A =  and B = V (G) gives a partition satisfying (i) - (iii), so there must be a partition having |A \ C|, |A|, and |P | maximum, as required by (iv) - (vi).
+Assume that P , A and B satisfy (i) - (vi). We claim that |A| = |B| holds. Suppose, for the sake of contradiction, that we have |A| < |B|.
+Suppose that P is empty. There are two cases depending on whether C  A or C  B holds. Note that, by (ii), we are always in one of these cases.
+· Suppose that C  A. By (i) and (ii), there must be some connected component of G, say D, which is contained in B. In this case, let P = P , A = (A \ C)  D, and B = (B \ D)  C. Using |D|  |C| we obtain that |A |  |B | holds. Therefore P , A , and B partition G, satisfy (i) - (iii), and have |A \ C| = |A| - |C| + |D| > |A| - |C| = |A \ C|. This contradicts |A \ C| being maximal in the original partition.
+· Suppose that C  B. In this case we have v  B. Letting P = {v}, A = A, and B = B \ {v} gives a partition satisfying (i) - (v), and having |P | > |P |. This contradicts P being maximal in the original partition.
+Suppose that P is not empty. Let u be the end vertex of P . There are two cases depending on whether there are any edges between u and B
+· Suppose that for some w  B, uw is an edge. Letting P = P + w, A = A, and B = B \ {w} gives a partition satisfying (i) - (v), and having |P | > |P |. This contradicts P being maximal in the original partition.
+· Suppose that for all w  B, uw is not an edge. Letting P = P -u, A = A{u}, and B = B gives partition satisfying (i) - (iv), and having |A | > |A|. This contradicts A being maximal in the original partition.
+Lemma 3.4 implies Lemma 1.10, by taking G to be the red colour class of a 2-coloured complete graph. The following could be seen as a strengthening of Lemma 1.10, when one of the colour classes of Kn is connected.
+Lemma 3.5. Suppose that G is connected graph. Then at least one of the following holds.
+(i) There is a path P passing through all, but one vertex in G.
+(ii) There is a vertex-partition of G into a path P , and three nonempty sets A, B1, and B2 such that |A| = |B1| + |B2| and there are no edges between any two of A, B1, and B2.
+Proof. First suppose that for every path P , G \ P is connected. Let P be a path in G of maximum length. Let v be an endpoint of P . By maximality, v cannot be connected to anything in (G \ P )  {v}. However, since P - {v} is a path, (G \ P )  {v} must be
+11
+
+connected, hence it consists of the single vertex v. Thus the path P passes through every vertex in G, proving case (i) of the lemma.
+Now, we can assume that there exists a path P0 such that G \ P0 is disconnected. In addition, we assume that P0 is a shortest such path. The assumption that G is connected implies that P0 is not empty. Suppose that P0 starts with v1 and ends with v2. Let C1, . . . , Cj be the connected components of G \ P0, ordered such that |C1|  |C2|  · · ·  |Cj|. The assumption of P0 being a shortest path, such that G \ P0 is disconnected, implies that v1 and v2 are both connected to Ct for each t  {1, . . . , j}. Indeed if this were not the case, then either P0 - {v1} or P0 - {v2} would give a shorter path with the required property.
+Let u1 be a neighbour of v1 in C1 and u2 a neighbour of v2 in C2. Apply Lemma 3.4 to C1 to obtain a partition of C1 into a path P1 and two sets X1 and Y1, such that |X1| = |Y1| and there are no edges between X1 and Y1. Similarly, apply Lemma 3.4 to C2  · · ·  Cj to obtain a partition of C2  · · ·  Cj into a path P2 and two sets X2 and Y2, such that |X2| = |Y2| and there are no edges between X2 and Y2. In addition we can assume that P1 is either empty or ends at u1 and that P2 is either empty or starts at u2. Since v1u1 and v2u2 are both edges, we can define a path Q = P1 + P0 + P2. Let w1 be the start of Q, and w2 the end of Q. We have that either w1  C1 or w1 = v1 and either w2  C2  · · ·  Cj or w2 = v2.
+If each of the sets X1, Y1, X2, and Y2 is nonempty, then case (ii) of the lemma holds, using the path Q, A = X1  X2, B1 = Y1, and B2 = Y2.
+Suppose that X1 = Y1 =  and X2 = Y2 = . In this case w1 must lie in C1 since we know that P1  X1  X2 = C1 = . Therefore P1 is nonempty, and so must contain w1.
+Suppose that w2 has no neighbours in X2  Y2. Note that in this case w2 = v2 since otherwise X2  Y2 = C2  · · ·  Cj would hold, and we know that v2 has neighbours in C2 . . . Cj. Therefore, we have w2  C2· · ·Cj , and so (ii) holds with P = Q-{w1}-{w2} as our path, A = X2  {w2}, B1 = Y2, and B2 = {w1}.
+Suppose that w2 has a neighbour x in X2  Y2. Without loss of generality, assume that x  X2. If |X2| = |Y2| = 1, then case (i) of the lemma holds with Q + x a path covering all the vertices in G except the single vertex in Y2. If |X2| = |Y2|  2 then case (ii) holds with P = Q + {x} - {w1} as our path, A = Y2, B1 = X2 - {x}, and B2 = {w1}.
+The case when X1 = Y1 =  and X2 = Y2 =  is dealt with similarly. If X1 = Y1 = X2 = Y2 = , then Q covers all the vertices in G, so case (i) holds.
+The following lemma gives a characterization of split colourings of Kn,n.
+Lemma 3.6. Let Kn,n be a 2-edge coloured balanced complete bipartite graph. The colouring on Kn,n is split if and only if none of the following hold.
+(i) Kn,n is connected in some colour.
+(ii) There is a vertex u such that all the edges through u are the same colour.
+Proof. Suppose that Kn,n is not split and (i) fails to hold. We will show that (ii) holds. Let X and Y be the classes of the bipartition of Kn,n. Let C be any red component of Kn,n,
+12
+
+X1 = X  C, X2 = X \ C, Y1 = Y  C, and Y2 = Y \ C. If all these sets are nonempty, then G is split with classes X1, X2, Y1, and Y2. To see this note that there cannot be any red edges between X1 and Y2, or between X2 and Y1 since C is a red component. There cannot be any blue edges between X1 and Y1, or between X2 and Y2 since Kn,n is disconnected in blue.
+Assume that one of the sets X1, X2, Y1, or Y2 is empty. If X1 is empty, then C is entirely contained in Y and hence consists of a single vertex u, giving rise to case (ii) of the lemma. If X2 is empty, then note that Y2 is nonempty, since otherwise C = Kn,n would hold contradicting our assumption that (i) fails to hold. Let u be any vertex in Y2. For any v, the edge uv must be blue, since X  C holds. Thus again (ii) holds. The cases when Y1 or Y2 are empty are done in the same way by symmetry.
+For the converse, note that if Kn,n is split, then the red components are X1  Y1 and X2  Y2, and that the blue components are X1  Y2 and X2  Y1. It is clear that neither (i) nor (ii) can hold.
+
+We now prove Theorem 1.8
+
+Proof of Theorem 1.8. Suppose that the colouring of Kn,n is split. Note that two monochromatic paths with different colours can intersect at most three of the sets X1, X2, Y1 and Y2. This together with the assumption that X1, X2, Y1 and Y2 are all nonempty implies that Kn,n cannot be partitioned into two monochromatic paths with different colours.
+It remains to prove that every 2-coloured Kn,n which is not split can be partitioned into two monochromatic paths.
+The proof is by induction on n. The case n = 1 is trivial. For the remainder of the proof assume that the result holds for Km,m for all m < n.
+Assume that the colouring on Kn,n is not split. Lemma 3.6 gives us two cases to consider.
+Suppose that Kn,n satisfies case (i) of Lemma 3.6. Without loss of generality we can assume that Kn,n is connected in red.
+Apply Lemma 3.5 to the red colour class of Kn,n. If case (i) of Lemma 3.5 occurs, then the theorem follows since we may choose P to be our red path and the single vertex to be our blue path.
+So we can assume that we are in case (ii) of Lemma 3.5. This gives us a partition of Kn,n into a red path P , and three nonempty sets A, B1, and B2, such that |A| = |B1| + |B2| and all the edges between A, B1, and B2 are blue. Let H = (A  X)  (B1  Y )  (B2  Y ) and K = (A  Y )  (B1  X)  (B2  X). Note that Kn,n[H] and Kn,n[K] are both blue complete bipartite subgraphs of Kn,n, since all the edges between A and B1  B2 are blue. Notice that |A| = |B1| + |B2| and |X| = |Y | together imply that P contains an even number of vertices. This, together with the fact that the vertices of P must alternate between X and Y , implies that |X \ P | = |Y \ P |. However X \ P = X  (A  B1  B2) and Y \ P = Y  (A  B1  B2), so we have that
+
+|X  A| + |X  B1| + |X  B2| = |Y  A| + |Y  B1| + |Y  B2|.
+
+(1)
+
+13
+
+Equation (1), together with |X  A| + |Y  A| = |Y  B1| + |Y  B2| + |X  B1| + |X  B2| implies that the following both hold:
+
+|A  X| = |B1  Y | + |B2  Y |,
+
+(2)
+
+|A  Y | = |B1  X| + |B2  X|.
+
+(3)
+
+Thus Kn,n[H] and Kn,n[K] are balanced blue complete bipartite subgraphs of Kn,n and so can each be covered by a blue path. If H =  or K =  holds, the theorem follows, since V (Kn,n) = V (P )  H  K.
+So, we can assume that H =  and K = . Equation (2), together with H = , implies that (B1  B2)  H = . Similarly (3) together with K = , implies that (B1  B2)  K = . We also know that B1 and B2 are nonempty and contained in H  K. Combining all of these implies that at least one of the following holds.
+
+(a) B1  H =  and B2  K = .
+
+(b) B1  K =  and B2  H = .
+Suppose that (a) holds. Choose x  B1  H and a blue path Q covering H and ending with x. Choose y  B2  K and a blue path R covering K and starting with y. Notice that x  X and y  Y , so there is an edge xy. The edge xy must be blue since it lies between B1 and B2. This means that Q + R is a blue path covering A  B1  B2 = G \ P , implying the theorem. The case when (b) holds can be treated identically, exchanging the roles of H and K.
+
+Suppose that Kn,n satisfies case (ii) of Lemma 3.6. Without loss of generality, this gives us a vertex u  X such that the edge uy is red for every y  Y . Let v be any vertex in Y .
+Suppose that the colouring of Kn,n \ {u, v} is split with classes X1, X2, Y1, and Y2. In this case B(X1, Y2), B(X2, Y1), and {v} are all connected in red, and u is connected to each of these by red edges. This means that Kn,n is connected in red and we are back to the previous case.
+So, suppose that the colouring of Kn,n \ {u, v} is not split. We claim that there is a partition of Kn,n \ {u, v} into two a red path P and a blue path Q such that either P is empty or P ends in Y . To see this, apply the inductive hypothesis to Kn,n \ {u, v} to obtain a partition of this graph into a red path P and a blue path Q . If P is empty or P has an endpoint in Y , then we can let P = P and Q = Q . Otherwise, the endpoints P are in X, and so the endpoints of Q in Y . Let x be the end of P and y the end of Q . If xy is red, let P = P + {y} and Q = Q - {y}. If xy is blue, let P = P - {x} and Q = Q + {x}. In either case, P and Q give a partition of Kn,n \ {u, v} into two paths such that either P is empty or P has an endpoint in Y .
+Suppose that P is empty. In this case we have a partition of Kn,n into a red path {u, v} and a blue path Q.
+Suppose that P ends in a vertex, w, in Y . The edges uv and uw are both red, so P +{u}+{v} is a red path giving the required partition of Kn,n into a red path P +{u}+{v} and a blue path Q.
+
+14
+
+As remarked in the introduction, there are split colourings of Kn,n which cannot be partitioned into two monochromatic paths. The following lemma shows that three monochromatic paths always suffice.
+Lemma 3.7. Suppose that the edges of Kn,n are coloured with two colours. Suppose that the colouring is split with classes X1, X2, Y1, and Y2. For any two vertices y1  Y1 and y2  Y2, there is a vertex-partition of Kn,n into a red path starting at y1, a red path starting at y2, and a blue path.
+Proof. Without loss of generality, suppose that X1  X2 and Y1  Y2. This, together with X1 + X2 = Y1 + Y2 implies that X1  Y2 and Y1  X2 both hold.
+B(X1, Y2) is a red complete bipartite graph, so we can cover X1 and |X1| vertices in Y2 with a red path starting from y1. Similarly we can cover Y2 and |Y2| vertices in X1 with a red path starting from y2. The only uncovered vertices are in Y2 and X1. All the edges between these are blue, so we can cover the remaining vertices with a blue path.
+The following lemma gives an alternative characterization of 4-partite colourings of Kn.
+Lemma 3.8. Suppose that the edges of Kn are coloured with three colours. The colouring is 4-partite if and only if there is a red connected component C1 and a blue connected component C2 such that all of the sets C1  C2, (V (Kn) \ C1)  C2, C1  (V (Kn) \ C2), and (V (Kn) \ C1)  (V (Kn) \ C2) are nonempty.
+Proof. Suppose that we have a red component C1 and a blue component C2 as in the statement of the lemma. Let A1 = C1  (V (Kn) \ C2), A2 = (V (Kn) \ C1)  C2, A3 = (V (Kn) \ C1)  (V (Kn) \ C2), and A4 = C1  C2. This ensures that the sets A1, A2, A3, and A4 form the classes of a 4-partite colouring of Kn.
+For the converse, suppose that A1, A2, A3, and A4 form the classes of a 4-partite colouring. Choose C1 = A1  A4 and C2 = A2  A4 to obtain components as in the statement of the lemma.
+We are now ready to prove Theorem 3.2.
+Proof of Theorem 3.2. The two main cases that we will consider are when Kn is connected in some colour, and when Kn is disconnected in all three colours.
+Suppose that Kn is connected in red. Apply Lemma 3.5 to the red colour class of Kn. If case (i) of Lemma 3.5 occurs, then the theorem follows since we can take P as our red path, the single vertex as our blue path and the empty set as our green path. so, suppose that case (ii) of Lemma 3.5 occurs, giving us a partition of Kn into a red path P and three sets A, B1, and B2 such that |A| = |B1| + |B2| and all the edges between A, B1, and B2 are blue or green.
+If the colouring on B(A, B1  B2) is not split, we can apply Theorem 1.8 to partition B(A, B1  B2) into a blue path and a green path proving the theorem.
+So, assume B(A, B1 B2) is split with classes X1, X2, Y1, and Y2, such that A = X1 X2 and B1  B2 = Y1  Y2. Then, the fact that B1, B2, Y1, and Y2 are nonempty implies that one of the following holds.
+15
+
+(i) B1  Y1 =  and B2  Y2 = .
+(ii) B1  Y2 =  and B2  Y1 = .
+Assume that (i) holds. Choose y1  B1  Y1 and y2  B2  Y2. The edge y1y2 must be blue or green since it lies between B1 and B2. Assume that y1y2 is blue. Apply Lemma 3.7 to partition B(A, B1  B2) into a blue path Q ending with y1, a blue path R starting from y2 and a green path S. By joining Q and R, we obtain a partition of G into three monochromatic paths P , Q + R, and S, all of different colours. The cases when (ii) holds or when the edge y1y2 is green are dealt with similarly.
+The same argument can be used if Kn is connected in blue or green. So, for the remainder of the proof, we assume that all the colour classes are disconnected. Let C be the largest connected component in any colour class. Without loss of generality we may suppose that C is a red connected component. Let D be a blue connected component. Let Cc = V (Kn) \ C and Dc = V (Kn) \ D. One of the sets C  D, Cc  D, C  Dc, or Cc  Dc must be empty. Indeed if all these sets were nonempty, then Lemma 3.8 would imply that the colouring is 4-partite, contradicting the assumption of the theorem.
+We claim that D  C or Dc  C holds. To see this consider four cases depending on which of C  D, Cc  D, C  Dc or Cc  Dc is empty.
+· C  D =  implies that all the edges between C and D are green. This contradicts C being the largest component in any colour.
+· Cc  D =  implies that D  C.
+· C  Dc =  implies that C  D. Since C is the largest component of any colour, this means that C = D.
+· Cc  Dc =  implies that Dc  C.
+If D  C holds, then choose v  D. If Dc  C holds, then choose v  Dc. In either case all the edges between v and Cc must be green.
+Apply Lemma 3.4 to the red colour class of Kn in order to obtain a partition of Kn into a red path P and two sets A and B such that |A| = |B| and all the edges between A and B are colours 2 or 3. In addition, P is either empty or starts at v. If either of the graphs Kn[A] or Kn[B] is disconnected in red, then we can proceed just as we did after we applied Lemma 3.5 in the previous part of the theorem. So assume that both Kn[A] and Kn[B] are connected in red. We claim that one of the sets A or B must be contained in Cc. Indeed otherwise C would intersect each of P , A, and B. Since P , Kn[A], and Kn[B] are connected in red, this would imply that C = P  A  B = Kn contradicting Kn being disconnected in red. Without loss of generality we may assume that B  Cc. Therefore all the edges between v and B are green.
+As before, if the colouring on B(A, B) is not split, we can apply Theorem 1.8 to partition B(A, B) into a blue path and a green path. Therefore assume that the colouring on B(A, B) is split.
+16
+
+If the path P is empty, then we must have v  A. Lemma 3.6 leads to a contradiction, since we know that all the edges between v and B are green, and B(A, B) is split.
+Therefore the path P is nonempty. We know that B(A, B) is split with classes X1, X2, Y1, and Y2, such that A = X1  X2 and B = Y1  Y2. Choose y1  Y1 and y2  Y2 arbitrarily. Apply Lemma 3.7 to B(A, B) to partition B(A, B) into a green path Q ending with y1, a green path R starting from y2, and a blue path S. Notice that the edges y1v and vy2 are both green, so P - {v}, S, and Q + {v} + R give a partition of Kn into three monochromatic paths, all of different colours.
+3.2 Proof of Theorem 3.3
+In this section, we prove Theorem 3.3. The proof has a lot in common with the proof of a similar theorem in [12].
+Proof. Let A1, A2, A3, and A4 be the classes of the 4-partition of Kn, with colours between the classes as in Definition 3.1. Our proof will be by induction on n. The initial case of the induction will be n = 4, since for smaller n there are no 4-partite colourings of Kn. For n = 4, the result is trivial. Suppose that the result holds for Km for all m < n.
+For i = 1, 2, 3, and 4 we assign three integers ri, bi, and gi to Ai corresponding to the three colours as follows:
+(i) Suppose that Ai can be partitioned into three nonempty monochromatic paths Ri, Bi, and Gi of colours red, blue, and green respectively. In this case, let ri = |Ri|, bi = |Bi|, and gi = |Gi|.
+(ii) Suppose that Ai can be partitioned into three nonempty monochromatic paths P1, P2, and Q such that P1 and P2 are coloured the same colour and Q is coloured a different colour. If P1 and P2 are red, then we let ri = |P1| + |P2| - 1. If Q is red, then we let ri = |Q|. If none of P1, P2, or Q are red, then we let ri = 1. We do the same for "blue" and "green" to assign values to bi and gi respectively. As a result we have assigned the values |P1| + |P2| - 1, |Q|, and 1 to some permutation of the three numbers ri, bi, and gi.
+(iii) Suppose that |Ai|  2. In this case, let ri = bi = gi = 1.
+For each i  {1, 2, 3, 4}, Ai will always be in at least one of the above three cases. To see this, depending on whether the colouring on Ai is 4-partite or not, apply either Theorem 3.2 or the inductive hypothesis of Theorem 3.3 to Ai, in order to partition Ai into three monochromatic paths P1, P2, and P3 at most two of which are the same colour. If |Ai|  3 then we can assume that P1, P2, and P3 are nonempty. Indeed if P1, P2, or P3 are empty, then we can remove endpoints from the longest of the three paths and add them to the empty paths to obtain a partition into three nonempty paths, at most two of which are the same colour. Therefore, if |Ai|  3, then either Case (i) or (ii) above will hold, whereas if Ai  2, then Case (iii) will hold.
+17
+
+For each i  {1, 2, 3, 4}, note that ri, bi, and gi are positive and satisfy ri +bi +gi  |Ai|. We will need the following definition.
+Definition 3.9. A red linear forest F is Ai-filling if F is contained in Ai, and either F consists of one path of order ri, or F consists of two paths F1 and F2 such that |F1|+|F2| = ri + 1.
+Blue or green Ai-filling linear forests are defined similarly, exchanging the role of ri for bi or gi respectively. We will need the following two claims.
+Claim 3.10. Suppose that i  {1, 2, 3, 4}, and |Ai|  2. There exist two disjoint Ai-filling linear forests with different colours for any choice of two different colours.
+
+Proof. Claim 3.10 holds trivially from the definition of ri, bi, and gi.
+Claim 3.11. Suppose that i, j  {1, 2, 3, 4} such that i = j and B(Ai, Aj) is red. Let m be an integer such that the following hold.
+
+0  m  ri,
+
+(4)
+
+|Ai| - m  |Aj|.
+
+(5)
+
+There exists a red path P from Ai to Ai, of order 2|Ai| - m, covering all of Ai and any set of Ai - m vertices in Aj.
+
+Proof. Note that we can always find an Ai-filling linear forest, F . If |Ai| = 1 this is trivial, and if |Ai|  2, then this follows from Claim 3.10.
+Suppose that F consists of one path of order ri. By (4), we can shorten F to obtain a new path F of order m. By (5), we can choose a red path, P , from Ai to Aj consisting of Ai \ F and any |Ai| - m vertices in Aj \ F . The path P + F satisfies the requirements of the claim.
+Suppose that F consists of two paths F1 and F2 such that |F1|+|F2| = ri +1. By (4), we can shorten F1 and F2 to obtain two paths F1 and F2 such that |F1| + |F2| = m + 1. By (5), we can choose a red path, P , from Ai to Aj consisting of Ai \F and any |Ai|-m-1 vertices in Aj. By (5) there must be at least one vertex, v, in Aj \ P . The path P + F1 + {v} + F2 satisfies the requirements of the claim.
+
+We can formulate versions of Claim 3.11 for the colours blue or green as well, replacing ri with bi or gi respectively.
+To prove Theorem 3.3, we will consider different combinations of values of ri, bi, and gi for i = 1, 2, 3, and 4 to construct a partition of Kn into three monochromatic paths in each case.
+If a partition of Kn into monochromatic paths contains edges in the graph B(Ai, Aj) for i = j, we say that B(Ai, Aj) is a target component of the partition. Note that a partition of Kn into three monochromatic paths can have at most three target components. This is because a monochromatic path can pass through edges in at most one of graphs B(Ai, Aj).
+There are two kinds of partitions into monochromatic paths which we shall construct.
+18
+
+· We say that a partition of Kn is star-like if the target components are B(Ai, Aj), B(Ai, Ak), and B(Ai, Al), for (i, j, k, l) some permutation of (1, 2, 3, 4). In this case, all the paths in the partition will have different colours.
+
+· We say that a partition of Kn is path-like if the target components are B(Ai, Aj), B(Aj, Ak), and B(Ak, Al), for (i, j, k, l) some permutation of (1, 2, 3, 4). In this case, two of the paths in the partition will have the same colour.
+
+For i  {1, 2, 3, 4}, it is possible to write down sufficient conditions on |Ai|, ri, bi, and gi for Kn to have a partition into three monochromatic paths with given target components.
+Claim 3.12. Suppose that the following holds:
+
+|A1| + |A2| + |A3|  |A4| + r1 + b2 + g3.
+
+(6)
+
+Then, Kn has a star-like partition with target components B(A4, A1), B(A4, A2), and B(A4, A3) of colours red, blue, and green respectively.
+Proof. Using (6), we can find three disjoint subsets S1, S2, and S3 of A4 such that |S1| = |A1| - r1, |S2| = |A2| - b2, and |S3| = |A3| - g3 all hold. By Claim 3.11 there is a red path P1 with vertex set A1  S1, a blue path P2 with vertex set A2  S2, and a green path P3 with vertex set A3  S3. The paths P1, P2, and P3 are pairwise disjoint and have endpoints in A1, A2, and A3 respectively.
+Depending on whether A4 \(P1 P2 P3) is 4-partite or not, apply either Theorem 3.2 or the inductive hypothesis to find a partition of A4\(P1P2P3) set into three monochromatic paths Q1, Q2, and Q3 at most two of which are the same colour.
+We will join the paths P1, P2, P3, Q1, Q2, and Q3 together to obtain three monochromatic paths partitioning all the vertices in Kn.
+Suppose that all the Qi are all of different colours, with Q1 red, Q2 blue, and Q3 green. In this case P1 + Q1, P2 + Q2, and P3 + Q3 are three monochromatic paths forming a star-like partition of Kn.
+Suppose that two of the Qi are the same colour. Without loss of generality, we may assume that Q1 and Q2 are red and Q3 is blue. In this case Q1 + P1 + Q2, P2, and P3 + Q3 are three monochromatic paths forming a star-like partition of Kn.
+Claim 3.13. Suppose that the following all hold:
+
+|A1| + |A4|  |A2| + |A3| + b4 + g4 + g1,
+
+(7)
+
+|A3| + |A2|  |A1| + |A4| + b2 + g2 + g3,
+
+(8)
+
+|A1| < |A2| + g1,
+
+(9)
+
+|A3| < |A4| + g3.
+
+(10)
+
+Then Kn has a path-like partition with target components B(A1, A2), B(A2, A4), and B(A4, A3) of colours green, blue, and green respectively.
+
+19
+
+Proof. Suppose that we have
+
+|A2| - |A1| + g1  |A4| - |A3| + g3.
+
+(11)
+
+The inequality (10), together with Claim 3.11 ensures that we can find a green path P1 consisting of all of A3 and |A3| - g3 vertices in A4.
+
+There are two subcases depending on whether the following holds or not:
+
+|A2| - |A1|  |A4| - |A3| + g3.
+
+(12)
+
+Suppose that (12) holds. Let m = |A1|-|A2|+|A4|-|A3|+g3. Note that |A1|-m  |A2| holds by (10), that m is positive by (12), and that m is less than g1 by (11). Therefore, we can apply Claim 3.11 to find a green path P2 consisting of A1 and |A1| - m vertices in A2. There remain exactly |A4| - |A3| + g3 vertices in each of A2 and A4 outside of the paths P1 and P2. Cover these with a blue path P3 giving the required partition.
+
+Suppose that (12) fails to hold. Note that (10) and the negation of (12) imply that
+|A2| > |A1| which, together with the fact that |A1| > 0, implies that |A2|  2. Therefore, we can apply Claim 3.10 to A2 to obtain a blue A2-filling linear forest, B, and a disjoint green A2-filling linear forest, G. We construct a blue path PB and a green path PG as follows:
+Note that A4 \ P1 is nonempty by (10), so let u be a vertex in A4 \ P1. If B is the union of two paths B1 and B2 such that |B1| + |B2| = b2 + 1, then let PB = B1 + {v} + B2. Otherwise B must be single path of order b1, and we let PB = B.
+Similarly, let v be a vertex in A1. If G consists of two paths G1 and G2, we let PG = G1 + {v} + G2. If G is a single path, we let PG = G.
+Note that the above construction and (8) imply that the following is true.
+
+|A2 \ (PB  PG)|  |A1 \ (PB  PG)| + |(A4 \ P1) \ (PB  PG)|.
+
+(13)
+
+The negation of (12) is equivalent to the following
+
+|A2|  |A1| + |(A4 \ P1)|.
+
+(14)
+
+Let PB and PG be subpaths of PB and PG respectively, such that the sum |PB| + |PG| is as small as possible and we have
+
+|A2 \ (PB  PG)|  |A1 \ (PB  PG)| + |(A4 \ P1) \ (PB  PG)|.
+
+(15)
+
+The paths PB and PG are well defined by (13). We claim that we actually have equality in (15). Indeed, since A1, A2, and A4 \ P1 are all disjoint, removing a single vertex from PB or PG can change the inequality (15) by at most one. Therefore, if the inequality (15) is strict, we know that PB and PG are not both empty by (14), so we can always remove a single vertex from PB or PG to obtain shorter paths satisfying (15), contradicting the minimality of |PB| + |PG|.
+
+20
+
+Equality in (15) implies that |A2 \ (P1  PB  PG)| = |(A1  A4) \ (P1  PB  PG)|, so we can choose a green path QG from A1 to A2 and a disjoint blue path QB from (A4 \ P1) to A2 such that QB  QG = (A1  A2  A4) \ (P1  PB  PG). The paths P1, PB + QB, and PG + QG give us the required partition of Kn.
+If the negation of (11) holds, we can use the same method, exchanging the roles of A1 and A3, and of A2 and A4.
+
+Obviously, there was nothing special about our choice of target components in Claims 3.12 and 3.13. We can write similar sufficient conditions for there to be a star-like partition or a path-like partition for any choice of target components. To prove Theorem 3.3, we shall show that either the inequality in Claim 3.12 holds or all four inequalities from Claim 3.13 hold for some choice of target components.
+Without loss of generality we can assume that the following holds:
+
+|A1|  |A2|  |A3|  |A4|.
+
+(16)
+
+Consider the following instances of Claims 3.12 and 3.13. There is a star-like partition of Kn with target components B(A4, A1), B(A4, A2), and
+B(A4, A3) of colours red, blue, and green respectively if the following holds:
+
+|A1| + |A2| + |A3|  |A4| + r1 + b2 + g3.
+
+(A1)
+
+There is a path-like partition of Kn with target components B(A1, A2), B(A2, A4), and B(A4, A3) of colours green, blue, and green respectively if the following holds:
+
+|A1| + |A4|  |A2| + |A3| + b4 + g4 + g1, |A3| + |A2|  |A1| + |A4| + b2 + g2 + g3,
+|A1| < |A2| + g1, |A3| < |A4| + g3.
+
+(B1) (B2)
+
+There is a path-like partition of Kn with target components B(A1, A4), B(A4, A3), and B(A3, A2) of colours red, green, and red respectively if the following holds:
+
+|A1| + |A3|  |A2| + |A4| + g3 + r3 + r1, |A2| + |A4|  |A1| + |A3| + g4 + r4 + r2,
+|A1| < |A4| + r1, |A2| < |A3| + r2.
+
+(C2)
+
+21
+
+There is a path-like partition of Kn with target components B(A1, A3), B(A3, A2), and B(A2, A4) of colours blue, red, and blue respectively if the following holds:
+
+|A1| + |A2|  |A3| + |A4| + r2 + b2 + b1, |A3| + |A4|  |A1| + |A2| + r3 + b3 + b4,
+|A1| < |A3| + b1, |A4| < |A2| + b4.
+
+(D2) (D4)
+
+There is a path-like partition of Kn with target components B(A1, A4), B(A4, A2), and B(A2, A3) of colours red, blue, and red respectively if the following holds:
+
+|A1| + |A2|  |A3| + |A4| + b2 + r2 + r1, |A3| + |A4|  |A1| + |A2| + b4 + r4 + r3,
+|A1| < |A4| + r1, |A3| < |A2| + r3.
+
+(E2) (E4)
+
+There is a path-like partition of Kn with target components B(A2, A4), B(A4, A1), and B(A1, A3) of colours blue, red, and blue respectively if the following holds:
+
+|A1| + |A2|  |A3| + |A4| + r1 + b1 + b2, |A3| + |A4|  |A1| + |A2| + r4 + b4 + b3,
+|A2| < |A4| + b2, |A3| < |A1| + b3.
+
+(F2) (F4)
+
+Note that all the unlabeled inequalities hold as a consequence of (16) and the positivity of ri, bi, and gi. Thus, to prove the theorem it is sufficient to show that all the labeled inequalities corresponding to some particular letter A, B, C, D, E, or F hold. We split into two cases depending on whether (B1) holds or not.
+Case 1: Suppose that (B1) holds. Note that the following cannot all be true at the same time:
+
+|A3| + r2 > |A4| + g3,
+
+(17)
+
+|A2| + b4 > |A3| + r2,
+
+(18)
+
+|A4| + g3 > |A2| + b4.
+
+(19)
+
+Indeed adding these three inequalities together gives 0 > 0. Thus the negation of (17), (18), or (19) must hold.
+The negation of (17) implies (B2) which, together with our assumption that (B1) holds, implies that all the inequalities corresponding to the letter "B" hold.
+The negation of (18) implies (C2) which implies that all the inequalities corresponding to the letter "C" hold.
+
+22
+
+The negation of (19), together with |A3|  r3 + b3 + g3 implies that (D2) holds. The negation of (19), together with g3 > 0 implies that (D4) holds. Therefore, all the inequalities corresponding to the letter "D" hold.
+Case 2: Suppose that (B1) does not hold. If (C2) holds, then all the inequalities labeled "C" hold, so we assume that the negation of (C2) holds. We consider three subcases depending on which of (E4) and (F4) hold.
+Subcase 1: Suppose that (E4) holds. If (E2) holds, then all the inequalities labeled "E" hold, so we assume that the negation of (E2) holds. Adding the negations of (B1), (C2), and (E2) together, and using |A4|  r4 + b4 + g4 gives the following:
+|A4| > |A1| + |A2| + |A3| + g1 + r2 + r3.
+This is stronger than (A1) which implies that all the inequalities corresponding to the letter "A" hold.
+Subcase 2: Suppose that (F4) holds. If (F2) holds, then all the inequalities labeled "F" hold, so we assume that the negation of (F2) holds. Adding the negations of (B1), (C2), and (F2) together, and using |A4|  r4 + b4 + g4 gives the following:
+|A4| > |A1| + |A2| + |A3| + g1 + r2 + b3.
+This is stronger than (A1) which implies that all the inequalities corresponding to the letter "A" hold.
+Subcase 3: Suppose that neither (E4) or (F4) hold. Adding the negations of (B1), (C2), (E4), and (F4) together, and using |A4|  r4 + b4 + g4 and |A3|  r3 + b3 + g3 gives the following:
+|A4| + g3 > |A1| + |A2| + |A3| + g1 + r2 + g4. This is stronger than (A1) which implies that all the inequalities corresponding to the letter "A" hold.
+4 Discussion
+Much of the research on partitioning coloured graphs has focused around Conjecture 1.2. Given the disproof of this conjecture, we will spend the remainder of this paper discussing possible directions for further work.
+Although we only constructed counterexamples to Conjecture 1.2 for particular n in Section 2 of this paper, it is easy to generalize our construction to work for all n  Nr, where Nr is a number depending on r. To see this, one only needs to replace the assumption of "m is an integer" with "m is a real number" in Section 2, and replace expressions where m appears with suitably chosen integral parts. Doing this and choosing m appropriately
+23
+
+will produce r-colourings of Kn which cannot be partitioned into r monochromatic cycles for all sufficiently large n.
+A weakening of Conjecture 1.2 is the following approximate version.
+
+Conjecture 4.1. For each r there is a constant cr, such that in every r-edge coloured complete graph Kn, there are r vertex-disjoint monochromatic cycles covering n-cr vertices in Kn.
+
+This conjecture is open for r  3. For r = 3, Theorem 1.3 shows that a version
+
+of
+
+Conjecture
+
+4.1
+
+is
+
+true
+
+with
+
+cr
+
+replaced
+
+with
+
+a
+
+function
+
+or(n)
+
+satisfying
+
+or (n) n
+
+
+
+0
+
+as
+
+n  .
+
+Another way to weaken Conjecture 1.2 is to remove the constraint that the cycles
+
+covering Kn are disjoint.
+
+Conjecture 4.2. Suppose that the edges of Kn are coloured with r colours. There are r (not necessarily disjoint) monochromatic cycles covering all the vertices in Kn.
+
+A weaker version of this conjecture where "cycles" is replaced with "paths" has appeared in [9]. Our method of finding counterexamples to Conjecture 1.2 relied on first finding graphs which cannot be partitionined into r monochromatic paths of different colours. For r = 3, using Theorem 3.2, it is easy to show that every 3-coloured complete graph can be covered by three (not necessarily disjoint) paths of different colours. Therefore for r = 3, it is unlikely that something similar to our constructions in Section 2 can produce counterexamples to Conjecture 4.2. It is even possible that, for all r, one can ask for the cycles in Conjecture 4.2 to have different colours.
+As mentioned in the introduction, it is interesting to consider partitions of an edge coloured graph G other than the complete graph. Theorems 1.7 and 1.8 are results in this direction when when G is a balanced complete bipartite graph. We make the following conjecture which would generalise Corollary 1.9.
+
+Conjecture 4.3. Suppose that the edges of Kn,n are coloured with r colours. There is a vertex-partition of Kn,n into 2r - 1 monochromatic paths.
+This conjecture would be optimal, since for all r, there exist r-coloured balanced complete bipartite graphs which cannot be partitioned into 2r - 2 monochromatic paths. We sketch one such construction here. Let X and Y be the classes of the bipartition of a balanced complete bipartite graph. We partition X into X1, . . . , Xr and Y into Y1, . . . , Yr where |Xi| = 10i + i and |Yi| = 10i + r - i. The edges between Xi and Yj are coloured with colour i + j (mod r). It is possible to show that this graph cannot be partitioned into 2r - 2 monochromatic paths. In [13], Haxell showed that every r-edge coloured balanced complete bipartite graph can be partitioned into O((r log r)2) monochromatic cycles, which is the best known upper bound to how many paths are needed in Conjecture 4.3.
+
+Acknowledgment The author would like to thank his supervisors Jan van den Heuvel and Jozef Skokan for their advice and discussions.
+
+24
+
+References
+[1] P. Allen. Covering two-edge-coloured complete graphs with two disjoint monochromatic cycles. Combin. Probab. Comput., 17(4):471­486, 2008.
+[2] J. Ayel. Sur l'existence de deux cycles suppl´ementaires unicolores, disjoints et de couleurs diff´erentes dans un graphe complet bicolore. Th´ese de l'universit´e de Grenoble, 1979.
+[3] J. Balogh, J. Bara´t, D. Gerbner, A. Gy´arfa´s, and G. Sa´rko¨zy. Partitioning edge-2colored graphs by monochromatic paths and cycles. preprint, 2012.
+[4] S. Bessy and S. Thomass´e. Partitioning a graph into a cycle and an anticycle, a proof of Lehel's conjecture. J. Combin. Theory Ser. B, 100(2):176­180, 2010.
+[5] R. Diestel. Graph Theory. Springer-Verlag, 2000.
+[6] P. Erdos, A. Gya´rf´as, and L. Pyber. Vertex coverings by monochromatic cycles and trees. J. Combin. Theory Ser. B, 51(1):90­95, 1991.
+[7] L. Gerencs´er and A. Gya´rf´as. On Ramsey-type problems. Ann. Univ. Sci. Budapest. Eo¨tvo¨s Sect. Math, 10:167­170, 1967.
+[8] A. Gy´arfa´s. Vertex coverings by monochromatic paths and cycles. J. Graph Theory, 7:131­135, 1983.
+[9] A. Gya´rfa´s. Covering complete graphs by monochromatic paths. In Irregularities of Partitions, Algorithms and Combinatorics, volume 8, pages 89­91. Springer-Verlag, 1989.
+[10] A. Gy´arf´as and J. Lehel. A Ramsey-type problem in directed and bipartite graphs. Pereodica Math. Hung., 3:299­304, 1973.
+[11] A. Gy´arfa´s, M. Ruszink´o, G. Sa´rk¨ozy, and E. Szemer´edi. An improved bound for the monochromatic cycle partition number. J. Combin. Theory Ser. B, 96(6):855­873, 2006.
+[12] A. Gya´rfa´s, M. Ruszink´o, G. Sa´rk¨ozy, and E. Szemer´edi. Partitioning 3-colored complete graphs into three monochromatic cycles. Electron. J. Combin., 18(1), 2011.
+[13] P. Haxell. Partitioning complete bipartite graphs by monochromatic cycle. J. Combin. Theory Ser. B, 69:210­218, 1997.
+[14] T. Luczak, V. R¨odl, and E. Szemer´edi. Partitioning two-colored complete graphs into two monochromatic cycles. Combin. Probab. Comput., 7:423­436, 1998.
+[15] G. Sa´rk¨ozy. Monochromatic cycle partitions of edge-colored graphs. J. Graph Theory, 66:57­64, 2011.
+25
+
+

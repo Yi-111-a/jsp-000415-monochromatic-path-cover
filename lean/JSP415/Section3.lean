@@ -180,6 +180,560 @@ theorem overlap_bound_pair {n : ℕ} {C₁ C₂ : ℝ} (hC : C₂ ≤ C₁)
       (fun s hs ↦ ⟨⟨0, (hS s hs).1⟩, ⟨0, (hS s hs).2⟩⟩)
       (by rw [← Nat.cast_sub hSle, Nat.cast_one]; linarith [hsqrt])
 
+section LongPathStructure
+
+/-- The opposite colour. -/
+private def Color.other : Color → Color
+  | .red => .blue
+  | .blue => .red
+
+private theorem Color.other_ne (c : Color) : c.other ≠ c := by
+  cases c <;> decide
+
+private theorem Color.other_other (c : Color) : c.other.other = c := by
+  cases c <;> rfl
+
+/-- For distinct vertices, `c`-adjacency is exactly the failure of
+`c.other`-adjacency. -/
+private theorem Color.adj_iff_not_adj_other {V : Type*} (G : SimpleGraph V)
+    {c : Color} {a b : V} (h : a ≠ b) :
+    Color.adj G c a b ↔ ¬ Color.adj G c.other a b := by
+  cases c
+  · refine ⟨fun h1 h2 ↦ h2.2 h1, fun h1 ↦ ?_⟩
+    by_contra h2
+    exact h1 ⟨h, h2⟩
+  · exact ⟨fun h1 h2 ↦ h1.2 h2, fun h1 ↦ ⟨h, h1⟩⟩
+
+/-- For distinct vertices, one of the two colour adjacencies holds. -/
+private theorem Color.adj_or_adj_other {V : Type*} (G : SimpleGraph V)
+    {c : Color} {a b : V} (h : a ≠ b) :
+    Color.adj G c a b ∨ Color.adj G c.other a b := by
+  by_cases h1 : Color.adj G c a b
+  · exact Or.inl h1
+  · right
+    apply (Color.adj_iff_not_adj_other G (c := c.other) h).mpr
+    rw [Color.other_other]
+    exact h1
+
+/-- `adjXY` edges are colour-`c` edges (vertices on opposite sides differ). -/
+private theorem adjXY_to_adj {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {X Y : Finset V} (hXY : Disjoint X Y) {c : Color} {a b : V}
+    (h : Color.adjXY G X Y c a b) : Color.adj G c a b := by
+  cases c
+  · exact h.2
+  · refine ⟨?_, h.2⟩
+    intro hab
+    subst hab
+    rcases h.1 with ⟨h1, h2⟩ | ⟨h1, h2⟩
+    · exact (Finset.disjoint_left.mp hXY h1) h2
+    · exact (Finset.disjoint_left.mp hXY h2) h1
+
+/-- A longest `R`-chain among vertex paths exists, by `Nat.findGreatest`. -/
+private theorem exists_longest_chain {V : Type*} [Fintype V] [DecidableEq V]
+    (R : V → V → Prop) (v₀ : V) :
+    ∃ p : VertPath V, p.toList.IsChain R ∧
+      ∀ q : VertPath V, q.toList.IsChain R → q.toList.length ≤ p.toList.length := by
+  classical
+  haveI : Nonempty V := ⟨v₀⟩
+  have hPM := Nat.findGreatest_spec
+    (P := fun m ↦ ∃ p : VertPath V, p.toList.IsChain R ∧ p.toList.length = m)
+    (n := Fintype.card V) Fintype.card_pos (m := 1)
+    ⟨VertPath.singleton v₀, List.isChain_singleton v₀, rfl⟩
+  obtain ⟨p, hp, hlen⟩ := hPM
+  refine ⟨p, hp, fun q hq ↦ ?_⟩
+  have hle : q.toList.length ≤ Fintype.card V := q.nodup.length_le_card
+  have h2 : q.toList.length ≤ Nat.findGreatest
+      (fun m ↦ ∃ p : VertPath V, p.toList.IsChain R ∧ p.toList.length = m)
+      (Fintype.card V) := Nat.le_findGreatest hle ⟨q, hq, rfl⟩
+  omega
+
+/-- Prepending a `c`-adjacent fresh vertex gives a longer `c`-chain. -/
+private theorem extend_head {n : ℕ} {G : SimpleGraph (Fin n)} {c : Color}
+    {l : List (Fin n)} (hne : l ≠ []) (hchain : l.IsChain (Color.adj G c))
+    (hnd : l.Nodup) {y : Fin n} (hy : y ∉ l)
+    (h : Color.adj G c (l.head hne) y) :
+    ∃ p : VertPath (Fin n), p.IsMonochromatic G c ∧
+      p.toList.length = l.length + 1 := by
+  refine ⟨⟨y :: l, by simp, List.nodup_cons.mpr ⟨hy, hnd⟩⟩, ?_, ?_⟩
+  · refine hchain.cons fun z hz ↦ ?_
+    rw [List.head?_eq_some_head hne, Option.mem_some] at hz
+    rw [← hz]
+    exact Color.adj_symm G h
+  · rw [List.length_cons]
+
+/-- `getD` with a valid index equals `getElem`. -/
+private theorem list_getD_eq_getElem {α : Type*} {l : List α} {i : ℕ} {d : α}
+    (h : i < l.length) : l.getD i d = l[i]'h := by
+  rw [List.getD_eq_getElem?_getD, _root_.getElem?_pos l i h]
+  rfl
+
+/-- The detour `v₁…vᵢ vⱼ vⱼ₋₁…vᵢ₊₁ y vⱼ₊₁…vᵣ`: a longer `c`-chain through a
+fresh vertex `y`, using the edges `vᵢvⱼ`, `vᵢ₊₁y`, `yvⱼ₊₁`. -/
+private theorem detour_path {n : ℕ} {G : SimpleGraph (Fin n)} {c : Color}
+    {l : List (Fin n)} (hchain : l.IsChain (Color.adj G c)) (hnd : l.Nodup)
+    {y : Fin n} (hy : y ∉ l)
+    {i j : ℕ} (hij : i < j) (hj : j + 1 < l.length)
+    (hedge : Color.adj G c l[i] l[j])
+    (h1 : Color.adj G c l[i+1] y) (h2 : Color.adj G c l[j+1] y) :
+    ∃ p : VertPath (Fin n), p.IsMonochromatic G c ∧
+      p.toList.length = l.length + 1 := by
+  have hi : i + 1 < l.length := by omega
+  set pre := l.take (i + 1) with hpre_def
+  set mid := (l.drop (i + 1)).take (j - i) with hmid_def
+  set suf := l.drop (j + 1) with hsuf_def
+  -- `l` decomposes as `(pre ++ mid) ++ suf`.
+  have hsplit : pre ++ mid ++ suf = l := by
+    have e1 : l.take (i + 1) ++ (l.drop (i + 1)).take (j - i) = l.take (j + 1) := by
+      have h : l.take (i + 1 + (j - i)) = l.take (i + 1) ++ (l.drop (i + 1)).take (j - i) :=
+        List.take_add
+      rw [show i + 1 + (j - i) = j + 1 by omega] at h
+      exact h.symm
+    rw [hpre_def, hmid_def, hsuf_def, e1, List.take_append_drop]
+  -- nodup of the three blocks.
+  have hnd' : (pre ++ mid ++ suf).Nodup := by rw [hsplit]; exact hnd
+  obtain ⟨hpm_nd, hsuf_nd, hdisj_suf⟩ := List.nodup_append.mp hnd'
+  obtain ⟨hpre_nd, hmid_nd, hdisj_mid⟩ := List.nodup_append.mp hpm_nd
+  have hmidr_nd : mid.reverse.Nodup := List.nodup_reverse.mpr hmid_nd
+  have hmem : ∀ x ∈ pre ++ mid ++ suf, x ∈ l := fun x hx ↦ by
+    rw [hsplit] at hx; exact hx
+  have hmem_pm : ∀ x ∈ pre ++ mid, x ∈ pre ++ mid ++ suf := fun x hx ↦
+    List.mem_append_left suf hx
+  have hD_nd : (pre ++ mid.reverse ++ [y] ++ suf).Nodup := by
+    rw [List.nodup_append]
+    refine ⟨?_, hsuf_nd, ?_⟩
+    · rw [List.nodup_append]
+      refine ⟨?_, List.nodup_singleton y, ?_⟩
+      · rw [List.nodup_append]
+        exact ⟨hpre_nd, hmidr_nd,
+          fun a ha b hb ↦ hdisj_mid a ha b (List.mem_reverse.mp hb)⟩
+      · intro a ha b hb
+        rw [List.mem_singleton] at hb
+        subst hb
+        intro e
+        apply hy
+        have ham : a ∈ pre ++ mid := by
+          rw [List.mem_append] at ha
+          rcases ha with ha | ha
+          · exact List.mem_append_left _ ha
+          · exact List.mem_append_right _ (List.mem_reverse.mp ha)
+        exact e ▸ hmem a (hmem_pm a ham)
+    · intro a ha b hb
+      rw [List.mem_append] at ha
+      rcases ha with ha | ha
+      · rw [List.mem_append] at ha
+        rcases ha with ha | ha
+        · exact hdisj_suf a (List.mem_append_left _ ha) b hb
+        · exact hdisj_suf a (List.mem_append_right _ (List.mem_reverse.mp ha)) b hb
+      · rw [List.mem_singleton] at ha
+        subst ha
+        intro e
+        apply hy
+        exact e.symm ▸ hmem b (List.mem_append_right _ hb)
+  -- boundary values
+  have hpre_last : pre.getLast? = some l[i] := by
+    have hlen : (l.take (i + 1)).length = i + 1 := by
+      rw [List.length_take]; omega
+    rw [hpre_def, List.getLast?_eq_getElem?, hlen]
+    show (l.take (i + 1))[i]? = _
+    rw [List.getElem?_take, ite_eq_left (show i < i + 1 by omega)]
+    exact List.getElem?_eq_getElem (show i < l.length by omega)
+  have hmidr_head : mid.reverse.head? = some l[j] := by
+    rw [List.head?_reverse, hmid_def, List.getLast?_eq_getElem?]
+    have hlen : ((l.drop (i + 1)).take (j - i)).length = j - i := by
+      rw [List.length_take, List.length_drop]; omega
+    rw [hlen]
+    show ((l.drop (i + 1)).take (j - i))[j - i - 1]? = _
+    rw [List.getElem?_take, ite_eq_left (show j - i - 1 < j - i by omega),
+      List.getElem?_drop]
+    have e : i + 1 + (j - i - 1) = j := by omega
+    rw [e]
+    exact List.getElem?_eq_getElem (show j < l.length by omega)
+  have hmidr_last : mid.reverse.getLast? = some l[i+1] := by
+    rw [List.getLast?_reverse, List.head?_eq_getElem?, hmid_def,
+      List.getElem?_take, ite_eq_left (show 0 < j - i by omega), List.getElem?_drop]
+    exact List.getElem?_eq_getElem hi
+  have hsuf_head : suf.head? = some l[j+1] := by
+    rw [hsuf_def, List.head?_drop]
+    exact List.getElem?_eq_getElem hj
+  -- the chain: `((pre ++ mid.reverse) ++ [y]) ++ suf`
+  have hD_ch : (pre ++ mid.reverse ++ [y] ++ suf).IsChain (Color.adj G c) := by
+    have hpre_ch := hchain.take (i + 1)
+    have hmid_ch := (hchain.drop (i + 1)).take (j - i)
+    have hrev_ch : mid.reverse.IsChain (Color.adj G c) :=
+      List.isChain_reverse.mpr (hmid_ch.imp fun _ _ h ↦ Color.adj_symm G h)
+    have hsuf_ch := hchain.drop (j + 1)
+    refine ((hpre_ch.append hrev_ch ?_).append
+        (List.isChain_singleton y) ?_).append hsuf_ch ?_
+    · intro a ha b hb
+      rw [hpre_last, Option.mem_some] at ha
+      rw [hmidr_head, Option.mem_some] at hb
+      rw [← ha, ← hb]
+      exact hedge
+    · intro a ha b hb
+      rw [List.getLast?_append, hmidr_last] at ha
+      have e : (Option.some l[i+1]).or pre.getLast? = some l[i+1] := rfl
+      rw [e, Option.mem_some] at ha
+      rw [List.head?_singleton, Option.mem_some] at hb
+      rw [← ha, ← hb]
+      exact h1
+    · intro a ha b hb
+      rw [List.getLast?_append, List.getLast?_singleton] at ha
+      have e : (Option.some y).or (pre ++ mid.reverse).getLast? = some y := rfl
+      rw [e, Option.mem_some] at ha
+      rw [hsuf_head, Option.mem_some] at hb
+      rw [← ha, ← hb]
+      exact Color.adj_symm G h2
+  have hD_len : (pre ++ mid.reverse ++ [y] ++ suf).length = l.length + 1 := by
+    have hp : pre.length = i + 1 := by rw [hpre_def, List.length_take]; omega
+    have hm : mid.reverse.length = j - i := by
+      rw [List.length_reverse, hmid_def, List.length_take, List.length_drop]; omega
+    have hs : suf.length = l.length - (j + 1) := by
+      rw [hsuf_def, List.length_drop]
+    rw [List.length_append, List.length_append, List.length_append,
+      List.length_singleton, hp, hm, hs]
+    omega
+  exact ⟨⟨_, by simp, hD_nd⟩, hD_ch, hD_len⟩
+
+/-- In an `adjXY`-chain, consecutive vertices alternate sides; hence at least
+`(l.length - 1)/2` vertices lie on the `X` side. -/
+private theorem alternation_bound {V : Type*} [Fintype V] [DecidableEq V]
+    (G : SimpleGraph V) {X Y : Finset V} (hXY : Disjoint X Y) {c : Color}
+    {l : List V} (hchain : l.IsChain (Color.adjXY G X Y c)) (hnd : l.Nodup) :
+    l.length ≤ 2 * (l.toFinset ∩ X).card + 1 := by
+  revert hchain hnd
+  induction l using List.twoStepInduction with
+  | nil => simp
+  | singleton a =>
+    intro _ _
+    show 1 ≤ 2 * ([a].toFinset ∩ X).card + 1
+    omega
+  | cons_cons a b t ih =>
+    intro hchain hnd
+    rw [List.isChain_cons_cons] at hchain
+    obtain ⟨hab, htail⟩ := hchain
+    rw [List.nodup_cons] at hnd
+    obtain ⟨ha_notin, hbnd⟩ := hnd
+    have ha_notin' : a ∉ t := fun h ↦ ha_notin (List.mem_cons_of_mem b h)
+    have ht_nd : t.Nodup := hbnd.tail
+    have hb_notin : b ∉ t := (List.nodup_cons.mp hbnd).1
+    have hofX : (a ∈ X ∧ b ∉ X) ∨ (b ∈ X ∧ a ∉ X) := by
+      rcases bip_ramsey_path.Color.adjXY.across hab with ⟨h1, h2⟩ | ⟨h1, h2⟩
+      · exact Or.inl ⟨h1, (Finset.disjoint_left.mp hXY.symm h2)⟩
+      · exact Or.inr ⟨h2, (Finset.disjoint_left.mp hXY.symm h1)⟩
+    have hcard : ((a :: b :: t).toFinset ∩ X).card = (t.toFinset ∩ X).card + 1 := by
+      rcases hofX with ⟨haX, hbX⟩ | ⟨hbX, haX⟩
+      · have e : (a :: b :: t).toFinset ∩ X = insert a (t.toFinset ∩ X) := by
+          rw [List.toFinset_cons, List.toFinset_cons,
+            Finset.insert_inter_of_mem haX, Finset.insert_inter_of_notMem hbX]
+        rw [e, Finset.card_insert_of_notMem (by
+          simp only [Finset.mem_inter, List.mem_toFinset]
+          exact fun h ↦ ha_notin' h.1)]
+      · have e : (a :: b :: t).toFinset ∩ X = insert b (t.toFinset ∩ X) := by
+          rw [List.toFinset_cons, List.toFinset_cons,
+            Finset.insert_inter_of_notMem haX, Finset.insert_inter_of_mem hbX]
+        rw [e, Finset.card_insert_of_notMem (by
+          simp only [Finset.mem_inter, List.mem_toFinset]
+          exact fun h ↦ hb_notin h.1)]
+    have hih := ih htail.tail ht_nd
+    rw [List.length_cons, List.length_cons, hcard]
+    omega
+
+/-- A set `S` covered both by a `γ`-path and by a `γ.other`-path of size
+`≥ 2Δ√n` gives a cover, contradicting `hG`. -/
+private theorem overlap_pair_absurd {n : ℕ} {C₁ C₂ : ℝ} (hC : C₂ ≤ C₁)
+    (hind : ∀ m < n, AllCoverLt m (Real.sqrt m + C₁))
+    {G : SimpleGraph (Fin n)} (hG : ¬ HasCoverLe G (Real.sqrt n + C₂))
+    {γ : Color} (P Q : VertPath (Fin n))
+    (hP : P.IsMonochromatic G γ) (hQ : Q.IsMonochromatic G γ.other)
+    (S : Finset (Fin n)) (hS : ∀ s ∈ S, s ∈ P ∧ s ∈ Q)
+    (hcard : 2 * (C₁ - C₂ + 1) * Real.sqrt n ≤ (S.card : ℝ)) : False := by
+  cases γ with
+  | red =>
+    have hQ' : Q.IsMonochromatic G .blue := hQ
+    exact hG (overlap_bound_pair hC hind G P hP Q hQ' S hS hcard)
+  | blue =>
+    have hP' : P.IsMonochromatic G .blue := hP
+    have hQ' : Q.IsMonochromatic G .red := hQ
+    exact hG (overlap_bound_pair hC hind G Q hQ' P hP' S
+      (fun s hs ↦ ⟨(hS s hs).2, (hS s hs).1⟩) hcard)
+
+/-- **Few `γ`-neighbours on a longest `γ`-path.**  A vertex `y` off a longest
+`γ`-chain `l` has at most `2Δ√n` `γ`-neighbours on `l`: the predecessors of
+those neighbours form a `γ.other`-clique, hence a `γ.other`-path on `l`,
+which is excluded by `overlap_pair_absurd`. -/
+private theorem few_nbrs_on_path {n : ℕ} {C₁ C₂ : ℝ} (hC : C₂ ≤ C₁)
+    (hind : ∀ m < n, AllCoverLt m (Real.sqrt m + C₁))
+    {G : SimpleGraph (Fin n)} (hG : ¬ HasCoverLe G (Real.sqrt n + C₂))
+    (hn0 : 0 < n) {γ : Color} {l : List (Fin n)}
+    (hchain : l.IsChain (Color.adj G γ)) (hnd : l.Nodup)
+    (hmax : ∀ q : VertPath (Fin n), q.toList.IsChain (Color.adj G γ) →
+      q.toList.length ≤ l.length)
+    {y : Fin n} (hy : y ∉ l) :
+    (Set.ncard {x : Fin n | x ∈ l ∧ Color.adj G γ x y} : ℝ) ≤
+      2 * (C₁ - C₂ + 1) * Real.sqrt n := by
+  classical
+  set B := l.toFinset.filter (fun x ↦ Color.adj G γ x y) with hB_def
+  have hBset : {x : Fin n | x ∈ l ∧ Color.adj G γ x y} = (B : Set (Fin n)) := by
+    ext x
+    simp [hB_def, Finset.coe_filter]
+  have hΔpos : (0:ℝ) < C₁ - C₂ + 1 := by linarith
+  have hsqrtpos : (0:ℝ) < Real.sqrt n := Real.sqrt_pos.mpr (by exact_mod_cast hn0)
+  by_cases hne : l = []
+  · subst hne
+    have hB : B = ∅ := by simp [hB_def]
+    rw [hBset, hB, Finset.coe_empty, Set.ncard_empty, Nat.cast_zero]
+    positivity
+  have hlen0 : 0 < l.length := by
+    cases l with
+    | nil => exact absurd rfl hne
+    | cons x t => simp
+  -- No `γ`-edge from the head of `l` to `y` (else `y :: l` is longer).
+  have hhead : ¬ Color.adj G γ (l[0]'hlen0) y := by
+    intro h
+    have h' : Color.adj G γ (l.head hne) y := by
+      rwa [List.head_eq_getElem_zero]
+    obtain ⟨q, hqmono, hqlen⟩ := extend_head hne hchain hnd hy h'
+    have := hmax q hqmono
+    omega
+  -- the predecessor finset `T` and its members' properties
+  set T := l.dropLast.toFinset.filter
+    (fun x ↦ l.getD (l.idxOf x + 1) x ∈ B) with hT_def
+  have hTmem : ∀ x ∈ T, x ∈ l.dropLast ∧ l.getD (l.idxOf x + 1) x ∈ B := by
+    intro x hx
+    rw [hT_def, Finset.mem_filter, List.mem_toFinset] at hx
+    exact hx
+  have hTl : ∀ x ∈ T, x ∈ l := by
+    intro x hx
+    exact List.Sublist.mem (hTmem x hx).1 (List.dropLast_prefix l).sublist
+  have hBmem : ∀ b ∈ B, b ∈ l ∧ Color.adj G γ b y := by
+    intro b hb
+    rw [hB_def, Finset.mem_filter, List.mem_toFinset] at hb
+    exact hb
+  have hTsuc : ∀ x ∈ T, l.idxOf x + 1 < l.length ∧
+      Color.adj G γ (l.getD (l.idxOf x + 1) x) y := by
+    intro x hx
+    obtain ⟨hxd, hxs⟩ := hTmem x hx
+    exact ⟨List.succ_idxOf_lt_length_of_mem_dropLast hxd, (hBmem _ hxs).2⟩
+  have hidxpos : ∀ b ∈ B, 1 ≤ l.idxOf b := by
+    intro b hb
+    obtain ⟨hbl, hadj⟩ := hBmem b hb
+    have hidx : l.idxOf b < l.length := List.idxOf_lt_length_of_mem hbl
+    by_contra h0
+    have h0' : l.idxOf b = 0 := by omega
+    have e : l[0]'hlen0 = b := by
+      calc l[0]'hlen0 = l.get ⟨l.idxOf b, hidx⟩ :=
+            congrArg l.get (Fin.ext h0').symm
+        _ = l[l.idxOf b]'hidx := rfl
+        _ = b := List.getElem_idxOf hidx
+    exact hhead (e ▸ hadj)
+  -- `l.idxOf` of a `getElem` is the index itself.
+  have hidx_get : ∀ {p : ℕ} (hp : p < l.length), l.idxOf (l[p]'hp) = p := by
+    intro p hp
+    exact hnd.idxOf_getElem p hp
+  -- the predecessor map sends `B` into `T` injectively.
+  have hg_maps : ∀ b ∈ B, l.getD (l.idxOf b - 1) b ∈ T := by
+    intro b hb
+    obtain ⟨hbl, hadj⟩ := hBmem b hb
+    have hidx : l.idxOf b < l.length := List.idxOf_lt_length_of_mem hbl
+    have hidx1 := hidxpos b hb
+    have hp : l.idxOf b - 1 < l.length := by omega
+    have hgb : l.getD (l.idxOf b - 1) b = l[l.idxOf b - 1]'hp :=
+      list_getD_eq_getElem hp
+    rw [hT_def, Finset.mem_filter, hgb]
+    refine ⟨?_, ?_⟩
+    · rw [List.mem_toFinset,
+        List.mem_dropLast_iff_idxOf_lt (List.getElem_mem _), hidx_get hp]
+      omega
+    · have esucc : l.getD (l.idxOf (l[l.idxOf b - 1]'hp) + 1) (l[l.idxOf b - 1]'hp) = b := by
+        rw [hidx_get hp]
+        have e : l.idxOf b - 1 + 1 = l.idxOf b := by omega
+        rw [e, list_getD_eq_getElem hidx, List.getElem_idxOf hidx]
+      rw [esucc]
+      exact hb
+  have hg_inj : Set.InjOn (fun b ↦ l.getD (l.idxOf b - 1) b) B := by
+    intro b1 hb1 b2 hb2 heq
+    obtain ⟨hb1l, -⟩ := hBmem b1 hb1
+    obtain ⟨hb2l, -⟩ := hBmem b2 hb2
+    have hi1 : l.idxOf b1 < l.length := List.idxOf_lt_length_of_mem hb1l
+    have hi2 : l.idxOf b2 < l.length := List.idxOf_lt_length_of_mem hb2l
+    have hp1 := hidxpos b1 hb1
+    have hp2 := hidxpos b2 hb2
+    have hpr1 : l.idxOf b1 - 1 < l.length := by omega
+    have hpr2 : l.idxOf b2 - 1 < l.length := by omega
+    have hg1 : l.getD (l.idxOf b1 - 1) b1 = l[l.idxOf b1 - 1]'hpr1 :=
+      list_getD_eq_getElem hpr1
+    have hg2 : l.getD (l.idxOf b2 - 1) b2 = l[l.idxOf b2 - 1]'hpr2 :=
+      list_getD_eq_getElem hpr2
+    dsimp only at heq
+    rw [hg1, hg2] at heq
+    have hpi : l.idxOf b1 - 1 = l.idxOf b2 - 1 := (hnd.getElem_inj_iff).mp heq
+    have hii : l.idxOf b1 = l.idxOf b2 := by omega
+    calc b1 = l[l.idxOf b1]'hi1 := (List.getElem_idxOf hi1).symm
+      _ = l[l.idxOf b2]'hi2 := congrArg (fun i : Fin l.length ↦ l.get i) (Fin.ext hii)
+      _ = b2 := List.getElem_idxOf hi2
+  have hBT : B.card ≤ T.card :=
+    Finset.card_le_card_of_injOn _ (fun b hb ↦ hg_maps b hb) hg_inj
+  -- predecessors form a `γ.other`-clique
+  have hclique : ∀ a b, a ∈ T → b ∈ T → a ≠ b → Color.adj G γ.other a b := by
+    have core : ∀ a b, a ∈ T → b ∈ T → l.idxOf a < l.idxOf b →
+        Color.adj G γ.other a b := by
+      intro a b haT hbT hlt
+      obtain ⟨ha_len, ha_adj⟩ := hTsuc a haT
+      obtain ⟨hb_len, hb_adj⟩ := hTsuc b hbT
+      have hia : l.idxOf a < l.length := List.idxOf_lt_length_of_mem (hTl a haT)
+      have hib : l.idxOf b < l.length := List.idxOf_lt_length_of_mem (hTl b hbT)
+      have hpa : l[l.idxOf a]'hia = a := List.getElem_idxOf hia
+      have hpb : l[l.idxOf b]'hib = b := List.getElem_idxOf hib
+      have hne : a ≠ b := fun e ↦ absurd e (fun h ↦ by rw [h] at hlt; omega)
+      by_contra hnot
+      have hab : Color.adj G γ a b := (Color.adj_iff_not_adj_other G hne).mpr hnot
+      have e1 : l.getD (l.idxOf a + 1) a = l[l.idxOf a + 1]'ha_len :=
+        list_getD_eq_getElem ha_len
+      have e2 : l.getD (l.idxOf b + 1) b = l[l.idxOf b + 1]'hb_len :=
+        list_getD_eq_getElem hb_len
+      have hedge' : Color.adj G γ (l[l.idxOf a]'hia) (l[l.idxOf b]'hib) := by
+        rw [hpa, hpb]; exact hab
+      obtain ⟨q, hqmono, hqlen⟩ := detour_path hchain hnd hy hlt hb_len
+        hedge' (e1 ▸ ha_adj) (e2 ▸ hb_adj)
+      have := hmax q hqmono
+      omega
+    intro a b haT hbT hne
+    have hia : l.idxOf a < l.length := List.idxOf_lt_length_of_mem (hTl a haT)
+    have hib : l.idxOf b < l.length := List.idxOf_lt_length_of_mem (hTl b hbT)
+    have hpa : l[l.idxOf a]'hia = a := List.getElem_idxOf hia
+    have hpb : l[l.idxOf b]'hib = b := List.getElem_idxOf hib
+    have hpos : l.idxOf a ≠ l.idxOf b := by
+      intro e
+      apply hne
+      calc a = l[l.idxOf a]'hia := hpa.symm
+        _ = l[l.idxOf b]'hib := congrArg (fun i : Fin l.length ↦ l.get i) (Fin.ext e)
+        _ = b := hpb
+    rcases lt_or_gt_of_ne hpos with hlt | hgt
+    · exact core a b haT hbT hlt
+    · exact Color.adj_symm G (core b a hbT haT hgt)
+  -- the `γ.other`-chain on `T` (in `l`-order)
+  set pred := l.filter (fun x ↦ decide (x ∈ T)) with hpred_def
+  have hpred_nd : pred.Nodup := hnd.sublist List.filter_sublist
+  have hpred_mem : ∀ x ∈ pred, x ∈ T := by
+    intro x hx
+    rw [hpred_def, List.mem_filter] at hx
+    exact of_decide_eq_true hx.2
+  have hpred_chain : pred.IsChain (Color.adj G γ.other) := by
+    rw [List.isChain_iff_forall_rel_of_append_cons_cons]
+    intro a b l₁ l₂ heq
+    have ha : a ∈ pred := by
+      rw [heq]
+      exact List.mem_append_right l₁ List.mem_cons_self
+    have hb : b ∈ pred := by
+      rw [heq]
+      exact List.mem_append_right l₁
+        (List.mem_cons_of_mem a List.mem_cons_self)
+    have hne : a ≠ b := by
+      have hnd2 : (l₁ ++ a :: b :: l₂).Nodup := heq ▸ hpred_nd
+      obtain ⟨-, h3, -⟩ := List.nodup_append.mp hnd2
+      obtain ⟨ha', -⟩ := List.nodup_cons.mp h3
+      intro e
+      subst e
+      exact ha' List.mem_cons_self
+    exact hclique a b (hpred_mem a ha) (hpred_mem b hb) hne
+  have hpred_tf : pred.toFinset = T := by
+    ext x
+    rw [List.mem_toFinset, hpred_def, List.mem_filter]
+    simp only [decide_eq_true_eq]
+    constructor
+    · rintro ⟨hxl, hxT⟩
+      exact hxT
+    · intro hxT
+      exact ⟨hTl x hxT, hxT⟩
+  have hpred_len : pred.length = T.card := by
+    rw [← List.toFinset_card_of_nodup hpred_nd, hpred_tf]
+  -- `|T| ≥ 2Δ√n` would contradict `hG`.
+  have hTlt : (T.card : ℝ) < 2 * (C₁ - C₂ + 1) * Real.sqrt n := by
+    by_contra hge
+    push Not at hge
+    have hpos : (0:ℝ) < T.card :=
+      lt_of_lt_of_le (mul_pos (mul_pos (by norm_num) hΔpos) hsqrtpos) hge
+    have hTne : T.Nonempty := Finset.card_pos.mp (by exact_mod_cast hpos)
+    obtain ⟨x, hxT⟩ := hTne
+    have hpred_ne : pred ≠ [] := by
+      have hx : x ∈ pred := by
+        rw [hpred_def, List.mem_filter]
+        exact ⟨hTl x hxT, by rw [decide_eq_true_eq]; exact hxT⟩
+      intro e
+      rw [e] at hx
+      simp at hx
+    exact overlap_pair_absurd hC hind hG
+      ⟨l, hne, hnd⟩ ⟨pred, hpred_ne, hpred_nd⟩ hchain hpred_chain T
+      (fun s hs ↦ ⟨List.Sublist.mem (hTmem s hs).1
+        (List.dropLast_prefix l).sublist, by
+          rw [← hpred_tf] at hs
+          rwa [List.mem_toFinset] at hs⟩)
+      hge
+  have hBlt : (B.card : ℝ) < 2 * (C₁ - C₂ + 1) * Real.sqrt n := by
+    have : (B.card : ℝ) ≤ T.card := by exact_mod_cast hBT
+    linarith
+  rw [hBset, Set.ncard_coe_finset]
+  exact le_of_lt hBlt
+
+end LongPathStructure
+
+section LongPathStructureMain
+
+/-- `adjXY` is symmetric in its endpoints. -/
+private theorem adjXY_symm' {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {X Y : Finset V} {c : Color} {a b : V}
+    (h : Color.adjXY G X Y c a b) : Color.adjXY G X Y c b a := by
+  cases c
+  · rcases h.1 with ⟨hx, hy⟩ | ⟨hy, hx⟩
+    · exact ⟨Or.inr ⟨hy, hx⟩, h.2.symm⟩
+    · exact ⟨Or.inl ⟨hx, hy⟩, h.2.symm⟩
+  · rcases h.1 with ⟨hx, hy⟩ | ⟨hy, hx⟩
+    · exact ⟨Or.inr ⟨hy, hx⟩, fun hba ↦ h.2 hba.symm⟩
+    · exact ⟨Or.inl ⟨hx, hy⟩, fun hba ↦ h.2 hba.symm⟩
+
+/-- `adjXY` is irreflexive when the sides are disjoint. -/
+private theorem adjXY_irrefl {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {X Y : Finset V} (hXY : Disjoint X Y) {c : Color} {a : V}
+    (h : Color.adjXY G X Y c a a) : False := by
+  cases c <;> rcases h.1 with ⟨h1, h2⟩ | ⟨h1, h2⟩
+  · exact (Finset.disjoint_left.mp hXY h1) h2
+  · exact (Finset.disjoint_left.mp hXY h2) h1
+  · exact (Finset.disjoint_left.mp hXY h1) h2
+  · exact (Finset.disjoint_left.mp hXY h2) h1
+
+/-- An `acrossXY` pair that is `c`-adjacent is `adjXY`-adjacent. -/
+private theorem adjXY_of_across_adj {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {X Y : Finset V} {c : Color} {a b : V}
+    (h1 : acrossXY X Y a b) (h2 : Color.adj G c a b) :
+    Color.adjXY G X Y c a b := by
+  cases c
+  · exact ⟨h1, h2⟩
+  · exact ⟨h1, h2.2⟩
+
+/-- The `c`-coloured complete bipartite graph between `X` and `Y`. -/
+private def adjXYGraph {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {X Y : Finset V} (hXY : Disjoint X Y) (c : Color) : SimpleGraph V where
+  Adj := Color.adjXY G X Y c
+  symm := ⟨fun _ _ h ↦ adjXY_symm' G h⟩
+  loopless := ⟨fun _ h ↦ adjXY_irrefl G hXY h⟩
+
+private theorem adjXYGraph_adj {V : Type*} [DecidableEq V] (G : SimpleGraph V)
+    {X Y : Finset V} (hXY : Disjoint X Y) (c : Color) (a b : V) :
+    (adjXYGraph G hXY c).Adj a b = Color.adjXY G X Y c a b := rfl
+
+/-- Enumerate a finset of paths as a family indexed by `Fin` of its cardinal,
+landing in the finset and hitting every member. -/
+private theorem enum_path_family {V : Type*} [Fintype V] [DecidableEq V]
+    (P_fam : Finset (VertPath V)) :
+    ∃ F : Fin P_fam.card → VertPath V,
+      (∀ i, F i ∈ P_fam) ∧ (∀ p ∈ P_fam, ∃ i, F i = p) :=
+  ⟨fun i ↦ (P_fam.equivFin.symm i).1,
+    fun i ↦ (P_fam.equivFin.symm i).2,
+    fun _ hp ↦ ⟨P_fam.equivFin ⟨_, hp⟩, by simp⟩⟩
+
+end LongPathStructureMain
+
+set_option maxHeartbeats 1000000 in
 /-- **PVW24 Lemma 3.2 (long-path structure).**  If `χ` admits no cover of size
 `≤ √n + C₂`, there is a monochromatic path `P` of colour `γ` leaving out few
 vertices, such that every outside vertex has at most `2Δ√n` `γ`-neighbours on
@@ -193,7 +747,462 @@ theorem long_path_structure {n : ℕ} {C₁ C₂ : ℝ} (hC : C₂ ≤ C₁)
       ∀ y ∉ P.toList,
         (Set.ncard {x : Fin n | x ∈ P.toList ∧ Color.adj G c x y} : ℝ) ≤
           2 * (C₁ - C₂ + 1) * Real.sqrt n := by
-  sorry
+  classical
+  set Δ := C₁ - C₂ + 1 with hΔdef
+  have hΔ : (1 : ℝ) ≤ Δ := by rw [hΔdef]; linarith [hC]
+  have hΔpos : (0 : ℝ) < Δ := by linarith
+  have hnR : (0 : ℝ) < n := by
+    have h1 : (0 : ℝ) < 10 ^ 4 * Δ ^ 4 :=
+      mul_pos (by norm_num) (pow_pos hΔpos 4)
+    linarith
+  have hn0 : 0 < n := by exact_mod_cast hnR
+  have hsqrt : (0 : ℝ) < Real.sqrt n := Real.sqrt_pos.mpr hnR
+  have hΔn0 : (0 : ℝ) ≤ 2 * Δ * Real.sqrt n :=
+    mul_nonneg (mul_nonneg (by norm_num) hΔpos.le) hsqrt.le
+  have hn4pos : (0 : ℝ) < (n : ℝ) ^ ((1 : ℝ) / 4) := Real.rpow_pos_of_pos hnR _
+  -- `√n > 100 Δ²` from `n > 10⁴ Δ⁴`.
+  have hsqrt_big : 100 * Δ ^ 2 < Real.sqrt n := by
+    have e : ((100 * Δ ^ 2 : ℝ)) ^ 2 < n := by
+      have e' : ((100 * Δ ^ 2 : ℝ)) ^ 2 = 10 ^ 4 * Δ ^ 4 := by ring
+      linarith [hn]
+    have h := Real.sqrt_lt_sqrt (by positivity : (0 : ℝ) ≤ (100 * Δ ^ 2) ^ 2) e
+    rwa [Real.sqrt_sq (mul_nonneg (by norm_num) (sq_nonneg Δ))] at h
+  -- `n^{1/4} > 10 Δ`.
+  have hn4 : 10 * Δ < (n : ℝ) ^ ((1 : ℝ) / 4) := by
+    have h2 : ((10 * Δ : ℝ) ^ 4) ^ ((1 : ℝ) / 4) = 10 * Δ := by
+      have h4 : (10 * Δ : ℝ) ^ 4 = (10 * Δ) ^ ((4 : ℕ) : ℝ) :=
+        (Real.rpow_natCast _ 4).symm
+      rw [h4, ← Real.rpow_mul (mul_nonneg (by norm_num) hΔpos.le)]
+      have e : ((4 : ℕ) : ℝ) * (1 / 4) = 1 := by norm_num
+      rw [e, Real.rpow_one]
+    rw [← h2, show (10 * Δ : ℝ) ^ 4 = 10 ^ 4 * Δ ^ 4 by ring]
+    exact Real.rpow_lt_rpow (by positivity) hn (by norm_num)
+  -- `√n = (n^{1/4})²` for later use.
+  have hn4sq : ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 = Real.sqrt n := by
+    have h2 : ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 =
+        ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ ((2 : ℕ) : ℝ) := (Real.rpow_natCast _ 2).symm
+    rw [h2, ← Real.rpow_mul hnR.le, Real.sqrt_eq_rpow]
+    have e : (1 : ℝ) / 4 * ((2 : ℕ) : ℝ) = 1 / 2 := by norm_num
+    rw [e]
+  -- Gerencsér–Gyárfás: a monochromatic path covering at least `n/2` vertices.
+  haveI : Nonempty (Fin n) := ⟨⟨0, hn0⟩⟩
+  obtain ⟨γ, Q₀, hQ₀mono, hQ₀len⟩ := exists_mono_path_half G
+  rw [Fintype.card_fin] at hQ₀len
+  -- Longest `γ`-path `P`.
+  obtain ⟨P, hPchain, hPmax⟩ := exists_longest_chain (Color.adj G γ) ⟨0, hn0⟩
+  -- Truncate `Q₀` to `t = ⌊n/2⌋` vertices.
+  set t := n / 2 with htdef
+  have ht0 : 0 < t := by
+    have e : (1 : ℝ) ≤ Δ ^ 4 := one_le_pow₀ hΔ
+    have h2 : (2 : ℝ) ≤ n := by linarith [hn, e]
+    have h2' : 2 ≤ n := by exact_mod_cast h2
+    omega
+  have htQ : t ≤ Q₀.toList.length := by omega
+  set lQ := Q₀.toList.take t with hlQ
+  have hlQ_nd : lQ.Nodup := Q₀.nodup.sublist (List.take_sublist t _)
+  have hlQ_len : lQ.length = t := by
+    rw [hlQ, List.length_take]
+    exact min_eq_left htQ
+  have hlQ_ne : lQ ≠ [] := by
+    intro e
+    rw [e, List.length_nil] at hlQ_len
+    omega
+  set X₀ := lQ.toFinset with hX₀
+  have hX₀card : X₀.card = t := by
+    rw [hX₀, List.toFinset_card_of_nodup hlQ_nd, hlQ_len]
+  have hXc : t ≤ X₀ᶜ.card := by
+    rw [Finset.card_compl, hX₀card, Fintype.card_fin]
+    omega
+  obtain ⟨W, hWsub, hWcard⟩ := Finset.exists_subset_card_eq hXc
+  have hdisj₀ : Disjoint X₀ W :=
+    Finset.disjoint_left.mpr fun a ha hb ↦ (Finset.mem_compl.mp (hWsub hb)) ha
+  -- `R` = longest `γ.other`-chain in the bipartite region `X₀ ↔ W`.
+  obtain ⟨R, hRchain, hRmax⟩ :=
+    exists_longest_chain (Color.adjXY G X₀ W γ.other) ⟨0, hn0⟩
+  -- `|R ∩ X₀| < 2Δ√n`, since it is covered by the `γ`-path `lQ` and the
+  -- `γ.other`-path `R`.
+  set S₀ := R.toList.toFinset ∩ X₀ with hS₀
+  have hS₀lt : (S₀.card : ℝ) < 2 * Δ * Real.sqrt n := by
+    by_contra hge
+    push Not at hge
+    have hRmono : R.IsMonochromatic G γ.other :=
+      hRchain.imp fun _ _ h ↦ adjXY_to_adj G hdisj₀ h
+    have hQmono : (⟨lQ, hlQ_ne, hlQ_nd⟩ : VertPath (Fin n)).IsMonochromatic G γ := by
+      show lQ.IsChain (Color.adj G γ)
+      exact List.IsChain.take hQ₀mono t
+    exact overlap_pair_absurd hC hind hG ⟨lQ, hlQ_ne, hlQ_nd⟩ R hQmono hRmono S₀
+      (fun s hs ↦ ⟨by
+          rw [hS₀, Finset.mem_inter, hX₀] at hs
+          simp only [List.mem_toFinset] at hs
+          show s ∈ lQ
+          exact hs.2,
+        by
+          rw [hS₀, Finset.mem_inter] at hs
+          simp only [List.mem_toFinset] at hs
+          show s ∈ R.toList
+          exact hs.1⟩)
+      hge
+  -- Hence `|R| ≤ k` where `k = 2⌈2Δ√n⌉`.
+  set k := 2 * ⌈2 * Δ * Real.sqrt n⌉₊ with hkdef
+  have hRlen : R.toList.length < k + 1 := by
+    have h1 := alternation_bound G hdisj₀ hRchain R.nodup
+    rw [← hS₀] at h1
+    have hS0nat : S₀.card < ⌈2 * Δ * Real.sqrt n⌉₊ := by
+      rw [Nat.lt_ceil]
+      exact hS₀lt
+    rw [hkdef]
+    omega
+  -- `n > 8Δ√n + 5`, since `√n > 100Δ² ≥ 8Δ + 5`.
+  have hnbig : (8:ℝ) * Δ * Real.sqrt n + 5 < n := by
+    have h85 : (8:ℝ) * Δ + 5 ≤ 100 * Δ ^ 2 := by nlinarith [hΔ]
+    have h85' : (8:ℝ) * Δ + 5 < Real.sqrt n := by linarith [h85, hsqrt_big]
+    have h1 : Real.sqrt n * (8 * Δ + 5) < n := by
+      calc Real.sqrt n * (8 * Δ + 5) < Real.sqrt n * Real.sqrt n :=
+            mul_lt_mul_of_pos_left h85' hsqrt
+        _ = n := Real.mul_self_sqrt hnR.le
+    have h2 : 5 * Real.sqrt n < Real.sqrt n * (8 * Δ + 5) := by
+      have h5 : (5:ℝ) < 8 * Δ + 5 := by linarith
+      calc 5 * Real.sqrt n < (8 * Δ + 5) * Real.sqrt n :=
+            mul_lt_mul_of_pos_right h5 hsqrt
+        _ = Real.sqrt n * (8 * Δ + 5) := by ring
+    linarith [h1, h2]
+  -- `k < n - 1 - k`, so the two `bip_ramsey` parameters are distinct.
+  have hkn : k < n - 1 - k := by
+    have hkR : (k : ℝ) ≤ 4 * Δ * Real.sqrt n + 2 := by
+      rw [hkdef, Nat.cast_mul, Nat.cast_two]
+      have hcl := Nat.ceil_lt_add_one hΔn0
+      linarith
+    have hkn1 : k + 1 + k < n := by
+      have : (k : ℝ) + 1 + k < n := by linarith [hkR, hnbig]
+      exact_mod_cast this
+    omega
+  -- `|P| ≥ n − 5Δ√n`, via `bip_ramsey_path` on `X₀ ↔ W`.
+  have hPbig : (n : ℝ) - 5 * Δ * Real.sqrt n ≤ P.toList.length := by
+    cases γ with
+    | red =>
+      obtain ⟨p, hp⟩ := bip_ramsey_path G X₀ W hdisj₀
+        (k := n - 1 - k) (ℓ := k) (ne_of_gt hkn)
+        (by rw [hX₀card, htdef]; omega) (by rw [hWcard, htdef]; omega)
+      rcases hp with ⟨hpc, hpl⟩ | ⟨hpc, hpl⟩
+      · -- red = γ path on `n − k` vertices.
+        have hle := hPmax p (hpc.imp fun _ _ h ↦ adjXY_to_adj G hdisj₀ h)
+        have hkR : (k : ℝ) ≤ 5 * Δ * Real.sqrt n := by
+          rw [hkdef, Nat.cast_mul, Nat.cast_two]
+          have hcl := Nat.ceil_lt_add_one hΔn0
+          have h2 : (2 : ℝ) ≤ Δ * Real.sqrt n := by
+            nlinarith [hsqrt_big, hΔ,
+              mul_le_mul_of_nonneg_right hΔ hsqrt.le]
+          linarith
+        have hcast : ((n - k : ℕ) : ℝ) = (n : ℝ) - k := by
+          rw [Nat.cast_sub (by omega : k ≤ n)]
+        have h1 : (n : ℝ) - k ≤ P.toList.length := by
+          rw [← hcast]
+          have : n - k ≤ p.toList.length := by omega
+          exact_mod_cast (le_trans this hle)
+        linarith
+      · -- blue = γ.other path on `k + 1` vertices: contradiction with `R`.
+        have hle := hRmax p hpc
+        omega
+    | blue =>
+      obtain ⟨p, hp⟩ := bip_ramsey_path G X₀ W hdisj₀
+        (k := k) (ℓ := n - 1 - k) (ne_of_lt hkn)
+        (by rw [hX₀card, htdef]; omega) (by rw [hWcard, htdef]; omega)
+      rcases hp with ⟨hpc, hpl⟩ | ⟨hpc, hpl⟩
+      · -- red = γ.other path on `k + 1` vertices: contradiction.
+        have hle := hRmax p hpc
+        omega
+      · -- blue = γ path on `n − k` vertices.
+        have hle := hPmax p (hpc.imp fun _ _ h ↦ adjXY_to_adj G hdisj₀ h)
+        have hkR : (k : ℝ) ≤ 5 * Δ * Real.sqrt n := by
+          rw [hkdef, Nat.cast_mul, Nat.cast_two]
+          have hcl := Nat.ceil_lt_add_one hΔn0
+          have h2 : (2 : ℝ) ≤ Δ * Real.sqrt n := by
+            nlinarith [hsqrt_big, hΔ,
+              mul_le_mul_of_nonneg_right hΔ hsqrt.le]
+          linarith
+        have hcast : ((n - k : ℕ) : ℝ) = (n : ℝ) - k := by
+          rw [Nat.cast_sub (by omega : k ≤ n)]
+        have h1 : (n : ℝ) - k ≤ P.toList.length := by
+          rw [← hcast]
+          have : n - k ≤ p.toList.length := by omega
+          exact_mod_cast (le_trans this hle)
+        linarith
+  -- `X` = vertex set of `P`, `Y` = its complement.
+  set X := P.toList.toFinset with hX
+  set Y := Xᶜ with hY
+  have hXcard : X.card = P.toList.length := by
+    rw [hX, List.toFinset_card_of_nodup P.nodup]
+  have hXlen : X.card ≤ n := by
+    rw [hXcard]
+    exact le_trans P.nodup.length_le_card (le_of_eq (Fintype.card_fin n))
+  have hYcard : Y.card = n - X.card := by
+    rw [hY, Finset.card_compl, hXcard, Fintype.card_fin]
+  have hYb : (Y.card : ℝ) ≤ 5 * Δ * Real.sqrt n := by
+    have hcast : ((n - X.card : ℕ) : ℝ) = (n : ℝ) - X.card := by
+      rw [Nat.cast_sub hXlen]
+    have : ((n - X.card : ℕ) : ℝ) ≤ 5 * Δ * Real.sqrt n := by
+      rw [hcast, hXcard]
+      linarith [hPbig]
+    rw [hYcard]
+    exact_mod_cast this
+  have hdisjXY : Disjoint X Y :=
+    Finset.disjoint_left.mpr fun a ha hb ↦ (Finset.mem_compl.mp hb) ha
+  -- The monochromatic `γ`-path and the neighbour bound, valid in all cases.
+  have hPmono : P.IsMonochromatic G γ := hPchain
+  have hNbrs : ∀ y ∉ P.toList,
+      (Set.ncard {x : Fin n | x ∈ P.toList ∧ Color.adj G γ x y} : ℝ) ≤
+        2 * (C₁ - C₂ + 1) * Real.sqrt n := by
+    intro y hy
+    exact few_nbrs_on_path hC hind hG hn0 hPchain P.nodup hPmax hy
+  -- If `Y` is empty the leftover bound is trivial.
+  by_cases hYe : Y = ∅
+  · have hY0 : (Y.card : ℝ) = 0 := by rw [hYe]; simp
+    have hnil : (n : ℝ) - P.toList.length = 0 := by
+      rw [hYcard] at hY0
+      have hcast : ((n - X.card : ℕ) : ℝ) = (n : ℝ) - X.card := Nat.cast_sub hXlen
+      rw [hcast, hXcard] at hY0
+      linarith
+    exact ⟨γ, P, hPmono, by
+        rw [hnil]
+        linarith [hsqrt.le, mul_pos hΔpos hn4pos],
+      hNbrs⟩
+  · -- `Y ≠ ∅`: run the bipartite covering argument.
+    have hYne : Y.Nonempty := Finset.nonempty_iff_ne_empty.mpr hYe
+    have hYpos' : 0 < Y.card := Finset.card_pos.mpr hYne
+    have hYpos : (0 : ℝ) < Y.card := by exact_mod_cast hYpos'
+    generalize hmdef : ⌊2 * Δ * Real.sqrt n⌋₊ = m
+    -- Every `y ∈ Y` has at least `|X| − m` `γ.other`-neighbours in `X`.
+    have hdegN : ∀ y ∈ Y, X.card - m ≤
+        (X.filter fun x ↦ Color.adj G γ.other x y).card := by
+      intro y hy
+      have hyX : y ∉ X := (Finset.mem_compl.mp hy)
+      have hyl : y ∉ P.toList := by
+        intro hyl
+        exact hyX (by rw [hX, List.mem_toFinset]; exact hyl)
+      have hB := few_nbrs_on_path hC hind hG hn0 hPchain P.nodup hPmax hyl
+      set B := X.filter (fun x ↦ Color.adj G γ x y) with hBdef
+      have hBset : {x : Fin n | x ∈ P.toList ∧ Color.adj G γ x y} = (B : Set (Fin n)) := by
+        ext x
+        simp [hBdef, hX, Finset.coe_filter, List.mem_toFinset]
+      rw [hBset, Set.ncard_coe_finset] at hB
+      have hBm : B.card ≤ m := by
+        rw [← hmdef]
+        exact Nat.le_floor hB
+      have hsplit : X = B ∪ (X.filter fun x ↦ Color.adj G γ.other x y) := by
+        ext x
+        simp only [hBdef, Finset.mem_union, Finset.mem_filter]
+        constructor
+        · intro hxX
+          have hxy : x ≠ y := by
+            intro e
+            subst e
+            exact hyX hxX
+          rcases Color.adj_or_adj_other G hxy with h | h
+          · exact Or.inl ⟨hxX, h⟩
+          · exact Or.inr ⟨hxX, h⟩
+        · rintro (⟨hxX, -⟩ | ⟨hxX, -⟩)
+          · exact hxX
+          · exact hxX
+      have hcard_union : X.card ≤ B.card +
+          (X.filter fun x ↦ Color.adj G γ.other x y).card := by
+        calc X.card = (B ∪ (X.filter fun x ↦ Color.adj G γ.other x y)).card :=
+              congrArg Finset.card hsplit
+          _ ≤ B.card + (X.filter fun x ↦ Color.adj G γ.other x y).card :=
+              Finset.card_union_le _ _
+      omega
+    -- The auxiliary bipartite `γ.other` graph.
+    set H := adjXYGraph G hdisjXY γ.other with hH
+    have hbip : BipartiteOn H X Y :=
+      ⟨hdisjXY, fun a b h ↦ bip_ramsey_path.Color.adjXY.across
+        (show Color.adjXY G X Y γ.other a b from h)⟩
+    have hdeg : ∀ y ∈ Y, (H.neighborFinset y).card ≥ X.card - m := by
+      intro y hy
+      have hsub : (X.filter fun x ↦ Color.adj G γ.other x y) ⊆ H.neighborFinset y := by
+        intro x hx
+        rw [Finset.mem_filter] at hx
+        obtain ⟨hxX, hadj⟩ := hx
+        rw [SimpleGraph.mem_neighborFinset]
+        show Color.adjXY G X Y γ.other y x
+        exact adjXY_of_across_adj G (Or.inr ⟨hy, hxX⟩) (Color.adj_symm G hadj)
+      calc X.card - m ≤ (X.filter fun x ↦ Color.adj G γ.other x y).card :=
+            hdegN y hy
+        _ ≤ (H.neighborFinset y).card := Finset.card_le_card hsub
+    have hcardXY : Y.card + 2 * m ≤ X.card := by
+      have hmR : (m : ℝ) ≤ 2 * Δ * Real.sqrt n := by
+        rw [← hmdef]
+        exact Nat.floor_le hΔn0
+      have hXR : (X.card : ℝ) ≥ (n : ℝ) - 5 * Δ * Real.sqrt n := by
+        rw [hXcard]
+        exact hPbig
+      have : (Y.card : ℝ) + 2 * m ≤ X.card := by
+        have h14 : (14 : ℝ) * Δ * Real.sqrt n < n := by
+          have h14' : (14 : ℝ) * Δ < Real.sqrt n := by
+            have hge : (14 : ℝ) * Δ ≤ 100 * Δ ^ 2 := by nlinarith [hΔ]
+            linarith
+          calc (14:ℝ) * Δ * Real.sqrt n < Real.sqrt n * Real.sqrt n :=
+                mul_lt_mul_of_pos_right h14' hsqrt
+            _ = n := Real.mul_self_sqrt hnR.le
+        nlinarith [hYb, hmR, hXR, h14]
+      exact_mod_cast this
+    -- `14Δ√n < n`, reused below to show the overlap set is nonempty.
+    have h14 : (14 : ℝ) * Δ * Real.sqrt n < n := by
+      have h14' : (14 : ℝ) * Δ < Real.sqrt n := by
+        have hge : (14 : ℝ) * Δ ≤ 100 * Δ ^ 2 := by nlinarith [hΔ]
+        linarith
+      calc (14:ℝ) * Δ * Real.sqrt n < Real.sqrt n * Real.sqrt n :=
+            mul_lt_mul_of_pos_right h14' hsqrt
+        _ = n := Real.mul_self_sqrt hnR.le
+    obtain ⟨P_fam, hPf_chain, hPf_mem, hPf_cov, hPf_card, hPf_uncov⟩ :=
+      few_paths_of_min_degree H X Y m hbip hYpos' hcardXY hdeg
+    obtain ⟨Pf, hPf_mem_fam, hPf_surj⟩ := enum_path_family P_fam
+    have hPfmono : ∀ i, (Pf i).IsMonochromatic G γ.other := fun i ↦
+      (hPf_chain (Pf i) (hPf_mem_fam i)).imp fun _ _ h ↦
+        adjXY_to_adj G hdisjXY h
+    -- The set `S` of `X`-vertices covered by the `γ.other` path family.
+    generalize hTdef : P_fam.biUnion VertPath.verts = T
+    generalize hSdef : X ∩ T = S
+    have hXT : (X \ T).card ≤ Y.card + 2 * m := by
+      rw [← hTdef]
+      exact hPf_uncov
+    have hS_eq : S = X \ (X \ T) := by
+      rw [← hSdef]
+      ext a
+      simp only [Finset.mem_sdiff, Finset.mem_inter]
+      constructor
+      · rintro ⟨hX, hT⟩
+        exact ⟨hX, fun ⟨_, hnT⟩ ↦ hnT hT⟩
+      · rintro ⟨hX, hnXT⟩
+        exact ⟨hX, not_not.mp fun hT ↦ hnXT ⟨hX, hT⟩⟩
+    have hSeq : S.card = X.card - (X \ T).card := by
+      rw [hS_eq]
+      exact Finset.card_sdiff_of_subset Finset.sdiff_subset
+    have hScard : X.card - (Y.card + 2 * m) ≤ S.card := by omega
+    have h2Ym : (2 : ℝ) * Y.card + 2 * m < n := by
+      have hmR : (m : ℝ) ≤ 2 * Δ * Real.sqrt n := by
+        rw [← hmdef]
+        exact Nat.floor_le hΔn0
+      linarith [hYb, hmR, h14]
+    have h2Ym' : 2 * Y.card + 2 * m < n := by exact_mod_cast h2Ym
+    have hSne : S.Nonempty := by
+      have hSpos : 0 < S.card := by omega
+      exact Finset.card_pos.mp hSpos
+    have hPf_pos : 0 < P_fam.card := by
+      rcases hSne with ⟨s, hs⟩
+      rw [← hSdef, Finset.mem_inter, ← hTdef, Finset.mem_biUnion] at hs
+      obtain ⟨-, p, hp, -⟩ := hs
+      exact Finset.card_pos.mpr ⟨p, hp⟩
+    have hSX : ∀ s ∈ S, s ∈ P := by
+      intro s hs
+      rw [← hSdef, Finset.mem_inter] at hs
+      show s ∈ P.toList
+      rw [← List.mem_toFinset, ← hX]
+      exact hs.1
+    have hST : ∀ s ∈ S, ∃ i, s ∈ Pf i := by
+      intro s hs
+      rw [← hSdef, Finset.mem_inter, ← hTdef, Finset.mem_biUnion] at hs
+      obtain ⟨-, p, hp, hsp⟩ := hs
+      obtain ⟨i, hi⟩ := hPf_surj p hp
+      exact ⟨i, VertPath.mem_verts.mp (hi.symm ▸ hsp)⟩
+    -- `overlap_bound` contrapositive: `√(n−|S|) + C₁ + |Pf| > √n + C₂`.
+    have hgt : Real.sqrt n + C₂ <
+        Real.sqrt ((n : ℝ) - S.card) + C₁ + P_fam.card := by
+      by_contra hle
+      push Not at hle
+      cases γ with
+      | red =>
+        exact hG (overlap_bound hind G
+          (fun _ : Fin P_fam.card ↦ P) (fun _ ↦ hPmono)
+          Pf hPfmono S hSne
+          (fun s hs ↦ ⟨⟨⟨0, hPf_pos⟩, hSX s hs⟩, hST s hs⟩) hle)
+      | blue =>
+        exact hG (overlap_bound hind G
+          Pf hPfmono
+          (fun _ : Fin P_fam.card ↦ P) (fun _ ↦ hPmono) S hSne
+          (fun s hs ↦ ⟨hST s hs, ⟨⟨0, hPf_pos⟩, hSX s hs⟩⟩) hle)
+    -- `√(n−|S|) ≤ √(2|Y|+2m) ≤ 4Δ n^{1/4}`.
+    have hnsub : (n : ℝ) - S.card ≤ 2 * Y.card + 2 * m := by
+      have hXYc : (X.card : ℝ) + Y.card = n := by
+        rw [hYcard, Nat.cast_sub hXlen]
+        ring
+      have hSc : (S.card : ℝ) ≥ (n : ℝ) - 2 * Y.card - 2 * m := by
+        have : (S.card : ℝ) = X.card - (X \ T).card := by
+          rw [hSeq, Nat.cast_sub (Finset.card_le_card Finset.sdiff_subset)]
+        rw [this]
+        have hXTR : ((X \ T).card : ℝ) ≤ Y.card + 2 * m := by exact_mod_cast hXT
+        linarith
+      calc (n : ℝ) - S.card
+          ≤ (n : ℝ) - ((n : ℝ) - 2 * Y.card - 2 * m) := sub_le_sub_left hSc _
+        _ = 2 * Y.card + 2 * m := by ring
+    have hsqrtS : Real.sqrt ((n : ℝ) - S.card) ≤
+        Real.sqrt (2 * Y.card + 2 * m) :=
+      Real.sqrt_le_sqrt hnsub
+    have hsqrt14 : Real.sqrt (2 * (Y.card : ℝ) + 2 * m) ≤
+        4 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) := by
+      have hmR : (m : ℝ) ≤ 2 * Δ * Real.sqrt n := by
+        rw [← hmdef]
+        exact Nat.floor_le hΔn0
+      have harg : (2:ℝ) * Y.card + 2 * m ≤ 14 * Δ * Real.sqrt n := by
+        linarith [hYb, hmR]
+      have hnonneg : (0 : ℝ) ≤ 4 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) := by
+        have h := mul_nonneg hΔpos.le hn4pos.le
+        linarith
+      rw [Real.sqrt_le_left hnonneg]
+      have hsq' : (4 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 =
+          16 * Δ ^ 2 * Real.sqrt n := by
+        rw [mul_pow, hn4sq]
+        ring
+      rw [hsq']
+      nlinarith [harg, hΔ, hsqrt,
+        mul_nonneg (show (0 : ℝ) ≤ 16 * Δ ^ 2 - 14 * Δ by nlinarith [hΔ]) hsqrt.le]
+    -- `|Pf| ≤ |X|/|Y| ≤ n/|Y|`.
+    have hPfcard : (P_fam.card : ℝ) ≤ (n : ℝ) / Y.card := by
+      calc (P_fam.card : ℝ) ≤ ((X.card / Y.card : ℕ) : ℝ) := by
+            exact_mod_cast hPf_card
+        _ ≤ (X.card : ℝ) / Y.card := Nat.cast_div_le
+        _ ≤ (n : ℝ) / Y.card := by
+            apply div_le_div_of_nonneg_right _ hYpos.le
+            exact_mod_cast hXlen
+    have key : Real.sqrt n + C₂ <
+        4 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) + C₁ + (n : ℝ) / Y.card := by
+      linarith [hgt, hsqrtS, hsqrt14, hPfcard]
+    -- Final arithmetic: `|Y| < √n + 10Δ n^{1/4}`.
+    have hn4ge1 : (1 : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 4) :=
+      Real.one_le_rpow (by exact_mod_cast hn0) (by norm_num)
+    have hC12 : C₁ - C₂ = Δ - 1 := by rw [hΔdef]; ring
+    have hdenom : (0 : ℝ) <
+        Real.sqrt n - 5 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) := by
+      rw [← hn4sq]
+      have ha10 : (0 : ℝ) < (n : ℝ) ^ ((1 : ℝ) / 4) - 10 * Δ := by linarith [hn4]
+      nlinarith [mul_pos hn4pos ha10, mul_pos hΔpos hn4pos]
+    have h' : Real.sqrt n - 5 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) <
+        (n : ℝ) / Y.card := by
+      linarith [key, hC12,
+        mul_nonneg hΔpos.le (show (0 : ℝ) ≤ (n : ℝ) ^ ((1 : ℝ) / 4) - 1 by
+          linarith [hn4ge1])]
+    have hmul : (Real.sqrt n - 5 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4)) *
+        (Y.card : ℝ) < n :=
+      (lt_div_iff₀ hYpos).mp h'
+    have hprod : (n : ℝ) <
+        (Real.sqrt n - 5 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4)) *
+          (Real.sqrt n + 10 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4)) := by
+      have e : (Real.sqrt n - 5 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4)) *
+          (Real.sqrt n + 10 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4)) =
+          Real.sqrt n ^ 2 + 5 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) * Real.sqrt n -
+            50 * Δ ^ 2 * ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 := by
+        ring
+      rw [e, Real.sq_sqrt hnR.le]
+      have ha2 : (0 : ℝ) < ((n : ℝ) ^ ((1 : ℝ) / 4)) ^ 2 := pow_pos hn4pos 2
+      have ha10 : (0 : ℝ) < (n : ℝ) ^ ((1 : ℝ) / 4) - 10 * Δ := by linarith [hn4]
+      have h3 := mul_pos (mul_pos hΔpos ha2) ha10
+      -- `5Δa³ − 50Δ²a² = 5Δa²(a − 10Δ) > 0`, rewriting `√n = a²`.
+      rw [← hn4sq]
+      nlinarith [h3]
+    have hYlt : (Y.card : ℝ) <
+        Real.sqrt n + 10 * Δ * (n : ℝ) ^ ((1 : ℝ) / 4) :=
+      lt_of_mul_lt_mul_left (lt_trans hmul hprod) (le_of_lt hdenom)
+    have hleft : (n : ℝ) - P.toList.length = Y.card := by
+      rw [← hXcard, hYcard, Nat.cast_sub hXlen]
+    exact ⟨γ, P, hPmono, by rw [hleft]; linarith [hYlt], hNbrs⟩
 
 section TailPairing
 

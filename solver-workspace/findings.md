@@ -92,3 +92,16 @@ n > 20^40 = C^10 with C=20^4. Contradiction from ¬HasCoverLe √n:
 Prop 3.4 gives hind; Lemma 3.2 (C1=C,C2=0) → long blue P, |Y| <= (1+α)√n;
 Lemma 3.3 rules out small Y0/Y; then bipartite red graph + Lemma 2.4
 → cover size <= ceil(|X|/(|Y|+1)) <= √n. Paper lines 477-515.
+
+## Round 4 (commit 473ff12 + 5bbba9e cleanup)
+- tail_pairing_bound GREEN (statement unchanged, axioms clean).
+  Proof: mk_pair_path/pair_path/pair_family helpers (~240 lines).
+- sorries: 7 = BipLemmas 4 + Section3 3 (long_path_structure,
+  weak_sqrt_bound, monochromatic_path_cover).
+- bip agent (9c054b25) running ~5h — hard lemma, still writing.
+- Launched agent 54d7b8ae on long_path_structure (Lemma 3.2).
+- Gotchas logged by agents: `::` binds tighter than `++`;
+  List.<+ is scoped (use IsInfix.sublist); Finset.not_mem_empty missing;
+  push_neg deprecated; ((x+1)/2:ℝ) parses as real div — cast ℕ first;
+  Nat.cast_div_le for (a/b:ℕ):ℝ ≤ a/b; Option.mem_some reversed eq.
+- Agent downloaded gl.pdf/gl.txt (Gyarfas-Lehel paper) — cleaned from repo.

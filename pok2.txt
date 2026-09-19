@@ -1,0 +1,1609 @@
+arXiv:1309.3952v1 [math.CO] 16 Sep 2013
+
+Calculating Ramsey Numbers by partitioning coloured graphs
+Alexey Pokrovskiy 
+Department of Mathematics, Freie Universit¨at, Berlin, Germany.
+Email: alja123@gmail.com
+Keywords: Ramsey Theory, monochromatic subgraphs, partitioning graphs.
+July 31, 2018
+
+Abstract
+
+In this paper we prove a new result about partitioning coloured complete graphs
+
+and use it to determine certain Ramsey Numbers exactly. The partitioning theorem
+
+we prove is that for k  1, in every edge colouring of Kn with the colours red and
+
+blue, it is possible to cover all the vertices with k disjoint red paths and a disjoint
+
+blue balanced complete (k + 1)-partite graph. When the colouring of Kn is connected
+
+in red, we prove a stronger result--that it is possible to cover all the vertices with k
+
+red paths and a blue balanced complete (k + 2)-partite graph.
+
+Using these results we determine the Ramsey Number of a path, Pn, versus a balanced complete k-partite graph, Kmt , whenever m  1 (mod n-1). We show that in this case R(Pn, Kmt ) = (t - 1)(n - 1) + t(m - 1) + 1, generalizing a result of Erdos
+who proved the m = 1 case of this result. We also determine the Ramsey Number of
+
+a path Pn versus the power of a path Pnt . We show that R(Pn, Pnt ) = t(n - 1)+
+
+n t+1
+
+,
+
+solving a conjecture of Allen, Brightwell, and Skokan.
+
+1 Introduction
+Ramsey Theory is a branch of mathematics concerned with finding ordered substructures in a mathematical structure which may, in principle, be highly disordered. An early example
+Research supported by the LSE postgraduate research studentship scheme.
+1
+
+of a result in Ramsey Theory is a theorem due to Van der Waerden [18], which says that for for any k and r  1 there is a number W (k, r), such that any colouring of the numbers 1, 2, . . . , W (k, r) with r colours contains a monochromatic k-term arithmetic progression. A special case of a theorem due to Ramsey [16] says that for every n, there exists a number R(n), such that every 2-edge-coloured complete graph on more than R(n) vertices contains a monochromatic complete graph on n vertices. The number R(n) is called a Ramsey number.
+A central definition in Ramsey Theory is the generalized Ramsey number R(G) of a graph G: the minimum n for which every 2-edge-colouring of Kn contains a monochromatic copy of G. For a pair of graphs G and H the Ramsey number of G versus H, R(G, H), is defined to be the minimum n for which every 2-edge-colouring of Kn with the colours red and blue contains either a red copy of G or a blue copy of H. Although there have been many results which give good bounds on Ramsey numbers of graphs [6], the exact value of the Ramsey number R(G, H) is only known when G and H each belong to one of a few families of graphs.
+One of the first Ramsey numbers to be determined exactly was the Ramsey number of the path.
+
+Theorem 1.1 (Gerencs´er and Gy´arfa´s, [5]). For m  n we have that
+
+R(Pn, Pm) = n +
+
+m 2
+
+- 1.
+
+In the same paper where Gerencs´er and Gy´arfa´s proved Theorem 1.1, they also proved the following.
+
+Theorem 1.2 (Gerencs´er and Gy´arfa´s, [5]). Every 2-edge-coloured complete graph can be covered by two disjoint monochromatic paths of different colours.
+
+The proof of Theorem 1.2 is so short that it was originally published in a footnote of [5]. Indeed to see that the theorem holds, simply find a red path R in Kn and a disjoint blue path B in Kn such that |R| + |B| is as large as possible. Let r and b be the endpoints of R and B respectively. If there is a vertex x  R  B, then it is easy to see that the triangle {x, r, b} contains either a red path between x and r or a blue path between x and b. This path can be joined to R or B contradicting maximality of |R| + |B|.
+Any result about vertex-partitioning coloured graphs into a small number of monochromatic subgraphs will imply a Ramsey-type result as a corollary. For example Theorem 1.2 implies the bound R(Pn, Pm)  n + m - 1. Indeed Theorem 1.2 shows that every 2-edgecoloured Kn+m-1 can be covered by a red path R and a disjoint blue path B. Clearly these paths cannot cover all the vertices unless |R|  n or |B|  m. This is the main technique we shall use to bound Ramsey numbers in this paper.
+Although Theorem 1.2 originated as a technique to bound Ramsey Numbers, it subsequently gave birth to the area of partitioning edge-coloured complete graphs into monochromatic subgraphs. There have been many further results and conjectures in this area, many of which generalise Theorem 1.2. One particularly relevant conjecture which attempts to generalize Theorem 1.2 is the following.
+
+2
+
+Conjecture 1.3 (Gya´rfa´s, [8]). The vertices of every r-edge-coloured complete graph can be covered with r vertex-disjoint monochromatic paths.
+
+Although Theorems 1.1 and 1.2 have both led to many generalizations, there have not been many further attempts to use results about partitioning coloured graphs in order to bound Ramsey Numbers. A notable exception is the following result of Gy´arfa´s and Lehel.
+
+Theorem 1.4 (Gya´rfa´s & Lehel, [7, 9]). Suppose that the edges of Kn,n are coloured with two colours such that one of the parts of Kn,n is contained in a monochromatic connected component. Then there exist two disjoint monochromatic paths with different colours which cover all, except possibly one, of the vertices of Kn,n.
+Gy´arfa´s and Lehel used this result to determine the bipartite Ramsey Number of a path i.e. the smallest n for which every 2-edge-coloured Kn,n contains a red copy of Pi or a blue Pj. Recently Theorem 1.4 was used by the author in the proof of the r = 3 case of Conjecture 1.3 [15].
+In this paper we prove a new theorem about partitioning 2-edge-coloured complete graphs, and use it to determine certain Ramsey Numbers exactly. Our starting point will be a lemma used by the author in the proof of the r = 3 case of Conjecture 1.3.
+A complete bipartite graph is called balanced if both of its parts have the same order. The following lemma appears in [15].
+
+Lemma 1.5. Suppose that the edges of Kn is coloured with two colours. Then Kn can be covered by a red path and a disjoint blue balanced complete bipartite graph.
+
+Lemma 1.5 immediately implies the bound R(Pn, Km,m)  n + 2m - 2. It turns out that when m  1 (mod n - 1), this bound is best possible. The following theorem was proved by H¨aggkvist.
+
+Theorem 1.6 (Ha¨ggkvist, [10]). If m,   1 (mod n - 1), then we have
+
+R(Pn, Km,) = n + m +  - 2.
+
+The lower bound on Theorem 1.6 comes from considering a colouring of Kn+m+-3
+
+consisting of 1 + (m +  - 2)/(n - 1) red copies of Kn-1 and all other edges are coloured
+
+blue.
+
+The
+
+condition
+
+m, 
+
+
+
+1
+
+(mod n - 1)
+
+ensures
+
+that
+
+the
+
+number
+
+1+
+
+(m+-2) (n-1)
+
+is
+
+an
+
+integer.
+
+The main theorem about partitioning coloured graphs that we will prove in this paper
+
+is a generalization of Lemma 1.5. Recall that a balaced complete k-partite graph, Kmk , is a graph whose vertices can be partitioned into k sets A1, . . . , Ak such that |A1| = · · · = |Ak| = m for all i, and there is an edge between ai  Ai and aj  Aj if, and only if, i = j.
+We will prove the following.
+
+Theorem 1.7. Let k  1. Suppose that the edges of Kn are coloured with two colours. Then Kn can be covered by k disjoint red paths and a disjoint blue balanced complete (k + 1)-partite graph.
+
+3
+
+As a corollary of Theorem 1.7 we obtain that for all m satisfying m  1 (mod n - 1) we have R(Pn, Kmt ) = (t - 1)(n - 1) + t(m - 1) + 1. This generalizes a result of Erdos who showed that R(Pn, Km) = (t - 1)(n - 1) + 1 (see [4, 13]).
+Instead of proving Theorem 1.7 directly, we will actually prove a strengthening of it, and then deduce Theorem 1.7 as a corollary. The strengthening that we prove is the following.
+Theorem 1.8. Let k  1. Suppose that the edges of Kn are coloured with the colours red and blue, such that the red spanning subgraph is connected. Then Kn can be covered by red tree T with at most k leaves and a disjoint blue balanced complete (k + 2)-partite graph.
+It is not immediately clear that Theorem 1.8 implies Theorem 1.7. Notice that every tree with k leaves can be covered by k - 1 vertex-disjoint paths. Therefore Theorem 1.8 has the following corollary.
+Corollary 1.9. Let k  1. Suppose that the edges of Kn are coloured with the colours red and blue, such that the red spanning subgraph is connected. Then Kn can be covered by k disjoint red paths and a disjoint blue balanced complete (k + 2)-partite graph.
+Corollary 1.9 shows that when the colouring of Kn is connected in red, then the conclusion of Theorem 1.7 can actually be strengthened--we can use one less red path in the covering of Kn.
+Theorem 1.7 is easy to deduce from Corollary 1.9.
+Proof of Theorem 1.7. For k = 1, Theorem 1.7 is just Lemma 1.5. This lemma was originally proven in [15], and this proof is also reproduced in Section 2. We shall therefore assume that k  2.
+Suppose that we have an arbitary 2-edge-colouring of Kn. We add an extra vertex v to the graph and add red edges between v and all other vertices. The resulting colouring of Kn+1 is connected in red. Therefore we can apply Corollary 1.9 to Kn + v in order to cover it by k - 1 disjoint red paths and a disjoint blue balanced (k + 1)-partite graph H. Since all the edges containing v are red, the vertex v cannot be in H. Therefore, v must be contained in one of the red paths. Therefore, removing v gives a partition of Kn into k disjoint red paths a blue balanced complete (k + 1)-partite graph as required.
+A well known remark of Erdos and Rado says that any 2-edge-coloured complete graph is connected in one of the colours. Therefore Theorem 1.8 implies that every 2-edgecoloured complete graph can be covered by a monochromatic path and a monochromatic balanced complete tripartite graph (where we have no control over which colour each graph has).
+The th power of a path of order n is the graph constructed with vertex set 1, . . . , n and ij and edge whenever 1  |i - j|  t. It is easy to see that Kmt contains a copy of Pttm-1. Therefore, Theorem 1.7 and Corollary 1.9 imply the following.
+Corollary 1.10. Let k  1. Suppose that Kn is colored with two colours.
+· Kn can be covered with k disjoint red paths and a disjoint blue kth power of a path.
+4
+
+· If Kn is connected in red, then Kn can be covered with k disjoint red paths and a disjoint blue (k + 1)th power of a path.
+
+The first part of this corollary may be seen as a generalization of Theorem 1.2. We are also able to use Corollary 1.10 and Theorem 1.1 to determine the Ramsey numbers of a path on n vertices versus a power of a path on n vertices.
+
+Theorem 1.11. For all k and n  k + 1, we have
+
+R(Pn, Pnk) = (n - 1)k +
+
+n k+1
+
+.
+
+Theorem 1.11 solves a conjecture of Allen, Brightwell, and Skokan who asked for the value of R(Pn, Pnk) in [1].
+The structure of this paper is as follows. In Section 2 we define some notation and prove certain weakenings of Theorem 1.8. These weakenings serve to illustrate the main ideas used in the proof of Theorem 1.8 and hopefully aid the reader in understanding that
+theorem. In addition the results we prove in Section 2 will be strong enough to imply Corollary 1.10. This means that it is possible to prove Theorem 1.11 without using the
+full strength of Theorem 1.8. In Section 3 we prove Theorem 1.8. In Section 4 we prove Theorem 1.11 and also determine R(Pn, Kmt ) whenever m  1 (mod n-1). In Section 5 we discuss some further problems which may be approachable using the techniques presented
+in this paper.
+
+2 Preliminaries
+For a nonempty path P , it will be convenient to distinguish between the two endpoints of P saying that one endpoint is the "start" of P and the other is the "end" of P . Thus we will often say things like "Let P be a path from u to v". Let P be a path from a to b in G and Q a path from c to d in G. If P and Q are disjoint and bc is an edge in G, then we define P + Q to be the unique path from a to d formed by joining P and Q with the edge bc. If P is a path and Q is a subpath of P sharing an endpoint with P , then P - Q will denote the subpath of P with vertex set V (P ) \ V (Q).
+Whenever a graph G is covered by vertex-disjoint subgraphs H1, H2, . . . , Hk, we say that H1, H2, . . . , Hk partition G.
+All colourings in this section will be edge-colourings. Whenever a graph is coloured with two colours, the colours will be called "red" and "blue". If a graph G is coloured with some number of colours we define the red colour class of G to be the subgraph of G with vertex set V (G) and edge set consisting of all the red edges of G. We say that G is connected in red, if the red colour class is a connected graph. Similar definitions are made for the colour blue as well.
+For all other notation, we refer to [3] In order to illustrate the main ideas of the proof of Theorem 1.8, we give a proof of Lemma 1.5 here.
+5
+
+Proof of Lemma 1.5. Notice that a graph with no edges is a complete bipartite graph (with one of the parts empty). Therefore, any 2-edge-coloured Kn certainly has a partition into a red path and a blue complete bipartite graph (by assigning all of Kn to be one of the parts of the complete bipartite graph). Partition Kn into a red path P and a complete bipartite graph B(X, Y ) with parts X and Y such that the following hold.
+(i) max(|X|, |Y |) is as small as possible.
+(ii) |P | is as small as possible (whilst keeping (i) true).
+We are done if |X| = |Y | holds. Therefore, without loss of generality, suppose that we have |X| < |Y |.
+Suppose that P = . Then let y be any vertex in Y , P  = {y}, Y  = Y -y, and X = X. This new partition of Kn satisfies max(|Y |, |X|) < |Y | = max(|X|, |Y |), contradicting minimality of the original partition in (i).
+Now, suppose that P is nonempty. Let p be an end vertex of P . If there is a red edge py for y  Y , then note that letting P  = P + y and Y  = Y - y gives a partition of Kn into a red path and a complete bipartite graph B(X, Y ) with parts X and Y . However we have max(|Y |, |X|) < |Y | = max(|X|, |Y |), contradicting minimality of the original partition in (i). If all the edges between p and Y are blue, then note that letting P  = P - p and X = X + p gives a partition of Kn into a red path and a complete bipartite graph B(X, Y ) with parts X and Y . We have that max(|X|, |Y |) = |Y | = max(|X|, |Y |) and |P | < |P |, contradicting minimality of the original partition in (ii).
+The proof of Theorem 1.8 is similar to the above proof. The above proof of Lemma 1.5 could be summarised as "first we find a partition of our graph which is in some way extremal and then we show that it possesses the properties that we want". The proof of Theorems 1.8 has the same basic structure.
+For a set S  Kn, let c(S) be the order of the largest red component of Kn[S]. We now prove the following weakening of Theorem 1.8.
+Theorem 2.1. Let k  2. Suppose that the edges of Kn are coloured with the colours red and blue, such that the red spanning subgraph is connected. Then Kn can be covered by a red tree with at most k leaves and a disjoint set S satisfying c(S)  |S|/(k + 1).
+Notice that Theorem 2.1 is indeed a weakening of Theorem 1.8. To see this, simply note that if we have a set S  V (Kn) such that the induced colouring of Kn on S is a blue balanced (k + 2) partite graph, then S satisfies c(S)  |S|/(k + 2).
+Proof of Theorem 2.1. We partition Kn into a red tree T and a set S with the following properties.
+(i) T has at most k leaves.
+(ii) c(S) is as small as possible (whilst keeping (i) true).
+6
+
+(iii) The number of red components in S of order c(S) is as small as possible (whilst keeping (i) and (ii) true).
+(iv) |T | is as small as possible (whilst keeping (i) ­ (iii) true).
+We claim that c(S)  |S|/(k +1) holds. Suppose otherwise that we have c(S) > |S|/(k +1). Notice that since c(S) is an integer, this implies c(S)  |S|/(k + 1) + 1. We will construct a new partition of Kn into a tree T  and a set S which will contradict minimality of the original partition in either (ii), (iii), or (iv).
+Let S+ be subset of S formed by taking the union of the red components of order c(S) in S. Let S- be S \ S+. Since we are assuming c(S) > |S|/(k + 1), we must have |S-| < k|S|/(k + 1).
+Let v1, . . . , v be the leaves of T . By assumption (i), we have   k. Suppose that vi has a red neighbour u  S+. Then we can let T  = T + u be the red tree formed from T by adding the edge viu, and S = V (Kn) \ V (T ). Notice that T  still has at most k leaves. Since S is a subset of S, we must have c(S) = c(S) (by minimality of c(S) in (ii)). But since u was in a red component of order c(S), S must have one less component of order c(S) than S had. This contradicts minimality of the original partition in (iii). For the remainder of the proof, we can suppose that the vertices v1, . . . , v do not have any red neighbours in S+. For a leaf vi, let N (vi) be red connected component containing vi in the induced graph on S- + vi Suppose that N (vi)  N (vi) =  for some i = j. Then there must be a red path P between vi and vj contained in S- + vi + vj. Let T1 be the graph formed by adding the path P to the tree T . Notice that T1 is a red graph with  - 2 leaves and exactly one cycle. By connectedness of the red colour class of Kn there is a red edge between some v  T1 and u  S+. Let T2 be the graph formed by adding the vertex u and the edge uv to T1. Notice that T2 is a red graph with between 1 and  - 1 leaves and exactly one cycle. Therefore T2 contains an edge xy which is contained on the cycle and the vertex x has degree at least 3. Let T3 be T2 minus the edge xy and S = V (Kn) \ V (T2). Now T3 is a red tree with at most   k leaves. As before S  S and (ii) implies that we must have c(S) = c(S). As before this contradicts (iii) since the vertex u which we removed from S+ was contained in a red component of order c(S). Suppose that N (vi)  N (vi) =  for all i = j. Recall that we have N (vi) - vi  S- for all i and also |S-| < k|S|/(k + 1). By the Pigeonhole Principle, for some i we have |N (vi) - vi| < |S|/(k + 1), which combined with the integrality of |N (vi)| implies |N (vi)|  |S|/(k + 1) + 1. Let T  = T - vi and S = V (Kn) \ T . The new T  satisfies (i). The only red component of S which was not a red component of S is N (vi). However we have N (vi)  |S|/(k + 1) + 1  c(S) = c(S) and so S satisfies (ii) and (iii). However we have |T | = |T | - 1 contradicting minimality of |T | in (iv). This completes the proof of the theorem.
+Most of the steps of the above proof reoccur in the proof of Theorem 1.8. We conclude this section by observing that Theorem 2.1 implies Corollary 1.10.
+7
+
+First notice that it is sufficient to prove the following proposition.
+
+Proposition 2.2. Let Kn be a 2-edge-coloured complete graph. Suppose that Kn contains a set S which satisfies c(S)  |S|/(k + 2). Then S contains a spanning blue (k + 1)st power of a path.
+
+Indeed combining Proposition 2.2 with Theorem 2.1 we obtain that every 2-edge-
+
+coloured complete graph which is connected in red can be covered by a red tree T with at
+
+most k leaves and a spanning blue (k + 1)st power of a path. Since every tree with at most
+
+k leaves can be partitioned into k - 1 disjoint paths, this implies part (ii) of Corollary 1.10.
+
+For k  2, part (i) of Corollary 1.10 follows from part (ii) in exactly the same way as we
+
+deduced Theorem 1.7 from Corollary 1.9 in the introduction. Indeed, to prove part (i)
+
+of Corollary, we start with an arbitary colouring of Kn. We add a vertex v to the graph and add red edges between v and all other vertices. The resulting colouring of Kn+1 is
+
+connected in red. Therefore we can apply part (ii) of Corollary 1.10 to Kn + v in order to cover it by k - 1 disjoint red paths and a disjoint blue kth power of a path P . Since all
+
+the edges containing v are red, the vertex v cannot be in P (unless |P |  1). Therefore,
+
+removing v gives a partition of Kn into k disjoint red paths a blue kth power of a path as
+
+required.
+
+It remains to verify Proposition 2.2. One way of doing this is to notice that if c(S) 
+
+|S|/(k + 2), then the induced blue subgraph of Kn on S must have minimal degree at least
+
+k+1 k+2
+
+|S|.
+
+A
+
+conjecture
+
+of
+
+Seymour
+
+says
+
+that
+
+all
+
+graphs
+
+with
+
+minimal
+
+degree
+
+k k+1
+
+|S
+
+|
+
+contain
+
+a kth power of Hamiltonian cycle [17]. Seymour's Conjecture has been proven for graphs
+
+with sufficiently large order by Koml´os, S´ark¨ozy, and Szemer´edi [11]. Seymour's Conjecture
+
+readily implies Proposition 2.2. However given that our set S has a very specific structure,
+
+it is not hard to prove that it contains a spanning blue (k + 1)st power of a path without
+
+using the full strength of Koml´os, S´ark¨ozy, and Szemer´edi's result. One way of doing this
+
+is by induction on the number of vertices of S. We omit the details, because Corollary 1.10
+
+follows much more readily from the stronger Theorem 1.8.
+
+3 Partitioning coloured complete graphs
+In this section we prove Theorem 1.8. We first prove an intermediate lemma. The following lemma will allow us to take a partition of Kn into a red tree T and a blue multipartite graph H which is "reasonably balanced," and output a partition of Kn into a red tree and a blue balanced complete (k + 1)-partite graph that we require.
+Lemma 3.1. Suppose that we have a 2-edge-coloured complete graph Kn containing k + 1 sets A0, . . . Ak, k sets B1, . . . Bk, and k sets N1, . . . , Nk such that the following hold.
+(i) The sets A0, . . . Ak, B1, . . . Bk partition V (Kn).
+(ii) For all 1  i < j  k all the edges between any of the sets A0, Ai, Bi, Aj, and Bj are blue.
+8
+
+(iii) For all i, every red component of Bi intersects Ni.
+
+(iv) |A0|  |Ai| for all i  1.
+
+(v) |Ai| + |Bi|  |A0| for all i  1.
+
+(vi) For all i  1 either |Bi|  2 minkt=1 |Bt| or |Ai| + |Bi|  |A0| + mintk=1 |Bt| holds.
+
+Then, there is a partition of Kn into k red paths P1, . . . , Pk and a blue balanced k +1 partite graph. In addition, for each i, the path Pi is either empty or starts in Ni.
+
+Proof. The proof is by induction on the quantity
+
+k t=1
+
+|Bt|.
+
+First we prove the base case of the induction, i.e. we prove the lemma when
+
+k t=1
+
+|Bt|
+
+=
+
+0. In this case Bi =  for all i, and so conditions (iv) and (v) imply that |Ai| = |A0| for
+
+all i. Therefore, by (ii), Kn contains a spanning blue complete (k + 1)-partite graph with
+
+parts A0, . . . , Ak. We can take P1 = · · · = Pk =  to obtain the required partition.
+
+We now prove the induction step. Suppose that the lemma holds for all 2-edge-coloured
+
+complete graphs Kn containing sets A0, . . . Ak , B1 , . . . Bk , and N1 , . . . , Nk as in the state-
+
+ment of the lemma but satisfying
+
+k t=1
+
+|Bt|
+
+<
+
+k t=1
+
+|Bt|.
+
+We will show that the lemma
+
+holds for Kn as well.
+
+First we show that if there is a partition of Kn satisfying (i) ­ (vi), then the sets
+
+A0, . . . , Ak and B1, . . . , Bk can be relabeled to obtain a partition satisfying (i) ­ (vi) and
+
+also the following
+
+|A0|  |A1|  · · ·  |Ak|,
+
+(1)
+
+|B1|  · · ·  |Bk|.
+
+(2)
+
+The following claim guarantees this.
+Claim 3.2. Let  be a permutation of (0, 1, . . . , k) ensuring that |A(0)|  |A(1)|  · · ·  |A(k)| holds. Let  be a permutation of (1, . . . , k) ensuring that |B(1)|  · · ·  |B(k)| holds. Let Ai = A(i), Bi = B(i), and Ni = N(i). Then the sets Ai, Bi, and Ni satisfy (i) ­ (vi).
+Proof. Notice that Pi, Ai and Bi satisfy (i) ­ (iii) trivially. Since the sets Ai satisfy (iv), we can assume that (0) = 0. This ensures that the sets
+A(i) satisfy (iv). For (v), note that if for some j  1, |A(j)| + |B(j)| < |A0|, then we also have |A(x)| +
+|B(y)| < |A0| for all x  j and y  j. However, the Pigeonhole Principle implies that (x) =  (y) for some x  j and y  j, contradicting the fact that Ai and Bi satisfy (v) for all i.
+Suppose that (vi) fails to hold. Then for some j, |B(j)| > 2 minkt=1 |Bt| and |A(j)| + |B(j)| > |A0| + mintk=1 |Bt| both hold. If we have |A(i)|  |A(j)| for some i  j, then |B(i)|  |B(j)| > 2 mintk=1 |Bt| and |A(i)| + |B(i)|  |A(j)| + |B(j)| > |A0| + mintk=1 |Bt| both hold, contradicting the fact that Ai and Bi satisfy (vi) for all i. Therefore, we can
+
+9
+
+assume that |A(i)| < |A(j)| for all i  j. This, together with |A(0)|  |A(1)|  · · ·  |A(k)| implies that { (j),  (j + 1), . . . ,  (k)}  {(j + 1), (j + 2), . . . , (k)}, contradicting  being injective.
+
+By the above claim, without loss of generality we may assume that the Ais and Bis satisfy (1) and (2).
+Notice that the lemma holds trivially if we have the following.
+
+|A0| = |A1| + |B1| = |A2| + |B2| = · · · = |Ak| + |Bk|.
+
+(3)
+
+Indeed, if (3) holds, then Kn contains a spanning blue complete (k + 1)-partite graph with parts A0, A1 B1 . . . , Ak Bk, and so taking P1 = · · · = Pk =  gives the required partition.
+Therefore, we can assume that (3) fails to hold, so there is some j such that |Aj|+|Bj| > |A0|. In addition, we can assume that j is as large as possible, and so |Ai| + |Bi| = |A0| for all i > j.
+
+First we deal with the case when |Bj|  1. Notice that in this case (2) implies that |Bi|  1 for all i  j. Therefore for each i satisfying |Ai|+|Bi| > |A0|, we have |Bi| = 1 and we can let Pi be the single vertex in Bi. For all other i, we let Pi = . This ensures that Kn \ (P1, . . . , Pk) is a balanced complete k-partite graph with classes A1, . . . , Aj, Aj+1  Bj+1, . . . , Ak  Bk, giving the required partition of Kn.
+For the remainder of the proof, we assume that |Bj|  2. We split into two cases
+
+depending on whether Bj is connected in red or not.
+Case 1: Suppose that Bj is connected in red. Let v be a vertex in Bj  Nj. Let Kn = Kn - v, Bj = Bj - v, Nj = Nr(v) and Ai = Ai, Bi = Bi, Ni = Ni for all other i. We show that the graph Kn with the sets Ai, Bi, and Ni satisfies (i) ­ (vi).
+Conditions (i), (ii), and (iv) hold trivially for the new sets as a consequence of them
+
+holding for the original sets Aj and Bj. Condition (iii) holds trivially whenever i = j, and
+
+holds for i = j as a consequence of Bj being connected in red.
+
+To prove (v), it is sufficient to show that |Aj| + |Bj |  |A0 |. This is equivalent to
+
+|Aj| + |Bj - v|  |A0|, which holds as a consequence of |Aj| + |Bj| > |A0|.
+
+We now prove (vi). Note that we have mintk=1 |Bt| = min(|B1|, |Bj |). If mintk=1 |Bt| = |B1| holds, then (vi) is satisfied for the new sets A0 , . . . , Ak , B0 , . . . , Bk as a consequence of
+
+it being satisfied for the original sets A0, . . . , Ak, B0, . . . , Bk. Now, suppose that we have
+
+mintk=1 |Bt| = |Bj |. For i > j, we have |Ai| + |Bi| = |A0| which implies that (vi) holds
+
+for these i. If i  j, then we have |Bi|  |Bj| which together with |Bj|  2 implies that
+
+Bi  2|Bj| - 2 = 2|Bj | holds.
+
+Therefore, the graph Kn with the sets Ai, Bi,and Ni satisfies (i) ­ (vi). We also have
+
+k t=1
+
+|Bt
+
+|
+
+=
+
+k t=1
+
+|Bt|
+
+- 1,
+
+and
+
+so,
+
+by
+
+induction
+
+Kn
+
+can
+
+be
+
+partitioned
+
+into
+
+k
+
+red
+
+paths
+
+P1, . . . , Pk starting in N1 , . . . , Nk respectively and a blue balanced k + 1 partite graph
+
+H. Since Pj starts in Nj = Nr(v), we have the required partition of Kn into k paths
+
+P1, . . . , v + Pj, . . . Pk and a blue balanced k + 1 partite graph H.
+
+Case 2: Suppose that Bj is disconnected in red. We will find a new partition of Kn
+
+into sets A0, . . . , Ak and B1 , . . . , Bk , which together with N1, . . . , Nk satisfy (i) ­ (vi). We
+
+will also have
+
+k t=1
+
+|Bt|
+
+<
+
+k t=1
+
+|Bt|
+
+which
+
+implies
+
+the
+
+lemma
+
+by
+
+induction.
+
+10
+
+Let Bj- be the smallest red component of Bj and Bj+ = Bj \Bj-. There are two subcases, depending on whether we have |Aj| + |Bj-|  |A0| or not.
+Case 2.1: Suppose that we have |Aj| + |Bj-|  |A0|. Let Bj = Bj+ and Aj = Aj  Bj-, and Ai = Ai, Bi = Bi for all other i. As before, conditions (i) ­ (iii) hold trivially.
+To prove (iv), it is sufficient to show that |A0|  |Aj | which is true since we are assuming that |Aj| + |Bj-|  |A0|.
+To prove (v), it is sufficient to show that |Aj| + |Bj |  |A0| which holds since we have |Aj| + |Bj | = |Aj| + |Bj|  |A0|.
+
+To prove (vi), note that we have mintk=1 |Bt| = min(B1, Bj ). If minkt=1 |Bt| = |B1| holds, then (vi) is satisfied for the new sets A0 , . . . , Ak , B0 , . . . , Bk as a consequence of
+it being satisfied for the original sets A0, . . . , Ak, B0, . . . , Bk. Now, suppose that we have minkt=1 |Bt| = |Bj |. For i > j, we have |Ai| + |Bi| = |A0 | which implies that (vi) holds for these i. If i  j, then we have |Bi|  |Bj| which together with |Bj|  2|Bj+| implies that Bi  2|Bj | holds.
+
+Notice that we have
+
+k t=1
+
+|Bt|
+
+<
+
+k t=1
+
+|Bt|,
+
+and
+
+so
+
+the
+
+lemma
+
+holds
+
+by
+
+induction.
+
+Case 2.2: Suppose that we have |Aj| + |Bj-| > |A0|.
+
+We claim that in this case |Bj|  2 minkt=1 |Bt| holds. Indeed by (vi), we have that either |Bj|  2 minkt=1 |Bt| holds, or we have |Aj| + |Bj|  |A0| + minkt=1 |Bt|. Adding |Aj| + |Bj|  |A0| + mintk=1 |Bt| to |Aj| + |Bj-| > |A0| gives |Bj+| < minkt=1 |Bt|. This, together with |Bj|  2|Bj+| implies that |Bj|  2 mintk=1 |Bt| always holds.
+There are two cases, depending on whether we have j = k or not.
+
+Suppose that j = k. Let Bj = Bj+, Aj +1 = Aj+1  Bj-, and Ai = Ai, Bi = Bi for all other i. As before, conditions (i) ­ (iii) hold trivially.
+
+To prove (iv), it is sufficient to show that |A0|  |Aj +1|, which holds as a consequence
+
+of |Aj+1| + |Bj+1| = |A0| and (2).
+
+To prove (v), it is sufficient show that |Aj| + |Bj |  |A0 |, which holds as a consequence
+
+of |Bj+|  |Bj-| and |Aj| + |Bj-| > |A0|.
+
+We now prove (vi). For i  j +2, note that we have |Ai|+|Bi| = |A0| which implies that
+
+(vi) holds for these i. For i  j, (vi) holds since we have |Bi|  |Bj|  2|Bj+| = |Bj |. For
+
+i = j + 1, we have |Aj +1| + |Bj+1|  |A0| + mintk=1 |Bt| as a consequence of |Aj +1| + |Bj+1| =
+
+|A0| +
+
+|Bj-|,
+
+|Bj-|
+
+
+
+1 2
+
+|Bj
+
+|,
+
+and
+
+|Bj |
+
+
+
+2 mintk=1
+
+|Bt|.
+
+Notice that we have
+
+k t=1
+
+|Bt|
+
+<
+
+k t=1
+
+|Bt|,
+
+and
+
+so
+
+the
+
+lemma
+
+holds
+
+by
+
+induction.
+
+Suppose that j = k. Let Bk = Bk+, Ak = A0, A0 = Ak  Bk-, and Ai = Ai, Bi = Bi for
+
+all other i. As before, conditions (i) ­ (iii) hold trivially.
+
+Since |A0|  |Ai| for all i  1, to prove (iv), it is sufficient to show that |A0|  |A0|.
+
+This holds since we assumed that |Ak| + |Bk-| > |A0|.
+
+To prove (v), we have to show that |Ai| + |Bi|  |Ak| + |Bk-| for all i < k and also that
+
+|A0| + |Bk+|  |Ak| + |Bk-|. combined with (1), implies
+
+We know that for all i we have |Bk-|  that we have |Ai| + |Bi|  |Ak| + |Bk-|.
+
+1 2
+
+|Bk
+
+|
+
+
+
+|Bi|
+
+which,
+
+We also know that
+
+|Bk+|  |Bk-| which, combined with (1), implies that we have |A0| + |Bk+|  |Ak| + |Bk-|.
+
+To prove (vi), note that we have mintk=1 |Bt| = min(B1, Bk ). If mintk=1 |Bt| = |Bk |
+
+holds, then we have |Bi|  2|Bk | for all i as a consequence of (2) and 2|Bk |  |Bk|.
+
+11
+
+Suppose that mintk=1 |Bt| = |B1 | holds. Then for i < k, (vi) is satisfied for the new
+
+sets A0, . . . , Ak , B0 , . . . , Bk as a consequence of it being satisfied for the original sets
+
+A0, . . . , Ak, B0, . . . , Bk and |A0|  |A0|. For i = k, (vi) holds since we have |Bk |  |Bk| 
+
+2 minkt=1 |Bt|.
+
+Notice that we have
+
+k t=1
+
+|Bt|
+
+<
+
+k t=1
+
+|Bt|,
+
+and
+
+so
+
+the
+
+lemma
+
+holds
+
+by
+
+induction.
+
+We now use the above lemma to prove Theorem 1.8. The proof has many similarities to that of Theorem 2.1
+
+Proof of Theorem 1.8. We will partition Kn into a red tree T , and sets A0, A1, . . . , Ak and B1, . . . , Bk with certain properties. For convenience we will define A = A0  A1  · · ·  Ak and B = B1  · · ·  Bk. The tree T will have l leaves which will be called v1, v2, . . . , vl. For a set S  Kn, let c(S) be the order of the largest red component of Kn[S]. Define f (S) to be the number of red components contained in S of order c(A  B). The tree T , and sets A0, A1, . . . , Ak and B1, . . . , Bk are chosen to satisfy the following.
+(I) For 1  i < j  k, all the edges between A0,Ai, Aj, Bi, and Bj are blue.
+(II) T has l leaves v1, . . . , vl, where l  k. For i = 1, . . . , l, the leaf vi, is joined to every red component of Bi by a red edge.
+
+(III) c(A  B) is as small as possible, whilst keeping (I) ­ (II) true.
+
+(IV)
+
+k t=1
+
+|f (Bt)
+
+-
+
+1 2
+
+|
+
+is
+
+as
+
+small
+
+as
+
+possible,
+
+whilst
+
+keeping
+
+(I)
+
+­
+
+(III)
+
+true.
+
+(V) f (A) is as small as possible, whilst keeping (I) ­ (IV) true.
+
+(VI) |T | is as small as possible, whilst keeping (I) ­ (V) true.
+
+(VII) |{i  {1, . . . , k} : |Bi|  c(A  B)}| is as large as possible, whilst keeping (I) ­ (VI) true.
+
+(VIII) {t:|Bt|<c(AB)} |Bt| is as large as possible, whilst keeping (I) ­ (VII) true.
+
+(IX)
+
+k t=1
+
+|Bt|
+
+is
+
+as
+
+small
+
+as
+
+possible,
+
+whilst
+
+keeping
+
+(I)
+
+­
+
+(VIII)
+
+true.
+
+(X) maxtk=1 |At| is as small as possible, whilst keeping (I) ­ (IX) true.
+
+(XI) |{i  {1, . . . , k} : |Ai| = maxtk=1 |At|}| is as small as possible, whilst keeping (I) ­ (X) true.
+
+In order to prove Theorem 1.8 we will show that the partition of A  B into Ai and Bi satisfies conditions (i), (ii), (iv), (v), and (vi) of Lemma 3.1. Then, Lemma 3.1 will easily imply the theorem.
+Without loss of generality, we may assume that the Ais are labelled such that we have
+
+|A0|  |A1|  · · ·  |Ak|.
+
+(4)
+
+We begin by proving a sequence of claims.
+
+12
+
+Claim 3.3. For each i, f (Bi) is either 0 or 1.
+
+Proof. Suppose that f (Bi)  2. Let C be a red component in Bi of order c(A  B). Let
+
+Bi = Bi \ C, A0 = A0  C, T  = T and Aj = Aj, Bj = Bj for other j. It is easy to see that
+
+the new partition satisfies (I) ­ (III). We have that f (Bi) = f (Bi) - 1, which combined
+
+with
+
+f (Bi)
+
+
+
+2
+
+implies
+
+that
+
+|f (Bi)
+
+-
+
+1 2
+
+|
+
+<
+
+|f (Bi)
+
+-
+
+1 2
+
+|
+
+contradicting
+
+minimality
+
+of
+
+the
+
+original partition in (IV).
+
+Claim 3.4. If we have f (Bi) = 1 for some i, then we also have |Bi| = c(A  B).
+Proof. Suppose that f (Bi) = 1 and |Bi| > c(A  B) both hold. Then Bi contains some red connected component C of order strictly less than c(A  B). Let T  = T , A0 = A  C, Bi = Bi \ C, and At = , Bt = Bt for all other t.
+It is easy to see that the new partition satisfies (I) ­ (VIII). However |Bi| < |Bi| and |Bt| = |Bt| for t = i contradicts minimality of the original partition in (IX).
+Claim 3.5. We have that f (A)  1.
+
+Proof. Suppose that we have f (A) = 0. Then all the red components of order c(A  B)
+of A  B must be contained in B. For each i  {1, . . . , k}, let Ci be a red component of order c(A  B) contained in Bi (if one exists). By Claim 3.3 any red component of A  B or order c(A  B) must be one of the Cis. By (II), for i  {1, . . . , l}, if Ci exists, then vi has a red neighbour ui in Ci. By red-connectedness of Kn and part (I), every Ci must be connected to T by a red edge. Therefore, for i  {l + 1, . . . , k}, if Ci exists, then there is a red edge uiwi between ui  Ci and some wi  T .
+Let A0 = A  B \ {u1, . . . , uk} and Aj = Bj =  for j  1. Let T  be the tree with vertex set V (T )  {u1, . . . , uk} formed from T by joining ui to vi for i = 1, . . . , l and ui to wi for i = l + 1, . . . , k.
+Clearly the new partition satisfies (I) and (II). However since each of the largest compo-
+nents of A  B lost a vertex, we must have c(Kn \ T ) < c(A  B) contradicting minimality of the original partition in (III).
+
+Claim 3.6. If i > l, then f (Bi) = 1 holds.
+Proof. Suppose that f (Bi) = 0 for some i. By Claim 3.5, there is a red component C of order c(A  B) in A. Let T  = T ,
+A0 = A \ C, Bi = Bi  C, and At = , Bt = Bt for all other t. It is easy to see that the new partition satisfies (I) ­ (IV). However we have f (A) =
+f (A) - 1 contradicting minimality of the original partition in (V).
+
+Claim 3.7. For every i, we have |A0|  |Ai| + c(A  B).
+Proof. Suppose that for some i we have |A0| > |Ai|+c(AB). Let C be any red component of A0. We have |C|  c(AB). Let A0 = A0\C, Ai = AiC, T  = T and Aj = Aj, Bj = Bj otherwise. It is easy to see that T , Aj , and Bj will satisfy (I) ­ (IX). If the new partition satisfies (X), then we must have maxkt=0 |At| = |A0|. However |A0| > |Ai|+c(AB) ensures
+
+13
+
+that we have |A0 |, |Ai| < |A0|) meaning that the quantity |{i  {1, . . . , k} : |Ai| = |A0 |}| must be smaller than it was in the original partition, contradicting (XI).
+
+Claim 3.8. For every i, we have |Bi|  c(A  B).
+
+Proof. Suppose that |Bi| < c(A  B) for some i. Notice that this implies that f (Bi) = 0.
+
+By Claim 3.6, we have that i  l.
+
+First suppose that we have Nr(vi)  A = . Let C be a red component of A which intersects Nr(vi). Let T  = T , Bi = Bi  C, and At = At \ C, Bt = Bt, for other t.
+The new partition satisfies (I) trivially. By choice of C, new partition satisfies (II). It is
+
+easy to see that c(At ), c(Bt)  c(AB) for every t which implies that (III) holds for the new
+
+partition.
+
+Since
+
+f (Bi)
+
+=
+
+0
+
+holds,
+
+we
+
+have
+
+that
+
+f (Bi)
+
+
+
+1
+
+and
+
+hence
+
+|f
+
+(Bi)-
+
+1 2
+
+|
+
+=
+
+|f
+
+(Bi)-
+
+1 2
+
+|
+
+which implies that (IV) holds for the new partition.
+
+It is easy to see that f (At )  f (At) for all t, which implies that (V) holds for the new partition. Since T  = T , (VI) holds for the new partition.
+
+We have that |Bt|  |Bt| for all t. This implies that if the new partition satisfies (VII), then we have |Bi| < c(A  B). However since |Bi| > |Bi|, this contradicts maximality of the original partition in (VIII)
+
+For the remainder of the proof of this claim, we may assume that we have Nr(vi)  B.
+
+There are two cases depending on where the neighbours of vi lie.
+Case 1: Suppose that Nr(vi)  Bi. Let T  = T - vi, Bi = Bi + vi, and Aj = Aj, Bj = Bj for other j. The resulting partition satisfies (I) since Nr(vi)  Bi. Condition (II) implies that Bi + vi is connected in red. This, together with the fact that the neighbour of vi in T is connected to Bi by a red edge implies that condition (II) holds for the new partition. The only red component of
+
+the new partition which was not a red component of the old partition is Bi  v, which is
+
+of order at most c(A  B) because of |Bi| < c(A  B). This implies that (III) is satisfied.
+
+Since
+
+f (Bi)
+
+=
+
+0,
+
+we
+
+must
+
+have
+
+f (Bi)
+
+=
+
+0
+
+or
+
+1,
+
+which
+
+means
+
+that
+
+|f (Bi)
+
+-
+
+1 2
+
+|
+
+=
+
+|f (Bi)
+
+-
+
+1 2
+
+|
+
+and hence the new partition satisfies (IV). The new partition satisfies (V) since we have
+
+f (A0  · · ·  Ak ) = f (A). However |T | = |T | - 1, contradicting minimality of the original tree T in (VI).
+
+Case 2: Suppose that Nr(vi)  Bj =  for some j = i. Let C be a red component of Bj which intersects Nr(vi). By Claim 3.4 we have c(Bj \ C) < c(A  B).
+There are two subcases, depending on whether j  l holds.
+
+Case 2.1: Suppose that j > l. By Claim 3.5 there is a red component CA  A of order c(A  B). Let Bi = Bi  C, Bj = (Bj  CA) \ C, T  = T and At = At \ CA, Bt = Bt for all other t.
+
+The resulting partition trivially satisfies (I). Condition (II) follows from the fact that
+
+Bi is connected to C by a red edge. We have A0  · · ·  Ak  B1  · · ·  Bk = A 
+
+B which implies that the new partition satisfies (III). Using |Bi|, |Bj \ C| < c(A  B)
+
+we obtain that f (Bi) = f (Bj )  1 and f (Bt) = f (Bt) otherwise. This implies that
+
+k t=1
+
+|f (Bt)
+
+-
+
+1 2
+
+|
+
+=
+
+k t=1
+
+|f (Bt)
+
+-
+
+1 2
+
+|,
+
+and
+
+so
+
+the
+
+new
+
+partition
+
+satisfies
+
+(IV).
+
+However,
+
+we
+
+have f (A0  · · ·  Ak ) = f (A) - 1, contradicting minimality of the original partition in (V).
+
+14
+
+Case 2.2: Suppose that j  l. Since i = j, this implies that we have l  2. Let ui be a red neighbour of vi in C. By (II), vj has a red neighbour uj in C. There must be a red path P between ui and uj contained in C. Notice that joining T and P using the edges uivi and ujvj produces a graph T1 which has l - 2 leaves and exactly one cycle (which passes thorough P .) By Claim 3.5 A contains a red component CA of order c(A  B). By red-connectedness of Kn, there must be some edge xvj between x  T and a vertex vj  CA. We construct a tree T  and sets At and Bt as follows.
+· Suppose that x = vt for any t  {1, . . . , l}. In this case we let T2 be the graph with vertices T1 + vj , formed from T1 by adding the edge xvj . Notice that T2 has l - 1 leaves and exactly one cycle. Therefore, the cycle in T2 must contain a vertex y of degree at least 3. Let vi be a neighbour of y on the cycle. We let T  be the tree formed from T2 by removing the edge yvi. The leaves of T  are {v1, . . . , vl} \ {vi, vj}, vj and possibly vi (depending on whether the degree of vi in T2 is 2 or not.) We also let A0 = A  Bi  Bj \ P - vj , Bi = Bj = , and At = , Bt = Bt, vt = vt for t = i, j.
+· Suppose that x = vs for some s  {1, . . . , l} and f (Bs) = 1. In this case, Claim 3.4 implies that Bs is connected. Let vs be a neighbour of x in Bs. Let T2 be the graph with vertices T1 + vj + vs , formed from T1 by adding the edges xvj and xvs . As before T2 has l - 1 leaves and exactly one cycle, which contains a vertex y of degree at least 3. Let vi be a neighbour of y on the cycle. We let T  be the tree formed from T2 by removing the edge yvi. The leaves of T  are {v1, . . . , vl} \ {vi, vj, vs}, vj , vs and possibly vi (depending on whether the degree of vi in T2 is 2 or not.) We also let A0 = A  Bi  Bj \ P - vj , Bi = Bj = , Bs = Bs - vs and At = , Bt = Bt, vt = vt for t = i, j, s.
+· Suppose that x = vs for some s  {1, . . . , l} and f (Bs) = 0. Let T2 be the graph with vertices T1 + vj , formed from T1 by adding the edge xvj . Then T2 has l - 2 leaves and exactly one cycle, which contains a vertex y of degree at least 3. Let vi be a neighbour of y on the cycle. We let T  be the tree formed from T2 by removing the edge yvi. The leaves of T  are {v1, . . . , vl} \ {vi, vj, vs}, vj and possibly vi (depending on whether the degree of vi in T2 is 2 or not.) We also let A0 = A  Bi  Bj  Bs \ P - vj , Bi = Bj = Bs = , and At = , Bt = Bt, vt = vt for t = i, j, s.
+Clearly the new partition satisfies (I). It is easy to see that for all t for which vt is defined above, vt is connected to all the red components of Bt, so the new partition satisfies (II).
+Since A0 · · ·Ak B1 · · ·Bk  AB, we must have c(A0 · · ·Ak B1 · · ·Bk )  c(A  B) and hence the new partition satisfies (III). Since for all t, we have Bt  Bt, the new partition satisfies (IV). Recall that have c(Bj \ C) < c(A  B), which combined with the fact that P is nonempty and |C|  c(A  B) implies that c(Bj \ P ) < c(A  B).
+15
+
+This, combined with the fact that c(Bi) < c(A  B) (and, in the third of the above cases, c(Bs) < c(A  B)) implies that the red components of A1  · · ·  Ak are exactly those of A, minus CA. Therefore we have f (A1  · · ·  Ak ) = f (A) - 1, contradicting minimality of the original partition in (V).
+Claim 3.9. For every i, we have |Bi|  2c(A  B).
+Proof. Suppose that Bi > 2c(A  B). Combining this with Claim 3.3, means that there is a red component, C in Bi satisfying |C| < c(A  B). Let Bi = Bi \ C, A0 = A0  C, and At = At, Bt = Bt, T  = T otherwise.
+The new partition satisfies (I) ­ (II) trivially. It is easy to see that c(At) = c(At) and c(Bt) = c(Bt) for every t which implies that (III) holds for the new partition. Also we have f (At ) = f (At) and f (Bt) = f (Bt) for every t which implies that (IV) ­ (V) hold for the new partition. Since T  = T , (VI) holds for the new partition. Since |Bt| = |Bt| for t = i and |Bi|  c(A  B), the new partition satisfies (VII) and (VIII).
+However, we have that |Bi| < |Bi| which contradicts minimality of the original partition in (IX).
+We now prove the theorem. For each i = 1, . . . , k we define a set Ni  A  B. If i  l, let Ni = Nr(vi). If i > l, let Ni = vT Nr(v). We will show that the graph Kn \ T , together with the sets A0, . . . , Ak, B1, . . . , Bk, and N1, . . . , Nk satisfies conditions (i) ­ (vi) of Lemma 3.1. Condition (i) follows from the definition of A0, . . . , Ak, and B1, . . . , Bk. Condition (ii) follows immediately from (I). Condition (iii) follows from (II) whenever i  l and from red-connectedness of Kn whenever i  k + 1. Condition (iv) follows from the fact that we are assuming (4). Combining Claims 3.7 and 3.8 implies that we have |Bi| + |Ai|  c(A  B) + |Ai|  |A0| for all i. This proves condition (v) of Lemma 3.1. Combining Claims 3.8 and 3.9 implies that we have 2|Bi|  2c(A  B)  |Bj| for all i and j . This proves condition (vi) of Lemma 3.1. Therefore, the graph Kn \T , together with the sets A0, . . . , Ak, B1, . . . , Bk, and N1, . . . , Nk satisfies all the conditions of Lemma 3.1. By Lemma 3.1, Kn \ T can be partitioned into paths P1, . . . , Pk starting in N1, . . . , Nk and a balanced (k + 1)-partite graph H. For each i, the path Pi can be joined to T to obtain the required partition of Kn into a tree with at most k leaves T  P1  · · ·  Pk and a balanced (k + 1)-partite graph H.
+4 Ramsey Numbers
+In this section, we use the results of the previous section to determine the the value of the Ramsey number of a path versus certain other graphs.
+First we determine R(Pn, Kmt ) whenever m  1 (mod n - 1).
+16
+
+Theorem 4.1. If m  1 (mod n - 1) then we have
+R(Pn, Kmt ) = (t - 1)(n - 1) + t(m - 1) + 1.
+Proof. For the upper bound, apply Theorem 1.7 to the given 2-edge-coloured complete graph on (t - 1)(n - 1) + t(m - 1) + 1 vertices. This gives us t - 1 red paths and a blue balanced complete t-partite graph which, cover all the vertices of K(t-1)(n-1)+t(m-1)+1. By the Pigeonhole Principle either one of the paths has order at least n or the complete tpartite graph has order at least t(m-1)+1. Since the complete t-partite graph is balanced, if it has order more than t(m - 1) + 1, then it must have at least tm vertices.
+For the lower bound, consider a colouring of the complete graph on (t - 1)(n - 1) + t(m - 1) vertices consisting of (t - 1) + t(m - 1)/(n - 1) disjoint red copies of Kn-1 and all other edges coloured blue. The condition m  1 (mod n - 1) ensures that we can do this. Since all the red components of the resulting graph have order at most n - 1, the graph contains no red Pn. The graph contains no a blue Kmt , since every partition of such a graph would have to intersect at least (m - 1)/(n - 1) + 1 of the red copies of Kn-1 and there are only (t - 1)(n - 1) + t(m - 1) of these.
+In the remainder of this section we will prove Theorem 1.11. First we will use Theorem 1.7 and Corollary 1.9 to find upper bounds on R(Pn, Pmt ).
+Lemma 4.2. The following statements are true.
+(a) R(Pn, Pmt )  (n - 2)t + m for all n, m and t  1.
+(b) Suppose that t  2 and n, m  1. Every 2-edge-coloured complete graph on (n - 1)(t - 1) + m vertices which is connected in red contains either a red Pn or a blue Pmt .
+Proof. For part (a), notice that by Theorem 1.7, we can partition a 2-edge-coloured K(n-2)t+m into t red paths P1, . . . , Pt and a blue tth power of a path P t. Suppose that there are no red paths of order n in K(n-2)t+m. Suppose that i of the paths P1, . . . , Pt are of order n - 1. Without loss of generality we may assume that these are the paths P1, . . . , Pi. We have |P t| + (n - 2)(t - i) + (n - 1)i  |P t| + |P1| + · · · + |Pt| = (n - 2)t + m which implies i + |P t|  m. For each j, let vj be one of the endpoint of Pj. Notice that since there are no red paths of order n in K(n-2)t+m, all the edges in {v1, . . . , vi, p} are blue for any p  P t. This allows us to extend P t by adding i extra vertices v1, . . . , vi to obtain a tth power of a path of order m.
+Part (b) follows immediately from Corollary 1.9 and the fact that a balanced t-partite graph contains a spanning (t - 1)st power of a path.
+The following simple lemma allows us to join powers of paths together.
+Lemma 4.3. Let G be a graph. Suppose that G contains a (k - i)th power of a path, P k-i, and an (i - 1)st power of a path, Qi-1, such that the following hold.
+(i) All the edges between P k-i and Qi-1 are present.
+17
+
+(ii) |P k-i|  (k - i + 1)
+
+n k+1
+
+.
+
+(iii) |Qi-1|  i
+
+n k+1
+
+.
+
+(iv) |P k-i| + |Qi-1|  n.
+
+Then G contains a kth power of a path on n vertices.
+
+Proof. Without loss of generality, we may assume that P k-i and Qi-1 are the shortest such
+
+paths contained in G. We claim that this implies that we have |P k-i| + |Qi-1| = n. Indeed
+
+otherwise (iv) implies that |P k-i| + |Qi-1| > (k + 1)
+
+n k+1
+
+, and hence we could remove an
+
+endpoint from one of the paths, whilst keeping (ii) and (iii) true.
+
+Let p1, . . . , p|P k-i| be the vertices of P k-i and q1, . . . , q|Qi-1| be the vertices of Qi-1. For convenience set rP = |P k-i| (mod k - i + 1) and rQ = |qi-1| (mod i). Together with (ii)
+
+and (iii), this ensures that we have |P k-i| = rP +(k -i+1)
+
+n k+1
+
+and |Qi-1| = rQ + i
+
+n k+1
+
+.
+
+It is easy to see that the following sequence of vertices is a kth power of a path on n vertices.
+
+q1, . . . qrQ p1, . . . , pk-i+1, qrQ+1, . . . , qrQ+i pk-i+2, . . . , p2(k-i+1), qrQ+i+1, . . . , qrQ+2i
+...
+
+p(k-i+1)(
+
+n k+1
+
+-1)+1
+
+,
+
+.
+
+.
+
+.
+
+,
+
+p(k-i+1)
+
+n k+1
+
+,
+
+qrQ
+
++(i-1)(
+
+n k+1
+
+-1)+1,
+
+.
+
+.
+
+.
+
+,
+
+qrQ+i(
+
+n k+1
+
+-1)
+
+p(k-i+1)
+
+n k+1
+
++1
+
+,
+
+.
+
+.
+
+.
+
+,
+
+p(k-i+1)
+
+n k+1
+
++1+rP
+
+We are now ready to prove Theorem 1.11.
+
+Proof of Theorem 1.11. For the lower bound R(Pn, Pnk)  (n - 1)k +
+
+n k+1
+
+,
+
+consider
+
+a
+
+colouring
+
+of
+
+K(n-1)k+
+
+n k+1
+
+-1
+
+consisting
+
+of
+
+k
+
+disjoint
+
+red
+
+copies
+
+of
+
+Kn-1
+
+and
+
+one
+
+disjoint
+
+red
+
+copy
+
+of
+
+K
+
+n k+1
+
+-1.
+
+All edges outside of these are blue.
+
+It is easy to see that when
+
+n  k + 1, this colouring contains neither a red path on n vertices nor a blue Pnk.
+
+It remains to prove the upper bound R(Pn, Pnk)  (n - 1)k +
+
+n k+1
+
+. Let K be a 2-edge-
+
+coloured complete graph on (n - 1)k +
+
+n k+1
+
+vertices. Suppose that K does not contain
+
+any red paths of order n. We will find a blue copy of Pnk.
+
+Let C be the largest red component of K. The following claim will give us three cases
+
+to consider.
+
+Claim 4.4. One of the following always holds.
+
+(i) |C|  2(n - 1) - (k - 2)
+
+n k+1
+
++ 1.
+
+18
+
+(ii) There is a set B, such that all the edges between B and V (K) \ B are blue and also
+
+n+
+
+n k+1
+
+ |B|  2(n - 1) - (k - 2)
+
+n k+1
+
+.
+
+(iii) The vertices of K can be partitioned into k disjoint sets B1, . . . , Bk such that for i = j all the edges between Bi and Bj are blue and we have
+
+|B1|  |B2|  · · ·  |Bk| 
+
+n k+1
+
+.
+
+Proof. Suppose that neither (i) nor (ii) hold.
+
+This implies that all the red components in K have order at most n +
+
+n k+1
+
+- 1. Let
+
+B be a subset of V (K) such that the following hold.
+
+(a) All the edges between B and V (K) \ B are blue.
+
+(b) |B|  n - 1 +
+
+n k+1
+
+.
+
+(c) |B| is as large as possible.
+
+Suppose that there is a red component C in V (K) \ B of order at most
+
+n k+1
+
+- 1. Let
+
+B = B  C. Notice that n  k
+
+n k+1
+
++
+
+n k+1
+
+holds for all integers n, k  0. This implies
+
+that we have set satisfying
+
+|B| = |B| + |C|  2(n - 1) - (k - (a) and (b) of larger order than B,
+
+2) or
+
+Bk+n 1sattishfiicehs
+
+implies (ii).
+
+that
+
+either
+
+B
+
+is
+
+a
+
+Suppose that all the red components in V (K) \ B have order at least
+
+n k+1
+
+.
+
+Since
+
+n  2, we have
+
+|V (K) \ B|  (n - 1)(k - 1) > (k - 2)
+
+n-1+
+
+n k+1
+
+.
+
+(5)
+
+Using the fact that all red components of K have order at most n - 1 +
+
+n k+1
+
+, (5) implies
+
+that V (K)\B must have at least k-1 components. Therefore, the components of V (K)\B
+
+can be partitioned into k - 1 sets B2, . . . , Bk which, together with B1 = B, satisfy (iii).
+
+We distinguish three cases, depending on which part of Claim 4.4 holds. Case 1: If part (i) of Claim 4.4 holds, then there must be some i  k - 2, such that we have
+
+(k - i)(n - 1) - i
+
+n k+1
+
++ 1  |C|  (k - i + 1)(n - 1) - (i - 1)
+
+n k+1
+
+.
+
+(6)
+
+Combining (k - i)(n - 1) - i
+
+n k+1
+
++ 1  |C| with part (b) of Lemma 4.2 shows that C
+
+must contain a blue (k - i)th power of a path, P k-i, on n - i
+
+n k+1
+
+vertices. If i = 0, then
+
+P k-i is a copy of Pnk, and so the theorem holds. Therefore, we can assume that i  1.
+
+19
+
+Notice that (6) implies that we have |V \ C|  (i - 1)(n - 1) + i
+
+n k+1
+
+.
+
+Combining
+
+this with part (a) of Lemma 4.2 shows that V \ C must contain a blue (i - 1)st power of
+
+a path, Qi-1, on i
+
+n k+1
+
++ i - 1 vertices.
+
+Since all the edges between C and V \ C are blue we can apply Lemma 4.3 to P k-i and
+
+Qi-1 in order to find a blue kth power of a path on n vertices in G.
+
+Case 2: Suppose that there is some set B  V (K) such that all the edges between B
+
+and V (K) \ B are blue and also
+
+n+
+
+n k+1
+
+ |B|  2(n - 1) - (k - 2)
+
+n k+1
+
+.
+
+Apply Theorem 1.1 to B in order to find a path, P , of order 2
+
+n k+1
+
++ 2 in B.
+
+Notice that we have |V (K) \ B|  (k - 2)(n - 1) + (k - 1)
+
+n k+1
+
+. Part (a) of Lemma 4.2
+
+shows that V \B must contain a blue (k-2)nd power of a path,Qk-2 , on (k-2)
+
+n k+1
+
++k-2
+
+vertices.
+
+Since all the edges between B and V \B are blue we can apply Lemma 4.3 with i = k -1
+
+in order to find a blue kth power of a path spanning on n vertices in G.
+
+Case 3: Suppose that the vertices of K can be arranged into disjoint sets B1, . . . , Bk
+
+such that for i = j all the edges between Bi and Bj are blue and we have
+
+|B1|  |B2|  · · ·  |Bk| 
+
+n k+1
+
+.
+
+Let t be the maximum index for which |Bt| > n - 1. Notice that |K|  k(n - 1) +
+
+n k+1
+
+implies that we have |B1| + · · · + |Bt| - t(n - 1) 
+
+n k+1
+
+.
+
+Therefore, for i  t, we can
+
+choose numbers xi satisfying 0  xi  |Bi| - n + 1 for all i and also x1 + · · · + xt =
+
+n k+1
+
+.
+
+For each i  t we have |Bi| = n-1+xi, which combined with Theorem 1.1, implies that
+
+Bi contains a blue path Ri of order 2xi + 1. Let ri,0, ri,1, . . . , ri,2xi be the vertex sequence
+
+of Ri. For each i  {1, . . . , t} and j = i choose a set Ai,j of vertices in Bj satisfying
+
+|Ai,j| = xi. Note that for j > t, the identity |Bj| 
+
+n k+1
+
+implies that we have
+
+|A1,j| + · · · + |At,j| =
+
+n k+1
+
+ |Bj|.
+
+(7)
+
+For j  t, the identities |Bj|  n and xj 
+
+n k+1
+
+imply that we have
+
+|A1,j| + · · · + |Aj-1,j| + |Rj| + |Aj+1,j| + · · · + |At,j| =
+
+n k+1
+
++ xj + 1  |Bj|.
+
+(8)
+
+Now, (7) and (8) imply that we can choose the sets Ai,j, such that Ai,j and Ai,j are disjoint for i = i. In addition, for every j  t, (8) implies that we can choose the sets Ai,j to be disjoint from Rj. Let ai,j,1, . . . , ai,j,xi be the vertices of Ai,j. If n  0 (mod k + 1), then the inequalities in both (7) and (8) must be strict, and so there must be at least one vertex
+contained in Bi outside of Ri  Ai,1  · · ·  Ai,t. Let bi be this vertex.
+
+20
+
+For i = 1, . . . , t and j = 1, . . . , xi, we will define blue paths Pi,j of order k + 1 as follows. If i = 1 and j  {1, . . . , x1 - 1}, then Pi,j has the following vertex sequence.
+
+P1,j = r1,2j-1, r1,2j, a1,2,j , a1,3,j, . . . , a1,k,j.
+
+If i = 1 and j = x1, then Pi,j has the following vertex sequence.
+
+P1,x1 = r1,2x1-1, r1,2x1, r2,0, a1,3,x1, . . . , a1,k,x1. If i  {2, . . . , t - 1} and j  {1, . . . , xi - 1}, then Pi,j has the following vertex sequence.
+
+Pi,j = ri,2j-1, ai,1,j, ai,2,j, . . . , ai,i-1,j, ri,2j, ai,i+1,j, ai,i+2,j, . . . , ai,k,j.
+
+If i  {2, . . . , t - 1} and j = xi, then Pi,j has the following vertex sequence.
+
+Pi,xi = ri,2xi-1, ai,1,xi , ai,2,xi , . . . , ai,i-1,xi , ri,2xi , ri+1,0, ai,i+2,xi, . . . , ai,k,xi. If i = t and j  {1, . . . , xt}, then Pi,j has the following vertex sequence.
+
+Pt,j = rt,2j-1, at,1,j , at,2,j, . . . , at,t-1,j , rt,2j.
+
+If n  0 (mod k + 1), we also define a path P0 of order k with vertex sequence
+
+P0 = r1,0, b2, b3, . . . , bk.
+
+If n  0 (mod k + 1), let P0 = . Notice that the paths Pi,j and Pi,j are disjoint for (i, j) = (i, j). Similarly P0 is
+disjoint from all the paths Pi,j. We have the following
+
+k
+|P0| +
+
+xi
+|Pi,j| = |P0| + (k + 1)(x1 + · · · + xk) = |P0| + (k + 1)
+
+n k+1
+
+ n.
+
+(9)
+
+i=1 j=1
+
+We claim that the following path is in fact a blue kth power of a path.
+
+ 
+
+P0+
+
+
+
+   
+
+P1,1 + P1,2 + · · · + P1,xt+
+
+
+
+P = P2,1 + P2,2 + · · · + P2,x2 +
+
+   
+
+...
+
+
+
+ 
+
+Pt,1 + Pt,2 + · · · + Pt,xt .
+
+To see that P is a kth power of a path one needs to check that any pair of vertices a, b at distance at most k along P are connected by a blue edge. It is easy to check that for any such a and b, either a  Bi and b  Bj for some i = j or a and b are consecutive vertices along P0 or Pi,j for some i, j. In either case ab is blue implying that P is a blue kth power of a path.
+The identity (9) shows that |P |  n, completing the proof.
+
+21
+
+5 Remarks
+In this section we dicuss some further directions one might take with the results presented in this paper.
+
+· It would be interesting to see if there are any other Ramsey numbers which can be determined using the techniques we used in this paper.
+If G is a graph of (vertex)-chromatic number (G), then (G) is defined to be the smallest possible order of a colour class in a proper (G)-vertex colouring of G. Generalising a construction of Chvatal and Harary, Burr [2] showed that if H is a graph and G is a connected graph and satisfying |G|  (H), then we have
+
+R(G, H)  ((H) - 1)(|G| - 1) + (H)
+
+(10)
+
+This identity comes from considering a colouring consisting of (H) - 1 red copies of
+
+K|G|-1 and one red copy of K(H)-1. Notice that for a kth power of a path, we have
+
+(Pnk) = k + 1 and (Pnk) =
+
+n k+1
+
+.
+
+Therefore, Theorem 1.11 shows that (10) is best
+
+possible when G = Pn and H = Pnk.
+
+It is an interesting question to find other pairs of graphs for which equality holds
+
+in (10) (see [1, 12]). Allen, Brightwell, and Skokan conjectured that when G is a
+
+path, then equality holds in (10) for any graph H satisfying |G|  (H)|H|.
+
+Conjecture 5.1 (Allen, Brightwell, and Skokan). For every graph H, R(Pn, H) = ((H) - 1)(n - 1) + (H) whenever n  (H)|H|.
+
+It is easy to see that in order to prove Conjecture 5.1, it is sufficient to prove it only in the case when H is a (not necessarily balanced) complete multipartite graph.
+The techniques used in this paper look like they may be useful in approaching Conjecture 5.1. One reason for this is that several parts of the proof of Theorem 1.11 would have worked if we were looking for the Ramsey number of a path versus a balanced complete multipartite graph insead of a power of a path.
+· Recall that Lemma 1.5 only implies part of H¨aggkvist result (Theorem 1.6). However, it is easy to prove an "unbalanced" version of Lemma 1.5 which implies Theorem 1.6.
+Lemma 5.2. Suppose that the edges of Kn are coloured with 2 colours and we have an integer t satisfying 0  t  n. Then there is a partition of Kn into a red path and a blue copy of Km,m+t for some integer m.
+
+The proof of this lemma is nearly identical to the one we gave of Lemma 1.5 in the Section 2. Indeed, the only modification that needs to be made is that we need to add the condition " |X| - |Y |  t" on the sets X and Y in the proof of Lemma 1.5.
+
+22
+
+· It would be interesting to see whether Theorems 1.7 and 1.8 have any applications in the area of partitioning coloured complete graphs. In particular, given that Lemma 1.5 played an important role in the proof of the r = 3 case of Conjecture 1.3 in [15], it is possible that Theorems 1.7 and 1.8 may help with that conjecture. Classically, results about partitioning coloured graphs would partition a graph into monochromatic subgraphs which all have the same structure. For example Theorems 1.2 and 1.4 partition graphs into monochromatic paths. Lemma 1.5 and Theorem 1.8 stand out from these since they partition a 2-edge-coloured complete graph into two monochromatic subgraphs which have very different structure. It would be interesting to find other natural results along the same lines. Some results about partitioning a 2-edge-coloured complete graph into a monochromatic cycle and a monochromatic graph with high minimum degree will appear in [14].
+Acknowledgment The author would like to thank his supervisors Jan van den Heuvel and Jozef Skokan for their advice and discussions.
+References
+[1] P. Allen, G. Brightwell, and J. Skokan. Ramsey-goodness and otherwise. Combinatorica, 33(2):125­160, 2013.
+[2] S. A. Burr. What can we hope to accomplish in generalized Ramsey theory? Discrete Math., 67:215­225, 1987.
+[3] R. Diestel. Graph Theory. Springer-Verlag, 2000.
+[4] P. Erdos. Some remarks on the theory of graphs. Bull. Am. Math. Soc., 53:292­294, 1947.
+[5] L. Gerencs´er and A. Gy´arfa´s. On Ramsey-type problems. Ann. Univ. Sci. Budapest. E¨otvo¨s Sect. Math, 10:167­170, 1967.
+[6] R. L. Graham, B. L. Rothschild, and J. H. Spencer. Ramsey Theory. John Wiley & Sons, 1990.
+[7] A. Gy´arfa´s. Vertex coverings by monochromatic paths and cycles. J. Graph Theory, 7:131­135, 1983.
+[8] A. Gy´arfa´s. Covering complete graphs by monochromatic paths. In Irregularities of Partitions, Algorithms and Combinatorics, volume 8, pages 89­91. Springer-Verlag, 1989.
+23
+
+[9] A. Gy´arfa´s and J. Lehel. A Ramsey-type problem in directed and bipartite graphs. Pereodica Math. Hung., 3:299­304, 1973.
+[10] R. H¨aggkvist. On the path-complete bipartite Ramsey number. Discrete Math., 75:243­245, 1989.
+[11] J. Koml´os, G. S´ark¨ozy, and E. Szemer´edi. Proof of the Seymour conjecture for large graphs. Ann. Comb., 2(1):43­60, 1998.
+[12] V. Nikiforov and C. C. Rousseau. Ramsey goodness and beyond. Combinatorica, 29:227­262, 2009.
+[13] T. Parsons. The Ramsey Numbers r(Pn, Kn). Discrete Math., 6:159­162, 1973. [14] A. Pokrovskiy. Partitioning a graph into a cycle and a sparse graph. In preparation,
+2013. [15] A. Pokrovskiy. Partitioning edge-coloured complete graphs into monochromatic cycles
+and paths. Submitted, 2013. [16] F. P. Ramsey. On a problem of formal logic. Proc. London Math. Soc. Series,
+30(2):264­286, 1930. [17] P. Seymour. Problem section. In T. P. McDonough and V. C. Mavron, editors,
+Combinatorics: Proceedings of the British Combinatorial Conference 1973, pages 201­ 202. Cambridge University Press, 1974. [18] B. L. van der Waerden. Beweis einer Baudetschen Vermutung. Nieuw. Arch. Wisk., 15:212­216, 1927.
+24
+
+
