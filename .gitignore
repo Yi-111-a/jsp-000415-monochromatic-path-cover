@@ -3,3 +3,11 @@
 lake-packages/
 .DS_Store
 nul
+
+# stray agent reference downloads
+*.pdf
+page*.png
+gl*.txt
+pok*.txt
+bip.txt
+multi.txt
