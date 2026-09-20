@@ -1,21 +1,20 @@
 jsp_id: JSP-000415
 catalog_url: https://github.com/TheJustinSunPrize/awards/blob/main/problems/catalog-0401-0500.md#JSP-000415
 status: wip
-prize_ready: false  # requires: lake build OK, 0 sorry/admit, standard axioms, headline proved
+prize_ready: false
 github_owner: Yi-111-a
 lean_repository: https://github.com/Yi-111-a/jsp-000415-monochromatic-path-cover
 branch: main
-commit_sha: ""  # pin full 40-char SHA only when prize_ready
+commit_sha: ""
 headline_theorems:
   - monochromatic_path_cover
 roles:
   formalization_operators:
     - Yi-111-a
   mathematical_solvers_literature:
-    - "Pokrovskiy–Versteegen–Williams (arXiv:2409.03623)"
-    - "Erdős–Gyárfás (ErGy95, conjecture)"
+    - "Pokrovskiy–Versteegen–Williams (PVW24), arXiv:2409.03623"
+    - "Erdős–Gyárfás (ErGy95)"
     - "Gerencsér–Gyárfás (GeGy67)"
-    - "Gyárfás–Lehel (GyLe73)"
 attribution_basis: |
   Formalization work under GitHub account Yi-111-a. Mathematical solution
   credits remain with the published literature. This stub does not claim the prize.

@@ -5,5 +5,5 @@
   "required_theorems": [
     "monochromatic_path_cover"
   ],
-  "notes": "PVW24 Theorem 1.3: for all n > 20^40, every 2-edge-coloured K_n has a vertex cover by at most sqrt(n) monochromatic paths all of the same colour. sqrt(n) is a real bound (i.e. floor(sqrt n)); paths may be single vertices and may intersect."
+  "notes": "PVW24 Theorem 1.3: for all n > 20^40, every 2-edge-coloured K_n has a same-colour monochromatic path cover of size at most sqrt(n). The weaker 2√n bound is not sufficient."
 }
