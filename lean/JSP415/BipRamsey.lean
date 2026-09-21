@@ -6,6 +6,7 @@ import JSP415.GLScratchZ
 import JSP415.GLScratchF
 import JSP415.GLScratchCmpl
 import JSP415.GLScratchAsm
+import JSP415.GLScratchE7
 
 /-!
 # JSP415/BipRamsey — final assembly of Gyárfás–Lehel Theorem 3
@@ -85,5 +86,16 @@ theorem bip_ramsey_path'
     BipGoal G X Y k ℓ :=
   bip_ramsey_path_of
     (fun H _ _ hD c3 hu2 ↦ hfacts hD c3 hu2 hEall) hXY hkl hX hY
+
+/-- **Gyárfás–Lehel 1973, Theorem 3 = PVW24 Lemma 2.1.**  For distinct
+`k ℓ`, every red–blue edge colouring of the complete bipartite graph
+`K_{⌊(k+ℓ+1)/2⌋,⌊(k+ℓ+1)/2⌋}` contains a red `acrossXY`-chain on `k + 1`
+vertices or a blue one on `ℓ + 1` vertices.  Claim E is
+`Case3Data.claimE` (`GLScratchE7`). -/
+theorem bip_ramsey_path (G : SimpleGraph V) (X Y : Finset V)
+    (hXY : Disjoint X Y) {k ℓ : ℕ} (hkl : k ≠ ℓ)
+    (hX : X.card = (k + ℓ + 1) / 2) (hY : Y.card = (k + ℓ + 1) / 2) :
+    BipGoal G X Y k ℓ :=
+  bip_ramsey_path' (fun H _ _ hD c3 hu2 ↦ c3.claimE hD hu2) G X Y hXY hkl hX hY
 
 end JSP415

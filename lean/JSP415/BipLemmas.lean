@@ -2039,17 +2039,7 @@ theorem bipathO_blue_mid_getLast_of_type3
 
 end bip_ramsey_path
 
-/-- **Gyárfás–Lehel 1973** (PVW24 Lemma 2.1).  For distinct `k ℓ`, every
-red–blue edge colouring of the complete bipartite graph
-`K_{⌈(k+ℓ)/2⌉,⌈(k+ℓ)/2⌉}` contains a red path on `k+1` vertices or a blue
-path on `ℓ+1` vertices. -/
-theorem bip_ramsey_path (G : SimpleGraph V) (X Y : Finset V)
-    (hXY : Disjoint X Y) {k ℓ : ℕ} (hkl : k ≠ ℓ)
-    (hX : X.card = (k + ℓ + 1) / 2) (hY : Y.card = (k + ℓ + 1) / 2) :
-    ∃ p : VertPath V,
-      (p.toList.IsChain (Color.adjXY G X Y .red) ∧ k + 1 ≤ p.toList.length) ∨
-      (p.toList.IsChain (Color.adjXY G X Y .blue) ∧ ℓ + 1 ≤ p.toList.length) := by
-  sorry
-
+/- **Gyárfás–Lehel 1973** (PVW24 Lemma 2.1) lives in `JSP415.BipRamsey`:
+the proof needs the case-(iii) claims built downstream of this file. -/
 
 end JSP415
