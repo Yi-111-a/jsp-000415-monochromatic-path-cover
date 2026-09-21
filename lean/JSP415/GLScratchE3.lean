@@ -25,48 +25,48 @@ variable {G : SimpleGraph V} {X Y : Finset V}
 
 
 /-- Half-open segment `l[i..j)`. -/
-private abbrev seg {α : Type*} (l : List α) (i j : ℕ) : List α := (l.drop i).take (j - i)
+abbrev seg {α : Type*} (l : List α) (i j : ℕ) : List α := (l.drop i).take (j - i)
 
-private theorem seg_length {l : List V} (i j : ℕ) :
+theorem seg_length {l : List V} (i j : ℕ) :
     (seg l i j).length = min j l.length - i := by
   simp only [seg, List.length_take, List.length_drop]
   omega
 
-private theorem seg_eq_nil {l : List V} {i j : ℕ} (h : j ≤ i ∨ l.length ≤ i) :
+theorem seg_eq_nil {l : List V} {i j : ℕ} (h : j ≤ i ∨ l.length ≤ i) :
     seg l i j = ([] : List V) := by
   have h0 : (seg l i j).length = 0 := by rw [seg_length]; omega
   exact List.length_eq_zero_iff.mp h0
 
-private theorem seg_eq_take (l : List V) (j : ℕ) : seg l 0 j = l.take j := by
+theorem seg_eq_take (l : List V) (j : ℕ) : seg l 0 j = l.take j := by
   simp [seg]
 
-private theorem seg_eq_drop {l : List V} {i j : ℕ} (h : l.length ≤ j) :
+theorem seg_eq_drop {l : List V} {i j : ℕ} (h : l.length ≤ j) :
     seg l i j = l.drop i := by
   simp only [seg]
   apply List.take_of_length_le
   simp only [List.length_drop]
   omega
 
-private theorem seg_ne_nil {l : List V} {i j : ℕ} (hij : i < j)
+theorem seg_ne_nil {l : List V} {i j : ℕ} (hij : i < j)
     (hj : j ≤ l.length) : seg l i j ≠ ([] : List V) := by
   rw [List.ne_nil_iff_length_pos, seg_length]; omega
 
-private theorem chain_seg {l : List V} {R : V → V → Prop} {i j : ℕ}
+theorem chain_seg {l : List V} {R : V → V → Prop} {i j : ℕ}
     (h : l.IsChain R) : (seg l i j).IsChain R :=
   (h.drop i).take _
 
-private theorem chain_seg_rev {l : List V} {c : Color} {i j : ℕ}
+theorem chain_seg_rev {l : List V} {c : Color} {i j : ℕ}
     (h : l.IsChain (Color.adjXY G X Y c)) :
     (seg l i j).reverse.IsChain (Color.adjXY G X Y c) :=
   Color.adjXY.isChain_reverse (chain_seg h)
 
-private theorem head?_seg {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
+theorem head?_seg {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
     (seg l i j).head? = some l[i] := by
   have hilt : i < l.length := lt_of_lt_of_le hij hj
   simp only [seg, List.head?_take, List.head?_drop]
   rw [if_neg (by omega), List.getElem?_eq_getElem hilt]
 
-private theorem getLast?_seg {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
+theorem getLast?_seg {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
     (seg l i j).getLast? = some l[j - 1] := by
   have hj' : j - 1 < l.length := by omega
   simp only [seg, List.getLast?_take]
@@ -75,15 +75,15 @@ private theorem getLast?_seg {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ 
     List.getElem?_eq_getElem hj']
   rfl
 
-private theorem head?_seg_rev {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
+theorem head?_seg_rev {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
     (seg l i j).reverse.head? = some l[j - 1] := by
   rw [List.head?_reverse, getLast?_seg hij hj]
 
-private theorem getLast?_seg_rev {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
+theorem getLast?_seg_rev {l : List V} {i j : ℕ} (hij : i < j) (hj : j ≤ l.length) :
     (seg l i j).reverse.getLast? = some l[i] := by
   rw [List.getLast?_reverse, head?_seg hij hj]
 
-private theorem mem_seg {l : List V} {x : V} {i j : ℕ} :
+theorem mem_seg {l : List V} {x : V} {i j : ℕ} :
     x ∈ seg l i j → ∃ k, i ≤ k ∧ k < j ∧ ∃ hk : k < l.length, l[k] = x := by
   simp only [seg, List.mem_take_iff_getElem, List.length_drop]
   rintro ⟨k, hk, he⟩
@@ -92,7 +92,7 @@ private theorem mem_seg {l : List V} {x : V} {i j : ℕ} :
   rw [List.getElem_drop] at he
   exact he
 
-private theorem seg_cat {l : List V} {i j k : ℕ} (hij : i ≤ j) (hjk : j ≤ k) :
+theorem seg_cat {l : List V} {i j k : ℕ} (hij : i ≤ j) (hjk : j ≤ k) :
     seg l i j ++ seg l j k = seg l i k := by
   simp only [seg]
   rw [show l.drop j = (l.drop i).drop (j - i) from by
@@ -101,21 +101,21 @@ private theorem seg_cat {l : List V} {i j k : ℕ} (hij : i ≤ j) (hjk : j ≤ 
   congr 1
   omega
 
-private theorem seg_singleton {l : List V} {i : ℕ} (hi : i < l.length) :
+theorem seg_singleton {l : List V} {i : ℕ} (hi : i < l.length) :
     seg l i (i + 1) = [l[i]] := by
   simp only [seg]
   rw [show i + 1 - i = 1 from by omega, List.take_one]
   simp [List.getElem?_drop, List.getElem?_eq_getElem hi]
 
 /-- Concatenate two chains with a junction edge. -/
-private theorem chain_app {R : V → V → Prop} {l₁ l₂ : List V}
+theorem chain_app {R : V → V → Prop} {l₁ l₂ : List V}
     (h1 : l₁.IsChain R) (h2 : l₂.IsChain R)
     (he : ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y) :
     (l₁ ++ l₂).IsChain R :=
   List.isChain_append.mpr ⟨h1, h2, he⟩
 
 /-- Concatenate three chains (`++` is left-associative). -/
-private theorem chain_app3 {R : V → V → Prop} {l₁ l₂ l₃ : List V}
+theorem chain_app3 {R : V → V → Prop} {l₁ l₂ l₃ : List V}
     (h1 : l₁.IsChain R) (h2 : l₂.IsChain R) (h3 : l₃.IsChain R)
     (e12 : ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y)
     (e23 : ∀ x ∈ (l₁ ++ l₂).getLast?, ∀ y ∈ l₃.head?, R x y) :
@@ -123,7 +123,7 @@ private theorem chain_app3 {R : V → V → Prop} {l₁ l₂ l₃ : List V}
   chain_app (chain_app h1 h2 e12) h3 e23
 
 /-- Concatenate four chains. -/
-private theorem chain_app4 {R : V → V → Prop} {l₁ l₂ l₃ l₄ : List V}
+theorem chain_app4 {R : V → V → Prop} {l₁ l₂ l₃ l₄ : List V}
     (h1 : l₁.IsChain R) (h2 : l₂.IsChain R) (h3 : l₃.IsChain R)
     (h4 : l₄.IsChain R)
     (e12 : ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y)
@@ -133,7 +133,7 @@ private theorem chain_app4 {R : V → V → Prop} {l₁ l₂ l₃ l₄ : List V}
   chain_app (chain_app3 h1 h2 h3 e12 e23) h4 e34
 
 /-- Concatenate five chains. -/
-private theorem chain_app5 {R : V → V → Prop} {l₁ l₂ l₃ l₄ l₅ : List V}
+theorem chain_app5 {R : V → V → Prop} {l₁ l₂ l₃ l₄ l₅ : List V}
     (h1 : l₁.IsChain R) (h2 : l₂.IsChain R) (h3 : l₃.IsChain R)
     (h4 : l₄.IsChain R) (h5 : l₅.IsChain R)
     (e12 : ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y)
@@ -144,13 +144,13 @@ private theorem chain_app5 {R : V → V → Prop} {l₁ l₂ l₃ l₄ l₅ : Li
   chain_app (chain_app4 h1 h2 h3 h4 e12 e23 e34) h5 e45
 
 /-- A cons chain with explicit head-edge. -/
-private theorem chain_cons {R : V → V → Prop} {a : V} {l : List V}
+theorem chain_cons {R : V → V → Prop} {a : V} {l : List V}
     (h : ∀ y ∈ l.head?, R a y) (hl : l.IsChain R) :
     (a :: l).IsChain R :=
   List.isChain_cons.mpr ⟨h, hl⟩
 
 /-- Solve a junction goal once endpoint values are known. -/
-private theorem junc {R : V → V → Prop} {l₁ l₂ : List V} {v w : V}
+theorem junc {R : V → V → Prop} {l₁ l₂ : List V} {v w : V}
     (hl : l₁.getLast? = some v) (hr : l₂.head? = some w) (e : R v w) :
     ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y := by
   intro x hx y hy
@@ -160,7 +160,7 @@ private theorem junc {R : V → V → Prop} {l₁ l₂ : List V} {v w : V}
   exact e
 
 /-- The `or`-form junction: `l₁.getLast?` may delegate when a right block is empty. -/
-private theorem junc_or {R : V → V → Prop} {l₁ l₂ : List V} {v : V}
+theorem junc_or {R : V → V → Prop} {l₁ l₂ : List V} {v : V}
     (hl : l₁.getLast? = some v) (e : ∀ y ∈ l₂.head?, R v y) :
     ∀ x ∈ l₁.getLast?, ∀ y ∈ l₂.head?, R x y := by
   intro x hx y hy
@@ -170,16 +170,16 @@ private theorem junc_or {R : V → V → Prop} {l₁ l₂ : List V} {v : V}
 
 /-! ### Edge constructors -/
 
-private theorem redEdgeYX {a b : V} (ha : a ∈ Y) (hb : b ∈ X) (h : G.Adj a b) :
+theorem redEdgeYX {a b : V} (ha : a ∈ Y) (hb : b ∈ X) (h : G.Adj a b) :
     Color.adjXY G X Y .red a b := ⟨Or.inr ⟨ha, hb⟩, h⟩
 
-private theorem redEdgeXY {a b : V} (ha : a ∈ X) (hb : b ∈ Y) (h : G.Adj a b) :
+theorem redEdgeXY {a b : V} (ha : a ∈ X) (hb : b ∈ Y) (h : G.Adj a b) :
     Color.adjXY G X Y .red a b := ⟨Or.inl ⟨ha, hb⟩, h⟩
 
-private theorem blueEdgeYX {a b : V} (ha : a ∈ Y) (hb : b ∈ X) (h : ¬ G.Adj a b) :
+theorem blueEdgeYX {a b : V} (ha : a ∈ Y) (hb : b ∈ X) (h : ¬ G.Adj a b) :
     Color.adjXY G X Y .blue a b := ⟨Or.inr ⟨ha, hb⟩, h⟩
 
-private theorem blueEdgeXY {a b : V} (ha : a ∈ X) (hb : b ∈ Y) (h : ¬ G.Adj a b) :
+theorem blueEdgeXY {a b : V} (ha : a ∈ X) (hb : b ∈ Y) (h : ¬ G.Adj a b) :
     Color.adjXY G X Y .blue a b := ⟨Or.inl ⟨ha, hb⟩, h⟩
 
 /-! ### Case-3 setup facts -/
@@ -188,45 +188,45 @@ namespace Case3Data
 
 variable (hXY : Disjoint X Y) (c3 : Case3Data G X Y)
 
-private theorem redChain : (c3.A ++ [c3.z]).IsChain (Color.adjXY G X Y .red) :=
+theorem redChain : (c3.A ++ [c3.z]).IsChain (Color.adjXY G X Y .red) :=
   c3.hb.1
 
-private theorem blueChain : (c3.z :: c3.B).IsChain (Color.adjXY G X Y .blue) :=
+theorem blueChain : (c3.z :: c3.B).IsChain (Color.adjXY G X Y .blue) :=
   c3.hb.2.1
 
-private theorem chainA : c3.A.IsChain (Color.adjXY G X Y .red) :=
+theorem chainA : c3.A.IsChain (Color.adjXY G X Y .red) :=
   c3.hb.1.left_of_append
 
-private theorem chainB : c3.B.IsChain (Color.adjXY G X Y .blue) :=
+theorem chainB : c3.B.IsChain (Color.adjXY G X Y .blue) :=
   c3.hb.2.1.tail
 
-private theorem hnd : (c3.A ++ c3.z :: c3.B).Nodup := c3.hb.2.2
+theorem hnd : (c3.A ++ c3.z :: c3.B).Nodup := c3.hb.2.2
 
-private theorem nodupA : c3.A.Nodup :=
+theorem nodupA : c3.A.Nodup :=
   (List.nodup_append.mp (hnd c3)).1
 
-private theorem nodupB : c3.B.Nodup :=
+theorem nodupB : c3.B.Nodup :=
   (List.nodup_cons.mp (List.nodup_append.mp (hnd c3)).2.1).2
 
-private theorem z_not_mem_B : c3.z ∉ c3.B :=
+theorem z_not_mem_B : c3.z ∉ c3.B :=
   (List.nodup_cons.mp (List.nodup_append.mp (hnd c3)).2.1).1
 
-private theorem z_not_mem_A : c3.z ∉ c3.A :=
+theorem z_not_mem_A : c3.z ∉ c3.A :=
   (c3.hb.disjoint_pieces).1
 
-private theorem a_not_mem_B_list : c3.A.Disjoint c3.B :=
+theorem a_not_mem_B_list : c3.A.Disjoint c3.B :=
   (c3.hb.disjoint_pieces).2.2
 
-private theorem mem_S {x : V} :
+theorem mem_S {x : V} :
     x ∈ c3.A ++ c3.z :: c3.B ↔ x ∈ c3.A ∨ x = c3.z ∨ x ∈ c3.B := by
   simp [List.mem_append, List.mem_cons, or_assoc]
 
-private theorem lenAz : (c3.A ++ [c3.z]).length = c3.A.length + 1 := by simp
+theorem lenAz : (c3.A ++ [c3.z]).length = c3.A.length + 1 := by simp
 
-private theorem lenzB : (c3.z :: c3.B).length = c3.B.length + 1 := by simp
+theorem lenzB : (c3.z :: c3.B).length = c3.B.length + 1 := by simp
 
 /-- Position parity determines the side: `A[i] ∈ Y ↔ i` even, `∈ X ↔ i` odd. -/
-private theorem a_side (hXY : Disjoint X Y) (i : ℕ) (hi : i < c3.A.length) :
+theorem a_side (hXY : Disjoint X Y) (i : ℕ) (hi : i < c3.A.length) :
     (c3.A[i] ∈ Y ↔ i % 2 = 0) ∧ (c3.A[i] ∈ X ↔ i % 2 = 1) := by
   have hC : (c3.A ++ [c3.z]).IsChain (Color.adjXY G X Y .red) := c3.hb.1
   have h0 : (c3.A ++ [c3.z])[0]'(by rw [lenAz c3]; omega) ∈ Y := by
@@ -262,7 +262,7 @@ private theorem a_side (hXY : Disjoint X Y) (i : ℕ) (hi : i < c3.A.length) :
     · exact fun hpar ↦ hcase.2 hpar
 
 /-- `B[i] ∈ Y ↔ i` even, `∈ X ↔ i` odd. -/
-private theorem b_side (hXY : Disjoint X Y) (i : ℕ) (hi : i < c3.B.length) :
+theorem b_side (hXY : Disjoint X Y) (i : ℕ) (hi : i < c3.B.length) :
     (c3.B[i] ∈ Y ↔ i % 2 = 0) ∧ (c3.B[i] ∈ X ↔ i % 2 = 1) := by
   have hC : (c3.z :: c3.B).IsChain (Color.adjXY G X Y .blue) := c3.hb.2.1
   have h0 : (c3.z :: c3.B)[0]'(by rw [lenzB c3]; omega) ∈ X := by
@@ -297,7 +297,7 @@ private theorem b_side (hXY : Disjoint X Y) (i : ℕ) (hi : i < c3.B.length) :
     · exact fun hpar ↦ hcase.2 hpar
 
 /-- The last red edge `aᵣ–z`. -/
-private theorem edgeLastA : Color.adjXY G X Y .red (c3.A.getLast c3.hA) c3.z := by
+theorem edgeLastA : Color.adjXY G X Y .red (c3.A.getLast c3.hA) c3.z := by
   have h := (List.isChain_append.mp (redChain c3)).2.2
   have h1 : c3.A.getLast c3.hA ∈ c3.A.getLast? := by
     rw [List.getLast?_eq_getLast c3.hA]
@@ -306,14 +306,14 @@ private theorem edgeLastA : Color.adjXY G X Y .red (c3.A.getLast c3.hA) c3.z := 
   exact h _ h1 _ h2
 
 /-- The last red edge, in `getElem` form. -/
-private theorem edgeLastAi : Color.adjXY G X Y .red
+theorem edgeLastAi : Color.adjXY G X Y .red
     (c3.A[c3.A.length - 1]'(Nat.sub_lt (List.length_pos_of_ne_nil c3.hA) Nat.one_pos))
     c3.z := by
   rw [← List.getLast_eq_getElem]
   exact edgeLastA c3
 
 /-- The first blue edge `z–b₁`. -/
-private theorem edgeFirstB : Color.adjXY G X Y .blue c3.z (c3.B.head c3.hB) := by
+theorem edgeFirstB : Color.adjXY G X Y .blue c3.z (c3.B.head c3.hB) := by
   have h := (List.isChain_cons.mp (blueChain c3)).1
   have hmem : c3.B.head c3.hB ∈ c3.B.head? := by
     rw [List.head?_eq_some_head c3.hB]
@@ -321,37 +321,37 @@ private theorem edgeFirstB : Color.adjXY G X Y .blue c3.z (c3.B.head c3.hB) := b
   exact h _ hmem
 
 /-- The first blue edge, in `getElem` form. -/
-private theorem edgeFirstBi : Color.adjXY G X Y .blue c3.z
+theorem edgeFirstBi : Color.adjXY G X Y .blue c3.z
     (c3.B[0]'(List.length_pos_of_ne_nil c3.hB)) := by
   rw [← List.head_eq_getElem_zero]
   exact edgeFirstB c3
 
 /-- Claim A (i): `z–A[0]` is red. -/
-private theorem za1red (hXY : Disjoint X Y) :
+theorem za1red (hXY : Disjoint X Y) :
     Color.adjXY G X Y .red c3.z (c3.A.head c3.hA) := by
   have hA1 := (claimA_of_case3 hXY c3).1
   exact Color.adjXY.symm hA1
 
 /-- Claim A (i), in `getElem` form. -/
-private theorem za1redi (hXY : Disjoint X Y) :
+theorem za1redi (hXY : Disjoint X Y) :
     Color.adjXY G X Y .red c3.z (c3.A[0]'(List.length_pos_of_ne_nil c3.hA)) := by
   rw [← List.head_eq_getElem_zero]
   exact za1red c3 hXY
 
 /-- Claim A (ii): `z–B[s-1]` is blue. -/
-private theorem zbsBlue (hXY : Disjoint X Y) :
+theorem zbsBlue (hXY : Disjoint X Y) :
     Color.adjXY G X Y .blue c3.z (c3.B.getLast c3.hB) :=
   (claimA_of_case3 hXY c3).2
 
 /-- Claim A (ii), in `getElem` form. -/
-private theorem zbsBluei (hXY : Disjoint X Y) :
+theorem zbsBluei (hXY : Disjoint X Y) :
     Color.adjXY G X Y .blue c3.z
       (c3.B[c3.B.length - 1]'(Nat.sub_lt (List.length_pos_of_ne_nil c3.hB) Nat.one_pos)) := by
   rw [← List.getLast_eq_getElem]
   exact zbsBlue c3 hXY
 
 /-- `r` is odd: `A[r-1]` (adjacent to `z ∈ X` via red) lies in `Y`. -/
-private theorem r_odd (hXY : Disjoint X Y) : c3.A.length % 2 = 1 := by
+theorem r_odd (hXY : Disjoint X Y) : c3.A.length % 2 = 1 := by
   have hr : 0 < c3.A.length := List.length_pos_of_ne_nil c3.hA
   have hac : acrossXY X Y (c3.A[c3.A.length - 1]'(Nat.sub_lt hr Nat.one_pos)) c3.z :=
     (edgeLastAi c3).1
@@ -361,7 +361,7 @@ private theorem r_odd (hXY : Disjoint X Y) : c3.A.length % 2 = 1 := by
     omega
 
 /-- `s` is odd: `B[s-1] ∈ Y` by `hlast`. -/
-private theorem s_odd (hXY : Disjoint X Y) : c3.B.length % 2 = 1 := by
+theorem s_odd (hXY : Disjoint X Y) : c3.B.length % 2 = 1 := by
   have hs : c3.B.length - 1 < c3.B.length :=
     Nat.sub_lt (List.length_pos_of_ne_nil c3.hB) Nat.one_pos
   have hl : c3.B[c3.B.length - 1] ∈ Y := by
@@ -371,18 +371,18 @@ private theorem s_odd (hXY : Disjoint X Y) : c3.B.length % 2 = 1 := by
   omega
 
 /-- Consecutive red edge inside `A`. -/
-private theorem edgeA (i : ℕ) (hi : i + 1 < c3.A.length) :
+theorem edgeA (i : ℕ) (hi : i + 1 < c3.A.length) :
     Color.adjXY G X Y .red c3.A[i] c3.A[i + 1] :=
   List.isChain_iff_getElem.mp (chainA c3) i hi
 
 /-- Consecutive blue edge inside `B`. -/
-private theorem edgeB (i : ℕ) (hi : i + 1 < c3.B.length) :
+theorem edgeB (i : ℕ) (hi : i + 1 < c3.B.length) :
     Color.adjXY G X Y .blue c3.B[i] c3.B[i + 1] :=
   List.isChain_iff_getElem.mp (chainB c3) i hi
 
 /-! ### Membership in the finsets -/
 
-private theorem mem_S1U (hXY : Disjoint X Y) {u : V} :
+theorem e3mem_S1U (hXY : Disjoint X Y) {u : V} :
     u ∈ c3.S1U ↔ u ∈ c3.A ∧ u ∈ Y := by
   simp only [Case3Data.S1U, Finset.mem_filter, List.mem_toFinset, Case3Data.S1,
     List.mem_append, List.mem_singleton]
@@ -395,7 +395,7 @@ private theorem mem_S1U (hXY : Disjoint X Y) {u : V} :
   · rintro ⟨h, hY⟩
     exact ⟨Or.inl h, hY⟩
 
-private theorem mem_S2U (hXY : Disjoint X Y) {u : V} :
+theorem e3mem_S2U (hXY : Disjoint X Y) {u : V} :
     u ∈ c3.S2U ↔ u ∈ c3.B ∧ u ∈ Y := by
   simp only [Case3Data.S2U, Finset.mem_filter, List.mem_toFinset, Case3Data.S2,
     List.mem_cons]
@@ -408,80 +408,80 @@ private theorem mem_S2U (hXY : Disjoint X Y) {u : V} :
   · rintro ⟨h, hY⟩
     exact ⟨Or.inr h, hY⟩
 
-private theorem mem_SL {l : V} :
+theorem e3mem_SL {l : V} :
     l ∈ c3.SL ↔ (l ∈ c3.A ∨ l = c3.z ∨ l ∈ c3.B) ∧ l ∈ X := by
   simp only [Case3Data.SL, Finset.mem_filter, List.mem_toFinset, Case3Data.S,
     List.mem_append, List.mem_cons]
 
-private theorem mem_L2 {w : V} : w ∈ c3.L2 ↔ w ∈ X ∧ w ∉ c3.A ++ c3.z :: c3.B := by
+theorem e3mem_L2 {w : V} : w ∈ c3.L2 ↔ w ∈ X ∧ w ∉ c3.A ++ c3.z :: c3.B := by
   simp only [Case3Data.L2, Finset.mem_sdiff, List.mem_toFinset]
 
 /-- `A[i]` for even `i` lies in `S1U`. -/
-private theorem a_mem_S1U (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.A.length)
+theorem a_mem_S1U (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.A.length)
     (hpar : i % 2 = 0) : c3.A[i] ∈ c3.S1U :=
-  (mem_S1U c3 hXY).mpr ⟨List.getElem_mem hi, (c3.a_side hXY i hi).1.mpr hpar⟩
+  (e3mem_S1U c3 hXY).mpr ⟨List.getElem_mem hi, (c3.a_side hXY i hi).1.mpr hpar⟩
 
 /-- `B[i]` for even `i` lies in `S2U`. -/
-private theorem b_mem_S2U (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.B.length)
+theorem b_mem_S2U (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.B.length)
     (hpar : i % 2 = 0) : c3.B[i] ∈ c3.S2U :=
-  (mem_S2U c3 hXY).mpr ⟨List.getElem_mem hi, (c3.b_side hXY i hi).1.mpr hpar⟩
+  (e3mem_S2U c3 hXY).mpr ⟨List.getElem_mem hi, (c3.b_side hXY i hi).1.mpr hpar⟩
 
 /-- `A[i]` for odd `i` lies in `SL`. -/
-private theorem a_mem_SL (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.A.length)
+theorem a_mem_SL (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.A.length)
     (hpar : i % 2 = 1) : c3.A[i] ∈ c3.SL :=
-  (mem_SL c3).mpr ⟨Or.inl (List.getElem_mem hi), (c3.a_side hXY i hi).2.mpr hpar⟩
+  (e3mem_SL c3).mpr ⟨Or.inl (List.getElem_mem hi), (c3.a_side hXY i hi).2.mpr hpar⟩
 
 /-- `B[i]` for odd `i` lies in `SL`. -/
-private theorem b_mem_SL (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.B.length)
+theorem b_mem_SL (hXY : Disjoint X Y) {i : ℕ} (hi : i < c3.B.length)
     (hpar : i % 2 = 1) : c3.B[i] ∈ c3.SL :=
-  (mem_SL c3).mpr ⟨Or.inr (Or.inr (List.getElem_mem hi)),
+  (e3mem_SL c3).mpr ⟨Or.inr (Or.inr (List.getElem_mem hi)),
     (c3.b_side hXY i hi).2.mpr hpar⟩
 
-private theorem z_mem_SL : c3.z ∈ c3.SL :=
-  (mem_SL c3).mpr ⟨Or.inr (Or.inl rfl), c3.hz⟩
+theorem e3z_mem_SL : c3.z ∈ c3.SL :=
+  (e3mem_SL c3).mpr ⟨Or.inr (Or.inl rfl), c3.hz⟩
 
 /-- Elements of `A` are distinct. -/
-private theorem a_inj {i j : ℕ} (hi : i < c3.A.length) (hj : j < c3.A.length)
+theorem a_inj {i j : ℕ} (hi : i < c3.A.length) (hj : j < c3.A.length)
     (h : c3.A[i] = c3.A[j]) : i = j :=
   (nodupA c3).getElem_inj.mp h
 
 /-- Elements of `B` are distinct. -/
-private theorem b_inj {i j : ℕ} (hi : i < c3.B.length) (hj : j < c3.B.length)
+theorem b_inj {i j : ℕ} (hi : i < c3.B.length) (hj : j < c3.B.length)
     (h : c3.B[i] = c3.B[j]) : i = j :=
   (nodupB c3).getElem_inj.mp h
 
 /-- Elements of `A` are not in `B` and differ from `z`. -/
-private theorem a_not_mem_B {i : ℕ} (hi : i < c3.A.length) : c3.A[i] ∉ c3.B := by
+theorem a_not_mem_B {i : ℕ} (hi : i < c3.A.length) : c3.A[i] ∉ c3.B := by
   intro hmem
   have hd := (List.nodup_append.mp (hnd c3)).2.2
   exact hd _ (List.getElem_mem hi) _ (List.mem_cons_of_mem _ hmem) rfl
 
-private theorem a_ne_z {i : ℕ} (hi : i < c3.A.length) : c3.A[i] ≠ c3.z := by
+theorem a_ne_z {i : ℕ} (hi : i < c3.A.length) : c3.A[i] ≠ c3.z := by
   intro e
   have hd := (List.nodup_append.mp (hnd c3)).2.2
   exact hd _ (List.getElem_mem hi) _ List.mem_cons_self e
 
-private theorem a_ne_b {i j : ℕ} (hi : i < c3.A.length) (hj : j < c3.B.length) :
+theorem a_ne_b {i j : ℕ} (hi : i < c3.A.length) (hj : j < c3.B.length) :
     c3.A[i] ≠ c3.B[j] := by
   intro e
   have hd := (List.nodup_append.mp (hnd c3)).2.2
   exact hd _ (List.getElem_mem hi) _ (List.mem_cons_of_mem _ (List.getElem_mem hj)) e
 
-private theorem b_ne_z {i : ℕ} (hi : i < c3.B.length) : c3.B[i] ≠ c3.z := by
+theorem b_ne_z {i : ℕ} (hi : i < c3.B.length) : c3.B[i] ≠ c3.z := by
   intro e
   exact (z_not_mem_B c3) (e ▸ List.getElem_mem hi)
 
-private theorem b_not_mem_A {i : ℕ} (hi : i < c3.B.length) : c3.B[i] ∉ c3.A := by
+theorem b_not_mem_A {i : ℕ} (hi : i < c3.B.length) : c3.B[i] ∉ c3.A := by
   intro hmem
   have hd := (List.nodup_append.mp (hnd c3)).2.2
   exact hd _ hmem _ (List.mem_cons_of_mem _ (List.getElem_mem hi)) rfl
 
-private theorem ux_not_mem : c3.ux ∉ c3.A ++ c3.z :: c3.B := c3.hux.2
+theorem ux_not_mem : c3.ux ∉ c3.A ++ c3.z :: c3.B := c3.hux.2
 
-private theorem ux_X : c3.ux ∈ X := c3.hux.1
+theorem ux_X : c3.ux ∈ X := c3.hux.1
 
 /-- `A` decomposed as `seg 0 m` + 1 element + `seg (m+1) r`. -/
-private theorem A_split1' {m : ℕ} (hmr : m < c3.A.length) :
+theorem A_split1' {m : ℕ} (hmr : m < c3.A.length) :
     c3.A = seg c3.A 0 m ++ [c3.A[m]] ++ seg c3.A (m + 1) c3.A.length := by
   rw [seg_eq_take, seg_eq_drop (Nat.le_refl _)]
   calc c3.A = c3.A.take m ++ c3.A.drop m := (List.take_append_drop _ _).symm
@@ -491,7 +491,7 @@ private theorem A_split1' {m : ℕ} (hmr : m < c3.A.length) :
         rw [List.append_assoc, List.cons_append, List.nil_append]
 
 /-- `B` decomposed as `seg 0 n` + 1 element + `seg (n+1) s`. -/
-private theorem B_split1' {n : ℕ} (hnr : n < c3.B.length) :
+theorem B_split1' {n : ℕ} (hnr : n < c3.B.length) :
     c3.B = seg c3.B 0 n ++ [c3.B[n]] ++ seg c3.B (n + 1) c3.B.length := by
   rw [seg_eq_take, seg_eq_drop (Nat.le_refl _)]
   calc c3.B = c3.B.take n ++ c3.B.drop n := (List.take_append_drop _ _).symm
@@ -503,7 +503,7 @@ private theorem B_split1' {n : ℕ} (hnr : n < c3.B.length) :
 /-! ### Nodup normal forms -/
 
 /-- `take p ++ drop q` of `A` is nodup when `p ≤ q`. -/
-private theorem nodupA_td {p q : ℕ} (hpq : p ≤ q) :
+theorem nodupA_td {p q : ℕ} (hpq : p ≤ q) :
     (c3.A.take p ++ c3.A.drop q).Nodup := by
   rw [List.nodup_append]
   refine ⟨(List.take_sublist _ _).nodup (nodupA c3),
@@ -517,7 +517,7 @@ private theorem nodupA_td {p q : ℕ} (hpq : p ≤ q) :
   omega
 
 /-- `take p ++ drop q` of `B` is nodup when `p ≤ q`. -/
-private theorem nodupB_td {p q : ℕ} (hpq : p ≤ q) :
+theorem nodupB_td {p q : ℕ} (hpq : p ≤ q) :
     (c3.B.take p ++ c3.B.drop q).Nodup := by
   rw [List.nodup_append]
   refine ⟨(List.take_sublist _ _).nodup (nodupB c3),
@@ -532,13 +532,13 @@ private theorem nodupB_td {p q : ℕ} (hpq : p ≤ q) :
 
 /-- A `take p ++ drop q` element of `A` lies in `A` (so misses `z`, `B`,
 leftovers). -/
-private theorem mem_td_of_A {x : V} {p q : ℕ}
+theorem mem_td_of_A {x : V} {p q : ℕ}
     (h : x ∈ c3.A.take p ++ c3.A.drop q) : x ∈ c3.A := by
   rcases List.mem_append.mp h with h | h
   · exact List.mem_of_mem_take h
   · exact List.mem_of_mem_drop h
 
-private theorem mem_td_of_B {x : V} {p q : ℕ}
+theorem mem_td_of_B {x : V} {p q : ℕ}
     (h : x ∈ c3.B.take p ++ c3.B.drop q) : x ∈ c3.B := by
   rcases List.mem_append.mp h with h | h
   · exact List.mem_of_mem_take h
@@ -546,7 +546,7 @@ private theorem mem_td_of_B {x : V} {p q : ℕ}
 
 /-- The standard normal form `extras ++ (A.take p ++ A.drop q ++ z :: B)`
 is nodup when the extras are distinct leftovers. -/
-private theorem nodup_NF_A (p q : ℕ) (hpq : p ≤ q) :
+theorem nodup_NF_A (p q : ℕ) (hpq : p ≤ q) :
     (c3.A.take p ++ c3.A.drop q ++ c3.z :: c3.B).Nodup := by
   have hzB : (c3.z :: c3.B).Nodup :=
     (List.nodup_append.mp (hnd c3)).2.1
@@ -559,7 +559,7 @@ private theorem nodup_NF_A (p q : ℕ) (hpq : p ≤ q) :
   · exact c3.a_not_mem_B hi (hxy ▸ hyB)
 
 /-- Blue-first normal form: `B.take p ++ B.drop q ++ z :: A` is nodup. -/
-private theorem nodup_NF_B (p q : ℕ) (hpq : p ≤ q) :
+theorem nodup_NF_B (p q : ℕ) (hpq : p ≤ q) :
     (c3.B.take p ++ c3.B.drop q ++ c3.z :: c3.A).Nodup := by
   have hzA : (c3.z :: c3.A).Nodup := by
     refine List.nodup_cons.mpr ⟨z_not_mem_A c3, nodupA c3⟩
@@ -572,7 +572,7 @@ private theorem nodup_NF_B (p q : ℕ) (hpq : p ≤ q) :
   · exact c3.b_not_mem_A hi (hxy ▸ hyA)
 
 /-- A vertex of `A.take p ++ A.drop q` lies in `S`. -/
-private theorem mem_S_of_td_A {x : V} {p q : ℕ}
+theorem mem_S_of_td_A {x : V} {p q : ℕ}
     (h : x ∈ c3.A.take p ++ c3.A.drop q ++ c3.z :: c3.B) :
     x ∈ c3.A ++ c3.z :: c3.B := by
   rw [mem_S c3]
@@ -582,7 +582,7 @@ private theorem mem_S_of_td_A {x : V} {p q : ℕ}
     · exact Or.inr (Or.inl e)
     · exact Or.inr (Or.inr hB)
 
-private theorem mem_S_of_td_B {x : V} {p q : ℕ}
+theorem mem_S_of_td_B {x : V} {p q : ℕ}
     (h : x ∈ c3.B.take p ++ c3.B.drop q ++ c3.z :: c3.A) :
     x ∈ c3.A ++ c3.z :: c3.B := by
   rw [mem_S c3]
@@ -595,7 +595,7 @@ private theorem mem_S_of_td_B {x : V} {p q : ℕ}
 /-! ### Permutation gadgets -/
 
 /-- Rotation vertex-list identity without a leading vertex. -/
-private theorem rot_vertex_eq' {z : V} {P Q R : List V} (hQ : Q ≠ []) :
+theorem rot_vertex_eq' {z : V} {P Q R : List V} (hQ : Q ≠ []) :
     (P.reverse ++ z :: Q.tail.reverse) ++ Q.head hQ :: R
       = P.reverse ++ z :: (Q.reverse ++ R) := by
   have h := rot_vertex_eq (w := z) (z := z) (P := P) (Q := Q) (R := R) hQ
@@ -608,7 +608,7 @@ private theorem rot_vertex_eq' {z : V} {P Q R : List V} (hQ : Q ≠ []) :
 
 /-- Rotation vertex-list permutation without a leading vertex:
 `(P.reverse ++ z :: Q.tail.reverse) ++ Q.head :: R ~ (P ++ Q) ++ z :: R`. -/
-private theorem perm_rot' {z : V} {P Q R : List V} (hQ : Q ≠ []) :
+theorem perm_rot' {z : V} {P Q R : List V} (hQ : Q ≠ []) :
     List.Perm ((P.reverse ++ z :: Q.tail.reverse) ++ Q.head hQ :: R)
       ((P ++ Q) ++ z :: R) := by
   rw [rot_vertex_eq' hQ]
@@ -623,30 +623,30 @@ private theorem perm_rot' {z : V} {P Q R : List V} (hQ : Q ≠ []) :
     _ ~ (P ++ Q) ++ z :: R := List.perm_middle.symm
 
 /-- `l ++ [a]` rotated to `a :: l`. -/
-private theorem perm_snoc {a : V} {l : List V} : (l ++ [a]).Perm (a :: l) := by
+theorem perm_snoc {a : V} {l : List V} : (l ++ [a]).Perm (a :: l) := by
   have h := List.perm_append_comm (l₁ := l) (l₂ := [a])
   exact h
 
 /-- `a :: l` rotated to `l ++ [a]`. -/
-private theorem perm_cons_end {a : V} {l : List V} : (a :: l).Perm (l ++ [a]) := by
+theorem perm_cons_end {a : V} {l : List V} : (a :: l).Perm (l ++ [a]) := by
   have h := List.perm_append_comm (l₁ := [a]) (l₂ := l)
   exact h
 
 /-- Move the head element three positions right. -/
-private theorem perm_rot3 {a b c d : V} {l : List V} :
+theorem perm_rot3 {a b c d : V} {l : List V} :
     (a :: b :: c :: d :: l).Perm (b :: c :: d :: a :: l) := by
   calc a :: b :: c :: d :: l ~ b :: a :: c :: d :: l := List.Perm.swap _ _ _
     _ ~ b :: c :: a :: d :: l := (List.Perm.swap _ _ _).cons _
     _ ~ b :: c :: d :: a :: l := ((List.Perm.swap _ _ _).cons _).cons _
 
 /-- Move the head element two positions right. -/
-private theorem perm_rot2 {a b c : V} {l : List V} :
+theorem perm_rot2 {a b c : V} {l : List V} :
     (a :: b :: c :: l).Perm (b :: c :: a :: l) := by
   calc a :: b :: c :: l ~ b :: a :: c :: l := List.Perm.swap _ _ _
     _ ~ b :: c :: a :: l := (List.Perm.swap _ _ _).cons _
 
 /-- `z :: (B ++ T) ~ T ++ z :: B` — move a singleton across two blocks. -/
-private theorem perm_z_to_mid {z : V} {B_ T : List V} :
+theorem perm_z_to_mid {z : V} {B_ T : List V} :
     (z :: (B_ ++ T)).Perm (T ++ z :: B_) := by
   calc z :: (B_ ++ T) ~ (B_ ++ T) ++ [z] := perm_cons_end
     _ ~ (T ++ B_) ++ [z] := (List.perm_append_comm).append_right _
@@ -654,23 +654,23 @@ private theorem perm_z_to_mid {z : V} {B_ T : List V} :
     _ ~ T ++ (z :: B_) := (List.perm_append_comm).append_left _
 
 /-- `take (i+1) ++ drop (i+1)` expansions. -/
-private theorem take_succ_eq {l : List V} {i : ℕ} (hi : i < l.length) :
+theorem take_succ_eq {l : List V} {i : ℕ} (hi : i < l.length) :
     l.take (i + 1) = l.take i ++ [l[i]] := by
   rw [List.take_add, List.take_one, List.head?_drop,
     List.getElem?_eq_getElem hi]
   rfl
 
-private theorem drop_cons_eq {l : List V} {i : ℕ} (hi : i < l.length) :
+theorem drop_cons_eq {l : List V} {i : ℕ} (hi : i < l.length) :
     l.drop i = l[i] :: l.drop (i + 1) :=
   List.drop_eq_getElem_cons hi
 
-private theorem take_drop_eq {l : List V} {i : ℕ} (hi : i + 1 < l.length) :
+theorem take_drop_eq {l : List V} {i : ℕ} (hi : i + 1 < l.length) :
     l.take i ++ l[i] :: l.drop (i + 1) = l.take (i + 1) ++ l.drop (i + 1) := by
   rw [take_succ_eq (Nat.lt_of_succ_lt hi), List.append_assoc,
     List.cons_append, List.nil_append]
 
 /-- Single head-edge in `∀ y ∈ head?` form. -/
-private theorem head_edge {R : V → V → Prop} {a b : V} {l : List V}
+theorem head_edge {R : V → V → Prop} {a b : V} {l : List V}
     (h : R a b) : ∀ y ∈ (b :: l).head?, R a y := by
   intro y hy
   rw [List.head?_cons, Option.mem_some_iff] at hy
@@ -680,7 +680,7 @@ private theorem head_edge {R : V → V → Prop} {a b : V} {l : List V}
 /-- Claim D, even first index.  If `a_t–a_{t+3}` were blue, the bipath
 `(a_{t-1},…,a_0, z, a_{r-1},…,a_{t+5} ; a_{t+4} ; u₂, a_{t+2}, ux, a_t,
 a_{t+3}, b_0,…)` would be a strictly longer bipath. -/
-private theorem claimD_even (hXY : Disjoint X Y) (hB' : c3.ClaimB')
+theorem claimD_even (hXY : Disjoint X Y) (hB' : c3.ClaimB')
     (hC : ∀ w ∈ c3.L2, ∀ u ∈ c3.S1U, ¬ G.Adj w u)
     (hux2 : c3.HasUx2) {t : ℕ} (ht : t + 3 < c3.A.length) (hpar : t % 2 = 0) :
     G.Adj c3.A[t] c3.A[t + 3] := by
@@ -688,8 +688,8 @@ private theorem claimD_even (hXY : Disjoint X Y) (hB' : c3.ClaimB')
   have hro : c3.A.length % 2 = 1 := c3.r_odd hXY
   by_contra hbad
   have ht4 : t + 4 < c3.A.length := by omega
-  have huL : c3.ux ∈ c3.L2 := (mem_L2 c3).mpr ⟨c3.ux_X, c3.ux_not_mem⟩
-  have hu₂L : u₂ ∈ c3.L2 := (mem_L2 c3).mpr ⟨hu₂X, hu₂S⟩
+  have huL : c3.ux ∈ c3.L2 := (e3mem_L2 c3).mpr ⟨c3.ux_X, c3.ux_not_mem⟩
+  have hu₂L : u₂ ∈ c3.L2 := (e3mem_L2 c3).mpr ⟨hu₂X, hu₂S⟩
   -- abbreviations for the non-list vertices
   set m := c3.A[t + 4]'ht4 with hm_def
   set x2 := c3.A[t + 2]'(by omega) with hx2_def
@@ -872,7 +872,7 @@ private theorem claimD_even (hXY : Disjoint X Y) (hB' : c3.ClaimB')
 were blue for odd `t`, the bipath
 `(a_{t+4},…,a_{r-1}, z, a_0,…,a_{t-2} ; a_{t-1} ; ux, a_{t+1}, u₂, a_{t+3},
 a_t, B)` would be strictly longer. -/
-private theorem claimD_odd (hXY : Disjoint X Y) (hB' : c3.ClaimB')
+theorem claimD_odd (hXY : Disjoint X Y) (hB' : c3.ClaimB')
     (hC : ∀ w ∈ c3.L2, ∀ u ∈ c3.S1U, ¬ G.Adj w u)
     (hux2 : c3.HasUx2) {t : ℕ} (ht : t + 3 < c3.A.length) (hpar : t % 2 = 1) :
     G.Adj c3.A[t] c3.A[t + 3] := by
@@ -881,8 +881,8 @@ private theorem claimD_odd (hXY : Disjoint X Y) (hB' : c3.ClaimB')
   by_contra hbad
   have ht1 : 1 ≤ t := by omega
   have ht4 : t + 4 ≤ c3.A.length := by omega
-  have huL : c3.ux ∈ c3.L2 := (mem_L2 c3).mpr ⟨c3.ux_X, c3.ux_not_mem⟩
-  have hu₂L : u₂ ∈ c3.L2 := (mem_L2 c3).mpr ⟨hu₂X, hu₂S⟩
+  have huL : c3.ux ∈ c3.L2 := (e3mem_L2 c3).mpr ⟨c3.ux_X, c3.ux_not_mem⟩
+  have hu₂L : u₂ ∈ c3.L2 := (e3mem_L2 c3).mpr ⟨hu₂X, hu₂S⟩
   set m := c3.A[t - 1]'(by omega) with hm_def
   set y1 := c3.A[t + 1]'(by omega) with hy1_def
   set y2 := c3.A[t + 3]'ht with hy2_def
@@ -928,14 +928,16 @@ private theorem claimD_odd (hXY : Disjoint X Y) (hB' : c3.ClaimB')
       rcases Nat.lt_or_ge (t + 4) c3.A.length with hlt | hge
       · rw [getLast?_drop hlt, Option.mem_some_iff] at hx
         subst hx
-        exact Color.adjXY.symm (edgeLastAi c3)
+        exact edgeLastAi c3
       · rw [List.drop_eq_nil_of_le (by omega)] at hx
         simp at hx
   -- the red part in bipath form `A' ++ [z']`
   have hR' : ((c3.A.drop (t + 4) ++ c3.z :: c3.A.take (t - 1)) ++ [m]).IsChain
       (Color.adjXY G X Y .red) := by
     have e : c3.A.take (t - 1) ++ [m] = c3.A.take t := by
-      rw [hm_def, take_succ_eq (show t - 1 < c3.A.length by omega)]
+      rw [hm_def]
+      conv_rhs => rw [show t = t - 1 + 1 by omega]
+      exact (take_succ_eq (show t - 1 < c3.A.length by omega)).symm
     have e' : (c3.A.drop (t + 4) ++ c3.z :: c3.A.take (t - 1)) ++ [m]
         = c3.A.drop (t + 4) ++ c3.z :: (c3.A.take (t - 1) ++ [m]) := by
       rw [List.append_assoc, List.cons_append]
@@ -990,13 +992,15 @@ private theorem claimD_odd (hXY : Disjoint X Y) (hB' : c3.ClaimB')
                 List.perm_middle
             _ ~ c3.ux :: (c3.A.take (t - 1) ++
                 (m :: u₂ :: y1 :: y2 :: x0 :: (c3.B ++ c3.A.drop (t + 4)))) :=
-                (List.Perm.cons _ ((List.Perm.swap _ _ _).append_left _))
+                (List.Perm.cons _ (List.Perm.append_left _
+                  (List.Perm.cons _ (List.Perm.swap _ _ _))))
             _ ~ c3.ux :: (c3.A.take (t - 1) ++
                 (u₂ :: m :: y1 :: y2 :: x0 :: (c3.B ++ c3.A.drop (t + 4)))) :=
-                (List.Perm.cons _ ((List.Perm.swap _ _ _).append_left _))
+                (List.Perm.cons _ (List.Perm.append_left _
+                  (List.Perm.swap _ _ _)))
             _ ~ c3.ux :: u₂ :: (c3.A.take (t - 1) ++
                 (m :: y1 :: y2 :: x0 :: (c3.B ++ c3.A.drop (t + 4)))) :=
-                List.perm_middle
+                (List.Perm.cons _ List.perm_middle)
       _ ~ c3.z :: c3.ux :: u₂ ::
             (c3.A.take (t - 1) ++
               (m :: x0 :: y1 :: y2 :: (c3.B ++ c3.A.drop (t + 4)))) := by
@@ -1004,34 +1008,38 @@ private theorem claimD_odd (hXY : Disjoint X Y) (hB' : c3.ClaimB')
           apply List.Perm.append_left
           calc m :: y1 :: y2 :: x0 :: (c3.B ++ c3.A.drop (t + 4))
               ~ m :: y1 :: x0 :: y2 :: (c3.B ++ c3.A.drop (t + 4)) :=
-                (List.Perm.swap _ _ _).cons _
-            _ ~ m :: x0 :: y1 :: y2 :: (c3.B ++ c3.A.drop (t + 4)) :=
                 ((List.Perm.swap _ _ _).cons _).cons _
+            _ ~ m :: x0 :: y1 :: y2 :: (c3.B ++ c3.A.drop (t + 4)) :=
+                (List.Perm.swap _ _ _).cons _
       _ ~ c3.z :: c3.ux :: u₂ ::
             (c3.A.take (t - 1) ++
               (m :: x0 :: y1 :: y2 :: c3.A.drop (t + 4)) ++ c3.B) := by
           apply List.Perm.cons; apply List.Perm.cons; apply List.Perm.cons
-          apply List.Perm.append_left
-          calc m :: x0 :: y1 :: y2 :: (c3.B ++ c3.A.drop (t + 4))
-              ~ m :: x0 :: y1 :: y2 :: (c3.A.drop (t + 4) ++ c3.B) :=
-                (((List.perm_append_comm).cons _).cons _).cons _
-            _ = m :: x0 :: y1 :: y2 :: c3.A.drop (t + 4) ++ c3.B := by
+          calc c3.A.take (t - 1) ++
+                (m :: x0 :: y1 :: y2 :: (c3.B ++ c3.A.drop (t + 4)))
+              ~ c3.A.take (t - 1) ++
+                (m :: x0 :: y1 :: y2 :: (c3.A.drop (t + 4) ++ c3.B)) := by
+                apply List.Perm.append_left
+                exact ((((List.perm_append_comm).cons _).cons _).cons _).cons _
+            _ = c3.A.take (t - 1) ++
+                (m :: x0 :: y1 :: y2 :: c3.A.drop (t + 4)) ++ c3.B := by
                 simp only [List.cons_append, List.append_assoc]
-            _ ~ (m :: x0 :: y1 :: y2 :: c3.A.drop (t + 4)) ++ c3.B :=
-                List.perm_middle.symm
       _ = c3.z :: c3.ux :: u₂ ::
             ((c3.A.take (t + 2) ++ c3.A.drop (t + 3)) ++ c3.B) := by
-          apply List.Perm.of_eq
-          have htake : c3.A.take (t - 1) ++ (m :: x0 :: y1 :: y2 :: [])
-              = c3.A.take (t + 2) := by
-            rw [hm_def, hx0_def, hy1_def,
-              take_succ_eq (show t - 1 < c3.A.length by omega),
-              take_succ_eq (show t < c3.A.length by omega),
-              take_succ_eq (show t + 1 < c3.A.length by omega)]
+          have ht : c3.A.take t = c3.A.take (t - 1) ++ [c3.A[t - 1]] := by
+            conv_lhs => rw [show t = t - 1 + 1 by omega]
+            exact take_succ_eq (show t - 1 < c3.A.length by omega)
+          have ht2 : c3.A.take (t + 2) =
+              c3.A.take (t - 1) ++ [m, x0, y1] := by
+            have e2 : t + 2 = t + 1 + 1 := by omega
+            rw [hm_def, hx0_def, hy1_def, e2,
+              take_succ_eq (show t + 1 < c3.A.length by omega),
+              take_succ_eq (show t < c3.A.length by omega), ht]
             simp only [List.append_assoc, List.cons_append, List.nil_append]
-          have hdrop : y2 :: c3.A.drop (t + 4) = c3.A.drop (t + 3) := by
-            rw [hy2_def, drop_cons_eq (show t + 3 < c3.A.length by omega)]
-          rw [htake, hdrop]
+          have hdrop : c3.A.drop (t + 3) = y2 :: c3.A.drop (t + 4) := by
+            rw [hy2_def, show t + 4 = t + 3 + 1 by omega]
+            exact drop_cons_eq (show t + 3 < c3.A.length by omega)
+          rw [ht2, hdrop]
           simp only [List.append_assoc, List.cons_append, List.nil_append]
       _ ~ u₂ :: c3.ux ::
             (c3.A.take (t + 2) ++ c3.A.drop (t + 3) ++ c3.z :: c3.B) := by
